@@ -11,6 +11,7 @@ Welcome to EPS-Search's documentation!
    :caption: Contents:
 
    _pages/installation
+   _pages/theory
 
 
 

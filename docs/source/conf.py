@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'EPS-Search'
+project = 'EPs-Search'
 copyright = '2022, Patrick Egenlauf'
 author = 'Patrick Egenlauf'
 
