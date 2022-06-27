@@ -24,7 +24,7 @@ def parametrization(kappa_0, r, s):
         Returns two 1D arrays. The first one contains all complex values of kappa which belong to each step. The second
         array contains all angles from 0 to 2pi.
     """
-    phi = np.arange(0, 2 * np.pi + 2 * np.pi / s, 2 * np.pi / s)
+    phi = np.arange(0, 2 * np.pi, 2 * np.pi / s)  # + 2 * np.pi / s
     kappa = kappa_0 + r * np.exp(1j * phi)
     return kappa, phi
 
@@ -157,5 +157,5 @@ def eigenvalues(matrices):
         Returns all eigenvalues for every matrix in the input array. The shape of this array depends on the Number of
         matrices M and their dimension n: (M, n).
     """
-    w, _ = np.linalg.eig(matrices)
+    w = np.linalg.eigvals(matrices)
     return w

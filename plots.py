@@ -124,11 +124,11 @@ def eigenvalues_angle_plotly(ev, phi, m_re, m_im):
     fig.add_trace(go.Scatter(x=phi, y=ev_diff.real, mode='markers', name="Re"))
     fig.add_trace(go.Scatter(x=phi, y=ev_diff.imag, mode='markers', name="Im"))
     fig.add_trace(go.Scatter(x=x, y=mean_re.numpy().ravel(), mode='lines', name="GPR Re",
-                             line_color='#636EFA'))
+                             line=dict(color='#636EFA')))
     # fig.add_trace(go.Scatter(x=x + x_rev, y=var_re_up+var_re_low, fill='toself',
     #                         fillcolor='rgba(99,110,250,0.2)', line_color='rgba(255,255,255,0)', showlegend=True))
     fig.add_trace(go.Scatter(x=x, y=mean_im.numpy().ravel(), mode='lines', name="GPR Im",
-                             line_color='#EF553B'))
+                             line=dict(color='#EF553B')))
     # fig.add_trace(go.Scatter(x=x + x_rev, y=y1_upper + y1_lower, fill='toself', fillcolor='rgba(0,100,80,0.2)',
     #                          line_color='rgba(255,255,255,0)', showlegend=False, name='Fair'))
     # fig.update_layout(labels=dict(x="Angle / \\si{\\degree}", y="$(\\lambda_1 - \\lambda_2)^2"))
