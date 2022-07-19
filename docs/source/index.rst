@@ -12,6 +12,7 @@ Welcome to EPs-Search's documentation!
 
    _pages/installation
    _pages/theory
+   _pages/progress
 
 
 
