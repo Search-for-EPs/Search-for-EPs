@@ -241,3 +241,4 @@ fabric.properties
 # IDE stuff
 .idea
 .vscode
+.~lock*
