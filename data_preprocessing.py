@@ -15,8 +15,7 @@ def initial_dataset(ev):
         ev_sorted = [ev[0, i]]
         l = i
         for j in range(np.shape(nearest_neighbour)[1]):
-            m = l
-            l = (np.argmin(nearest_neighbour[:, j, l]) + m) % np.shape(ev)[1]
+            l = (np.argmin(nearest_neighbour[:, j, l]) + l) % np.shape(ev)[1]
             if j + 1 != np.shape(ev)[0]:
                 ev_sorted.append(ev[(j + 1), l])
         ev_all.append(ev_sorted)
