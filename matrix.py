@@ -24,7 +24,7 @@ def parametrization(kappa_0, r, s):
         Returns two 1D arrays. The first one contains all complex values of kappa which belong to each step. The second
         array contains all angles from 0 to 2pi.
     """
-    phi = np.arange(0, 2 * np.pi, 2 * np.pi / s)  # + 2 * np.pi / s
+    phi = np.arange(0, 2 * np.pi + 2 * np.pi / s, 2 * np.pi / s)  # + 2 * np.pi / s
     kappa = kappa_0 + r * np.exp(1j * phi)
     return kappa, phi
 
@@ -159,3 +159,8 @@ def eigenvalues(matrices):
     """
     w = np.linalg.eigvals(matrices)
     return w
+
+
+def ev_one_close(kappa):
+    mat = matrix_one_close_re(kappa)
+    return np.linalg.eigvals(mat)
