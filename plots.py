@@ -2,8 +2,10 @@
 
 import numpy as np
 import plotly.express as px
+from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
 
 
 def init_matplotlib():
@@ -17,6 +19,10 @@ def init_matplotlib():
         'usetex': True,
         'latex.preamble': '\\usepackage{siunitx}',
     })
+
+
+def linear(x, a, b):
+    return a * x + b
 
 
 def parameter_plane_plotly(kappa, phi):
@@ -184,8 +190,8 @@ def eigenvalues_angle_matplotlib(ev, phi, m_re, m_im):
 
 
 def three_d_eigenvalue_kappa_plotly(kappa_0, r, m_re, m_im):
-    x = np.linspace(kappa_0.real-r, kappa_0.real+r, 50)
-    y = np.linspace(kappa_0.imag-r, kappa_0.imag+r, 50)
+    x = np.linspace(kappa_0.real - r, kappa_0.real + r, 50)
+    y = np.linspace(kappa_0.imag - r, kappa_0.imag + r, 50)
     xx, yy = np.meshgrid(x, y)
     grid = np.array((xx.ravel(), yy.ravel())).T
     mean_re, var_re = m_re.predict_f(grid)
@@ -197,3 +203,132 @@ def three_d_eigenvalue_kappa_plotly(kappa_0, r, m_re, m_im):
                            color=mean_im.numpy().ravel())
     fig_re.show()
     fig_im.show()
+
+
+def three_d_eigenvalue_kappa_2d_model_plotly(kappa_0, r, m):
+    x = np.linspace(kappa_0.real - r, kappa_0.real + r, 50)
+    y = np.linspace(kappa_0.imag - r, kappa_0.imag + r, 50)
+    xx, yy = np.meshgrid(x, y)
+    grid = np.array((xx.ravel(), yy.ravel())).T
+    mean, var = m.predict_f(grid)
+    df = px.data.iris()
+    fig_re = px.scatter_3d(df, x=grid[::, 0].ravel(), y=grid[::, 1].ravel(), z=mean.numpy()[::, 0],
+                           color=mean.numpy()[::, 0])
+    fig_im = px.scatter_3d(df, x=grid[::, 0].ravel(), y=grid[::, 1].ravel(), z=mean.numpy()[::, 1],
+                           color=mean.numpy()[::, 1])
+    fig_re.show()
+    fig_im.show()
+
+
+def control_model_2d_plotly(kappa, ev_diff, ev_sum, model_diff, model_sum):
+    xdata = np.linspace(kappa.real[0], kappa.real[-1], 400)
+    z = np.polyfit(kappa.real, kappa.imag, 5)
+    p = np.poly1d(z)
+    grid = np.column_stack((xdata, p(xdata)))
+    # grid = np.array((xx.ravel(), yy.ravel())).T
+    mean_diff, var_diff = model_diff.predict_f(grid)
+    mean_sum, var_sum = model_sum.predict_f(grid)
+    grid1 = np.column_stack((kappa.real, kappa.imag))
+    # grid1 = np.array((x1.ravel(), y1.ravel())).T
+    kappa_mean_diff, kappa_var_diff = model_diff.predict_f(grid1)
+    kappa_mean_sum, kappa_var_sum = model_sum.predict_f(grid1)
+    fig_diff = make_subplots(rows=2, cols=2, subplot_titles=("re_re", "re_im", "im_re", "im_im"))
+    fig_diff.add_trace(go.Scatter(x=kappa.real, y=ev_diff.real, mode='markers', name='exact',
+                                  marker=dict(color="#636EFA")), row=1, col=1)
+    fig_diff.add_trace(go.Scatter(x=kappa.real, y=kappa_mean_diff.numpy()[::, 0], mode='markers', name='model',
+                                  marker=dict(color="#EF553B")), row=1, col=1)
+    fig_diff.add_trace(go.Scatter(x=xdata, y=mean_diff.numpy()[::, 0], mode='lines', name='continuity',
+                                  line=dict(color="#00CC96")), row=1, col=1)
+    fig_diff.add_trace(go.Scatter(x=kappa.real, y=ev_diff.imag, mode='markers', showlegend=False,
+                                  marker=dict(color="#636EFA")), row=1, col=2)
+    fig_diff.add_trace(go.Scatter(x=kappa.real, y=kappa_mean_diff.numpy()[::, 1], mode='markers', showlegend=False,
+                                  marker=dict(color="#EF553B")), row=1, col=2)
+    fig_diff.add_trace(go.Scatter(x=xdata, y=mean_diff.numpy()[::, 1], mode='lines', showlegend=False,
+                                  line=dict(color="#00CC96")), row=1, col=2)
+    fig_diff.add_trace(go.Scatter(x=kappa.imag, y=ev_diff.real, mode='markers', showlegend=False,
+                                  marker=dict(color="#636EFA")), row=2, col=1)
+    fig_diff.add_trace(go.Scatter(x=kappa.imag, y=kappa_mean_diff.numpy()[::, 0], mode='markers', showlegend=False,
+                                  marker=dict(color="#EF553B")), row=2, col=1)
+    fig_diff.add_trace(go.Scatter(x=p(xdata), y=mean_diff.numpy()[::, 0], mode='lines', showlegend=False,
+                                  line=dict(color="#00CC96")), row=2, col=1)
+    fig_diff.add_trace(go.Scatter(x=kappa.imag, y=ev_diff.imag, mode='markers', showlegend=False,
+                                  marker=dict(color="#636EFA")), row=2, col=2)
+    fig_diff.add_trace(go.Scatter(x=kappa.imag, y=kappa_mean_diff.numpy()[::, 1], mode='markers', showlegend=False,
+                                  marker=dict(color="#EF553B")), row=2, col=2)
+    fig_diff.add_trace(go.Scatter(x=p(xdata), y=mean_diff.numpy()[::, 1], mode='lines', showlegend=False,
+                                  line=dict(color="#00CC96")), row=2, col=2)
+    fig_sum = make_subplots(rows=2, cols=2, subplot_titles=("re_re", "re_im", "im_re", "im_im"))
+    fig_sum.add_trace(go.Scatter(x=kappa.real, y=ev_sum.real, mode='markers', name='exact',
+                                 marker=dict(color="#636EFA")), row=1, col=1)
+    fig_sum.add_trace(go.Scatter(x=kappa.real, y=kappa_mean_sum.numpy()[::, 0], mode='markers', name='model',
+                                 marker=dict(color="#EF553B")), row=1, col=1)
+    fig_sum.add_trace(go.Scatter(x=xdata, y=mean_sum.numpy()[::, 0], mode='lines', name='continuity',
+                                 line=dict(color="#00CC96")), row=1, col=1)
+    fig_sum.add_trace(go.Scatter(x=kappa.real, y=ev_sum.imag, mode='markers', showlegend=False,
+                                 marker=dict(color="#636EFA")), row=1, col=2)
+    fig_sum.add_trace(go.Scatter(x=kappa.real, y=kappa_mean_sum.numpy()[::, 1], mode='markers', showlegend=False,
+                                 marker=dict(color="#EF553B")), row=1, col=2)
+    fig_sum.add_trace(go.Scatter(x=xdata, y=mean_sum.numpy()[::, 1], mode='lines', showlegend=False,
+                                 line=dict(color="#00CC96")), row=1, col=2)
+    fig_sum.add_trace(go.Scatter(x=kappa.imag, y=ev_sum.real, mode='markers', showlegend=False,
+                                 marker=dict(color="#636EFA")), row=2, col=1)
+    fig_sum.add_trace(go.Scatter(x=kappa.imag, y=kappa_mean_sum.numpy()[::, 0], mode='markers', showlegend=False,
+                                 marker=dict(color="#EF553B")), row=2, col=1)
+    fig_sum.add_trace(go.Scatter(x=p(xdata), y=mean_sum.numpy()[::, 0], mode='lines', showlegend=False,
+                                 line=dict(color="#00CC96")), row=2, col=1)
+    fig_sum.add_trace(go.Scatter(x=kappa.imag, y=ev_sum.imag, mode='markers', showlegend=False,
+                                 marker=dict(color="#636EFA")), row=2, col=2)
+    fig_sum.add_trace(go.Scatter(x=kappa.imag, y=kappa_mean_sum.numpy()[::, 1], mode='markers', showlegend=False,
+                                 marker=dict(color="#EF553B")), row=2, col=2)
+    fig_sum.add_trace(go.Scatter(x=p(xdata), y=mean_sum.numpy()[::, 1], mode='lines', showlegend=False,
+                                 line=dict(color="#00CC96")), row=2, col=2)
+    fig_diff.update_layout(title_text="Diff")
+    fig_diff.update_xaxes(title_text="Re(\\kappa)", row=1, col=1)
+    fig_diff.update_xaxes(title_text="Re(\\kappa)", row=1, col=2)
+    fig_diff.update_xaxes(title_text="Im(\\kappa)", row=2, col=1)
+    fig_diff.update_xaxes(title_text="Im(\\kappa)", row=2, col=2)
+    fig_diff.update_yaxes(title_text="Re(s)", row=1, col=1)
+    fig_diff.update_yaxes(title_text="Im(s)", row=1, col=2)
+    fig_diff.update_yaxes(title_text="Re(s)", row=2, col=1)
+    fig_diff.update_yaxes(title_text="Im(s)", row=2, col=2)
+    fig_sum.update_layout(title_text="Sum")
+    fig_sum.update_xaxes(title_text="Re(\\kappa)", row=1, col=1)
+    fig_sum.update_xaxes(title_text="Re(\\kappa)", row=1, col=2)
+    fig_sum.update_xaxes(title_text="Im(\\kappa)", row=2, col=1)
+    fig_sum.update_xaxes(title_text="Im(\\kappa)", row=2, col=2)
+    fig_diff.update_yaxes(title_text="Re(p)", row=1, col=1)
+    fig_diff.update_yaxes(title_text="Im(p)", row=1, col=2)
+    fig_diff.update_yaxes(title_text="Re(p)", row=2, col=1)
+    fig_diff.update_yaxes(title_text="Im(p)", row=2, col=2)
+    fig_diff.show()
+    fig_sum.show()
+
+
+def control_model_3d_plotly(kappa, ev_diff, ev_sum, model_diff, model_sum):
+    x = np.linspace(min(kappa.real), max(kappa.real), 50)
+    y = np.linspace(min(kappa.imag), max(kappa.imag), 50)
+    xx, yy = np.meshgrid(x, y)
+    grid = np.array((xx.ravel(), yy.ravel())).T
+    mean_diff, var_diff = model_diff.predict_f(grid)
+    mean_sum, var_sum = model_sum.predict_f(grid)
+    # df = px.data.iris()
+    fig_diff_re = go.Figure()
+    fig_diff_re.add_trace(go.Scatter3d(x=grid[::, 0].ravel(), y=grid[::, 1].ravel(), z=mean_diff.numpy()[::, 0],
+                                       marker=dict(color=mean_diff.numpy()[::, 0])))
+    fig_diff_re.add_trace(go.Scatter3d(x=kappa.real, y=kappa.imag, z=ev_diff.real))
+    fig_diff_im = go.Figure()
+    fig_diff_im.add_trace(go.Scatter3d(x=grid[::, 0].ravel(), y=grid[::, 1].ravel(), z=mean_diff.numpy()[::, 1],
+                                       marker=dict(color=mean_diff.numpy()[::, 1])))
+    fig_diff_re.add_trace(go.Scatter3d(x=kappa.real, y=kappa.imag, z=ev_diff.imag))
+    fig_diff_re.show()
+    fig_diff_im.show()
+    fig_sum_re = go.Figure()
+    fig_sum_re.add_trace(go.Scatter3d(x=grid[::, 0].ravel(), y=grid[::, 1].ravel(), z=mean_sum.numpy()[::, 0],
+                                      marker=dict(color=mean_sum.numpy()[::, 0])))
+    fig_sum_re.add_trace(go.Scatter3d(x=kappa.real, y=kappa.imag, z=ev_sum.real))
+    fig_sum_im = go.Figure()
+    fig_sum_im.add_trace(go.Scatter3d(x=grid[::, 0].ravel(), y=grid[::, 1].ravel(), z=mean_sum.numpy()[::, 1],
+                                      marker=dict(color=mean_sum.numpy()[::, 1])))
+    fig_sum_im.add_trace(go.Scatter3d(x=kappa.real, y=kappa.imag, z=ev_sum.imag))
+    fig_sum_re.show()
+    fig_sum_im.show()
