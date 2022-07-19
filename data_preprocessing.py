@@ -6,6 +6,26 @@ import plotly.graph_objects as go
 import matrix
 
 
+def initial_dataset(ev):
+    nearest_neighbour = np.array(
+        [vmap(lambda x, y: abs(x - y), in_axes=(0, 0), out_axes=0)(ev, np.roll(np.roll(ev, -1, axis=0), -i, axis=1))
+         for i in range(np.shape(ev)[1])])
+    ev_all = []
+    for i in range(np.shape(nearest_neighbour)[2]):
+        ev_sorted = [ev[0, i]]
+        l = i
+        for j in range(np.shape(nearest_neighbour)[1]):
+            m = l
+            l = (np.argmin(nearest_neighbour[:, j, l]) + m) % np.shape(ev)[1]
+            if j + 1 != np.shape(ev)[0]:
+                ev_sorted.append(ev[(j + 1), l])
+        ev_all.append(ev_sorted)
+    ev_all_sorted = numpy.column_stack([ev_all[k] for k in range(np.shape(ev_all)[0])])
+    ep_ev_index = np.argwhere(abs(ev_all_sorted[0, :] - ev_all_sorted[-1, :]) > 1.e-5)
+    # print(type(numpy.array(ev_all_sorted[:, ep_ev_index])))
+    return numpy.column_stack([ev_all_sorted[:, n] for n in ep_ev_index])  # ev_all_sorted[:, ep_ev_index])
+
+
 def getting_new_ev_of_ep(kappa, ev, model_diff, model_sum):
     symmatrix = matrix.matrix_one_close_re(kappa)
     ev_new = matrix.eigenvalues(symmatrix)
@@ -28,11 +48,11 @@ def getting_new_ev_of_ep(kappa, ev, model_diff, model_sum):
                     - np.power(pairs_diff_all.imag - mean_diff.numpy()[0, 1], 2) / (2 * var_diff.numpy()[0, 1]) \
                     - np.power(pairs_sum_all.real - mean_sum.numpy()[0, 0], 2) / (2 * var_sum.numpy()[0, 0]) \
                     - np.power(pairs_sum_all.imag - mean_sum.numpy()[0, 1], 2) / (2 * var_sum.numpy()[0, 1])
-    c = np.array([0 for _ in compatibility])
-    fig1 = px.scatter(x=c, y=abs(compatibility), log_y=True)
+    # c = np.array([0 for _ in compatibility])
+    # fig1 = px.scatter(x=c, y=abs(compatibility), log_y=True)
     # fig1.show()
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=ev_new.ravel().real, y=ev_new.ravel().imag, mode='markers', name="All eigenvalues"))
+    # fig = go.Figure()
+    # fig.add_trace(go.Scatter(x=ev_new.ravel().real, y=ev_new.ravel().imag, mode='markers', name="All eigenvalues"))
     # fig.add_trace(go.Scatter(x=x, y=mean_re.numpy().ravel(), mode='makers', name="Eigenvalues of EP",
     #                         marker=dict(color='red')))
     # fig.show()
