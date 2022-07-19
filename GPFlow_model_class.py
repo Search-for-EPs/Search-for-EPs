@@ -1,4 +1,7 @@
-import numpy as np
+import jax.numpy as np
+from jax import vmap
+import numpy
+import matrix
 import gpflow
 
 
@@ -10,7 +13,8 @@ class GPFlowModel:
 
     def __init__(
             self,
-            model: gpflow.models.GPModel
+            model: gpflow.models.GPModel,
+            model_sum: gpflow.models.GPModel
     ):
         """
         Constructor for the model class.
@@ -20,6 +24,7 @@ class GPFlowModel:
         model : gpflow.models.GPFlow
                 Optimized model from GPFlow
         """
+        self.model_sum = model_sum
         self.model = model
 
     def get_model_generator(self):
@@ -36,10 +41,62 @@ class GPFlowModel:
             x_data : np.ndarray
                     x_data for which you want a new function value.
             """
-            xx, yy = np.meshgrid(x_data[0], x_data[1])
-            grid = np.array((xx.ravel(), yy.ravel())).T
+            xx, yy = numpy.meshgrid(x_data[0], x_data[1])
+            grid = numpy.array((xx.ravel(), yy.ravel())).T
             values, _ = self.model.predict_f(grid)
 
-            return [np.float_(values.numpy().ravel()[0]), np.float_(values.numpy().ravel()[1])]
+            return [numpy.float_(values.numpy().ravel()[0]), numpy.float_(values.numpy().ravel()[1])]
 
         return _model_generator
+
+    def get_ep_evs(self):
+        """
+        Get the model generator for a specific model.
+        """
+
+        def _ep_evs(kappa):
+            """
+            Function to compute values at x_data
+
+            Parameters
+            ----------
+            kappa : np.ndarray
+                    x_data for which you want a new function value.
+            """
+            symmatrix = matrix.matrix_one_close_re(numpy.array([complex(kappa[0], kappa[1])]))
+            ev_new = matrix.eigenvalues(symmatrix)
+            xx, yy = numpy.meshgrid(kappa[0], kappa[1])
+            grid = numpy.array((xx.ravel(), yy.ravel())).T
+            mean_diff, var_diff = self.model.predict_f(grid)
+            mean_sum, var_sum = self.model_sum.predict_f(grid)
+            pairs_diff_all = np.empty(0)
+            pairs_sum_all = np.empty(0)
+            ev_1 = np.empty(0)
+            ev_2 = np.empty(0)
+            for i, val in enumerate(ev_new[0, ::]):
+                pairs_diff = vmap(lambda a, b: np.power((a - b), 2), in_axes=(None, 0), out_axes=0)(val,
+                                                                                                    ev_new[0, (i + 1):])
+                pairs_sum = vmap(lambda a, b: 0.5 * np.add(a, b), in_axes=(None, 0), out_axes=0)(val,
+                                                                                                 ev_new[0, (i + 1):])
+                ev_1 = np.concatenate((ev_1, np.array([val for _ in range(len(ev_new[0, (i + 1):]))])))
+                ev_2 = np.concatenate((ev_2, ev_new[0, (i + 1):]))
+                pairs_diff_all = np.concatenate((pairs_sum_all, np.array(pairs_diff)))
+                pairs_sum_all = np.concatenate((pairs_sum_all, np.array(pairs_sum)))
+            compatibility = - np.power(pairs_diff_all.real - mean_diff.numpy()[0, 0], 2) / (2 * var_diff.numpy()[0, 0]) \
+                            - np.power(pairs_diff_all.imag - mean_diff.numpy()[0, 1], 2) / (2 * var_diff.numpy()[0, 1]) \
+                            - np.power(pairs_sum_all.real - mean_sum.numpy()[0, 0], 2) / (2 * var_sum.numpy()[0, 0]) \
+                            - np.power(pairs_sum_all.imag - mean_sum.numpy()[0, 1], 2) / (2 * var_sum.numpy()[0, 1])
+            # c = np.array([0 for _ in compatibility])
+            # fig1 = px.scatter(x=c, y=abs(compatibility), log_y=True)
+            # fig1.show()
+            # fig = go.Figure()
+            # fig.add_trace(go.Scatter(x=ev_new.ravel().real, y=ev_new.ravel().imag, mode='markers', name="All eigenvalues"))
+            # fig.add_trace(go.Scatter(x=x, y=mean_re.numpy().ravel(), mode='makers', name="Eigenvalues of EP",
+            #                         marker=dict(color='red')))
+            # fig.show()
+            # return numpy.concatenate((ev, np.array([[ev_1[np.argmax(compatibility)], ev_2[np.argmax(compatibility)]]])))
+            diff = ev_1[np.argmax(compatibility)] - ev_2[np.argmax(compatibility)]
+            return numpy.array([numpy.float_(diff.real), numpy.float_(diff.imag)])  # numpy.array([numpy.float_(ev_1[np.argmax(compatibility)]),
+            #                    numpy.float_(ev_2[np.argmax(compatibility)])])
+
+        return _ep_evs
