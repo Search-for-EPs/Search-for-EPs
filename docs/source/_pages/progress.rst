@@ -18,7 +18,7 @@ predicted EP is already in the training set. GPFlow always considers at least a 
 Restricting the model to a noise variance around :math:`{10}^{-6}` leads to unexpected behavior which can be seen in
 :numref:`noise dependency`.
 
-.. figure:: images/model_noise_dependency_55.png
+.. figure:: images/model_noise_dependency_55-2.png
     :width: 100 %
     :align: center
     :name: noise dependency
@@ -30,6 +30,9 @@ Restricting the model to a noise variance around :math:`{10}^{-6}` leads to unex
     with noise variance :math:`\approx {10}^{-6}` leads to an unexpected behavior, which can be observed in the
     right figure.
 
+.. raw:: html
+    :file: images/model_noise_dependency_55-3
+
 Therefore it is quite difficult to find a suitable value for the variance as convergence parameter. If it is too large
 the model is not converged against the EP which leads to a wrong prediction of the EP. A too small value results in a
 problem because many almost identical values are used to train the model. This leads to another possible convergence
@@ -39,3 +42,16 @@ Kernel eigenvalues
 ++++++++++++++++++
 
 
+
+Model accuracy
+--------------
+
+.. figure:: images/model_accuracy_diff-2.png
+    :width: 100 %
+    :align: center
+    :name: accuracy diff
+
+.. figure:: images/model_accuracy_sum-2.png
+    :width: 100 %
+    :align: center
+    :name: accuracy sum
