@@ -46,12 +46,12 @@ Kernel eigenvalues
 Model accuracy
 --------------
 
-.. figure:: images/model_accuracy_diff-2.png
+.. figure:: images/model_accuracy_diff.png
     :width: 100 %
     :align: center
     :name: accuracy diff
 
-.. figure:: images/model_accuracy_sum-2.png
+.. figure:: images/model_accuracy_sum.png
     :width: 100 %
     :align: center
     :name: accuracy sum
