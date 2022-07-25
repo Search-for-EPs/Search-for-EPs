@@ -51,17 +51,17 @@ class GPFlowModel:
 
     def get_ep_evs(self):
         """
-        Get the model generator for a specific model.
+        Get the eigenvalues belonging to the EP.
         """
 
         def _ep_evs(kappa):
             """
-            Function to compute values at x_data
+            Function to compute and select  eigenvalues belonging to the EP.
 
             Parameters
             ----------
             kappa : np.ndarray
-                    x_data for which you want a new function value.
+                    kappa value for which you want the eigenvalues.
             """
             symmatrix = matrix.matrix_one_close_re(numpy.array([complex(kappa[0], kappa[1])]))
             ev_new = matrix.eigenvalues(symmatrix)
@@ -82,21 +82,20 @@ class GPFlowModel:
                 ev_2 = np.concatenate((ev_2, ev_new[0, (i + 1):]))
                 pairs_diff_all = np.concatenate((pairs_sum_all, np.array(pairs_diff)))
                 pairs_sum_all = np.concatenate((pairs_sum_all, np.array(pairs_sum)))
-            compatibility = - np.power(pairs_diff_all.real - mean_diff.numpy()[0, 0], 2) / (2 * var_diff.numpy()[0, 0]) \
-                            - np.power(pairs_diff_all.imag - mean_diff.numpy()[0, 1], 2) / (2 * var_diff.numpy()[0, 1]) \
+            compatibility = - np.power(pairs_diff_all.real - mean_diff.numpy()[0, 0], 2) / (2 * var_diff.numpy()[0, 0])\
+                            - np.power(pairs_diff_all.imag - mean_diff.numpy()[0, 1], 2) / (2 * var_diff.numpy()[0, 1])\
                             - np.power(pairs_sum_all.real - mean_sum.numpy()[0, 0], 2) / (2 * var_sum.numpy()[0, 0]) \
                             - np.power(pairs_sum_all.imag - mean_sum.numpy()[0, 1], 2) / (2 * var_sum.numpy()[0, 1])
             # c = np.array([0 for _ in compatibility])
             # fig1 = px.scatter(x=c, y=abs(compatibility), log_y=True)
             # fig1.show()
             # fig = go.Figure()
-            # fig.add_trace(go.Scatter(x=ev_new.ravel().real, y=ev_new.ravel().imag, mode='markers', name="All eigenvalues"))
+            # fig.add_trace(go.Scatter(x=ev_new.ravel().real, y=ev_new.ravel().imag, mode='markers',
+            #                         name="All eigenvalues"))
             # fig.add_trace(go.Scatter(x=x, y=mean_re.numpy().ravel(), mode='makers', name="Eigenvalues of EP",
             #                         marker=dict(color='red')))
             # fig.show()
-            # return numpy.concatenate((ev, np.array([[ev_1[np.argmax(compatibility)], ev_2[np.argmax(compatibility)]]])))
             diff = ev_1[np.argmax(compatibility)] - ev_2[np.argmax(compatibility)]
-            return numpy.array([numpy.float_(diff.real), numpy.float_(diff.imag)])  # numpy.array([numpy.float_(ev_1[np.argmax(compatibility)]),
-            #                    numpy.float_(ev_2[np.argmax(compatibility)])])
+            return numpy.array([numpy.float_(diff.real), numpy.float_(diff.imag)])
 
         return _ep_evs
