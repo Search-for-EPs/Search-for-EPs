@@ -7,6 +7,21 @@ import matrix
 
 
 def initial_dataset(ev):
+    """Get initial dataset
+
+    Selecting the eigenvalues belonging to the EP by ordering all eigenvalues and comparing the first end last point.
+    If it is greater than 0 the eigenvalues exchange their positions and belong to the EP.
+
+    Parameters
+    ----------
+    ev : np.ndarray
+        All exact complex eigenvalues
+
+    Returns
+    -------
+    np.ndarray
+        Usually 2D array containing the two eigenvalues belonging to the EP
+    """
     nearest_neighbour = np.array(
         [vmap(lambda x, y: abs(x - y), in_axes=(0, 0), out_axes=0)(ev, np.roll(np.roll(ev, -1, axis=0), -i, axis=1))
          for i in range(np.shape(ev)[1])])
@@ -26,6 +41,27 @@ def initial_dataset(ev):
 
 
 def getting_new_ev_of_ep(kappa, ev, model_diff, model_sum):
+    """Getting new eigenvalues belonging to the EP
+
+    Selecting the two eigenvalues of a new point belonging to the EP by comparing it to a GPR model prediction and
+    its variance.
+
+    Parameters
+    ----------
+    kappa : np.ndarray
+        All complex kappa values
+    ev : np.ndarray
+        Containing all old eigenvalues belonging to the EP
+    model_diff : gpflow.models.GPR
+        2D GPR model for eigenvalue difference squared
+    model_sum : gpflow.models.GPR
+        2D GPR model for eigenvalue sum
+
+    Returns
+    -------
+    np.ndarray
+        2D array containing all old and the new eigenvalues belonging to the EP
+    """
     symmatrix = matrix.matrix_one_close_re(kappa)
     ev_new = matrix.eigenvalues(symmatrix)
     xx, yy = numpy.meshgrid(kappa.real, kappa.imag)
