@@ -17,8 +17,10 @@ def init_matplotlib():
 
     plt.rc('text', **{
         'usetex': True,
-        'latex.preamble': '\\usepackage{siunitx}',
+        'latex.preamble': '\\usepackage{siunitx} \\usepackage{amsmath} \\usepackage{amssymb} \\usepackage{physics}',
     })
+
+    plt.style.use('tableau-colorblind10')
 
 
 def linear(x, a, b):
@@ -155,7 +157,7 @@ def eigenvalues_angle_matplotlib(ev, phi, m_re, m_im):
         Contains all angles for the parameterized circle from 0 to 2pi. Used for color code.
     m_re : gpflow.models.GPR
         GPR model for the real part of the eigenvalue difference.
-    m_im: gpflow.models.GPR
+    m_im : gpflow.models.GPR
         GPR model for the imaginary part of the eigenvalue difference.
     """
     # ev_sum = ev[::, 0] + ev[::, 1]
@@ -190,6 +192,22 @@ def eigenvalues_angle_matplotlib(ev, phi, m_re, m_im):
 
 
 def three_d_eigenvalue_kappa_plotly(kappa_0, r, m_re, m_im):
+    """3D plotly plot for eigenvalues
+
+    The model for the preprocessed eigenvalues with respect to kappa is plotted with plotly. Two models one for the
+    real and one for the imaginary part of the preprocessed eigenvalues are given and plotted separately.
+
+    Parameters
+    ----------
+    kappa_0
+        Center of circulation in parameter space
+    r
+        Radius of circulation in parameter space
+    m_re : gpflow.models.GPR
+        GPR model for the real part of the preprocessed eigenvalues
+    m_im : gpflow.models.GPR
+        GPR model for the imaginary part of the preprocessed eigenvalues
+    """
     x = np.linspace(kappa_0.real - r, kappa_0.real + r, 50)
     y = np.linspace(kappa_0.imag - r, kappa_0.imag + r, 50)
     xx, yy = np.meshgrid(x, y)
@@ -206,6 +224,20 @@ def three_d_eigenvalue_kappa_plotly(kappa_0, r, m_re, m_im):
 
 
 def three_d_eigenvalue_kappa_2d_model_plotly(kappa_0, r, m):
+    """3D plotly plot for eigenvalues
+
+    The 2D model for preprocessed eigenvalues is plotted in two plots. One shows the real and the other one the
+    imaginary part.
+
+    Parameters
+    ----------
+    kappa_0
+        Center of circulation in parameter space
+    r
+        Radius of circulation in parameter space
+    m : gpflow.models.GPR
+        2D GPR model for the preprocessed eigenvalues
+    """
     x = np.linspace(kappa_0.real - r, kappa_0.real + r, 50)
     y = np.linspace(kappa_0.imag - r, kappa_0.imag + r, 50)
     xx, yy = np.meshgrid(x, y)
@@ -221,8 +253,26 @@ def three_d_eigenvalue_kappa_2d_model_plotly(kappa_0, r, m):
 
 
 def control_model_2d_plotly(kappa, ev_diff, ev_sum, model_diff, model_sum):
+    """Plotly plot to control model accuracy
+
+    2 times 4 subplots are plotted to compare the smoothness and accuracy of the models to the exact values.
+    4 subplots are needed to plot all possible combinations of a 2D x 2D model.
+
+    Parameters
+    ----------
+    kappa : np.ndarray
+        1D complex array containing all kappa values
+    ev_diff : np.ndarray
+        1D complex array containing the eigenvalue difference squared for each step
+    ev_sum : np.ndarray
+        1D complex array containing the eigenvalue sum for each step
+    model_diff : gpflow.models.GPR
+        2D GPR model of the eigenvalue difference squared
+    model_sum : gpflow.models.GPR
+        2D GPR model of the eigenvalue sum
+    """
     xdata = np.linspace(kappa.real[0], kappa.real[-1], 400)
-    z = np.polyfit(kappa.real, kappa.imag, 5)
+    z = np.polyfit(kappa.real, kappa.imag, 3)
     p = np.poly1d(z)
     grid = np.column_stack((xdata, p(xdata)))
     # grid = np.array((xx.ravel(), yy.ravel())).T
@@ -232,76 +282,114 @@ def control_model_2d_plotly(kappa, ev_diff, ev_sum, model_diff, model_sum):
     # grid1 = np.array((x1.ravel(), y1.ravel())).T
     kappa_mean_diff, kappa_var_diff = model_diff.predict_f(grid1)
     kappa_mean_sum, kappa_var_sum = model_sum.predict_f(grid1)
+    kappa_sep = [kappa.real, kappa.real, kappa.imag, kappa.imag]
+    con_sep = [xdata, xdata, p(xdata), p(xdata)]
+    ev_diff_sep = [ev_diff.real, ev_diff.imag, ev_diff.real, ev_diff.imag]
+    ev_sum_sep = [ev_sum.real, ev_sum.imag, ev_sum.real, ev_sum.imag]
+    kappa_mean_diff_sep = [kappa_mean_diff.numpy()[:, 0], kappa_mean_diff.numpy()[:, 1], kappa_mean_diff.numpy()[:, 0],
+                           kappa_mean_diff.numpy()[:, 1]]
+    kappa_mean_sum_sep = [kappa_mean_sum.numpy()[:, 0], kappa_mean_sum.numpy()[:, 1], kappa_mean_sum.numpy()[:, 0],
+                          kappa_mean_sum.numpy()[:, 1]]
+    mean_diff_sep = [mean_diff.numpy()[:, 0], mean_diff.numpy()[:, 1], mean_diff.numpy()[:, 0], mean_diff.numpy()[:, 1]]
+    mean_sum_sep = [mean_sum.numpy()[:, 0], mean_sum.numpy()[:, 1], mean_sum.numpy()[:, 0], mean_sum.numpy()[:, 1]]
+    row = [1, 1, 2, 2]
+    col = [1, 2, 1, 2]
+    legend = [True, False, False, False]
+    x_axis_label = ["Re(\\kappa)", "Re(\\kappa)", "Im(\\kappa)", "Im(\\kappa)"]
+    y_axis_label_diff = ["Re(s)", "Im(s)", "Re(s)", "Im(s)"]
+    y_axis_label_sum = ["Re(p)", "Im(p)", "Re(p)", "Im(p)"]
     fig_diff = make_subplots(rows=2, cols=2, subplot_titles=("re_re", "re_im", "im_re", "im_im"))
-    fig_diff.add_trace(go.Scatter(x=kappa.real, y=ev_diff.real, mode='markers', name='exact',
-                                  marker=dict(color="#636EFA")), row=1, col=1)
-    fig_diff.add_trace(go.Scatter(x=kappa.real, y=kappa_mean_diff.numpy()[::, 0], mode='markers', name='model',
-                                  marker=dict(color="#EF553B")), row=1, col=1)
-    fig_diff.add_trace(go.Scatter(x=xdata, y=mean_diff.numpy()[::, 0], mode='lines', name='continuity',
-                                  line=dict(color="#00CC96")), row=1, col=1)
-    fig_diff.add_trace(go.Scatter(x=kappa.real, y=ev_diff.imag, mode='markers', showlegend=False,
-                                  marker=dict(color="#636EFA")), row=1, col=2)
-    fig_diff.add_trace(go.Scatter(x=kappa.real, y=kappa_mean_diff.numpy()[::, 1], mode='markers', showlegend=False,
-                                  marker=dict(color="#EF553B")), row=1, col=2)
-    fig_diff.add_trace(go.Scatter(x=xdata, y=mean_diff.numpy()[::, 1], mode='lines', showlegend=False,
-                                  line=dict(color="#00CC96")), row=1, col=2)
-    fig_diff.add_trace(go.Scatter(x=kappa.imag, y=ev_diff.real, mode='markers', showlegend=False,
-                                  marker=dict(color="#636EFA")), row=2, col=1)
-    fig_diff.add_trace(go.Scatter(x=kappa.imag, y=kappa_mean_diff.numpy()[::, 0], mode='markers', showlegend=False,
-                                  marker=dict(color="#EF553B")), row=2, col=1)
-    fig_diff.add_trace(go.Scatter(x=p(xdata), y=mean_diff.numpy()[::, 0], mode='lines', showlegend=False,
-                                  line=dict(color="#00CC96")), row=2, col=1)
-    fig_diff.add_trace(go.Scatter(x=kappa.imag, y=ev_diff.imag, mode='markers', showlegend=False,
-                                  marker=dict(color="#636EFA")), row=2, col=2)
-    fig_diff.add_trace(go.Scatter(x=kappa.imag, y=kappa_mean_diff.numpy()[::, 1], mode='markers', showlegend=False,
-                                  marker=dict(color="#EF553B")), row=2, col=2)
-    fig_diff.add_trace(go.Scatter(x=p(xdata), y=mean_diff.numpy()[::, 1], mode='lines', showlegend=False,
-                                  line=dict(color="#00CC96")), row=2, col=2)
     fig_sum = make_subplots(rows=2, cols=2, subplot_titles=("re_re", "re_im", "im_re", "im_im"))
-    fig_sum.add_trace(go.Scatter(x=kappa.real, y=ev_sum.real, mode='markers', name='exact',
-                                 marker=dict(color="#636EFA")), row=1, col=1)
-    fig_sum.add_trace(go.Scatter(x=kappa.real, y=kappa_mean_sum.numpy()[::, 0], mode='markers', name='model',
-                                 marker=dict(color="#EF553B")), row=1, col=1)
-    fig_sum.add_trace(go.Scatter(x=xdata, y=mean_sum.numpy()[::, 0], mode='lines', name='continuity',
-                                 line=dict(color="#00CC96")), row=1, col=1)
-    fig_sum.add_trace(go.Scatter(x=kappa.real, y=ev_sum.imag, mode='markers', showlegend=False,
-                                 marker=dict(color="#636EFA")), row=1, col=2)
-    fig_sum.add_trace(go.Scatter(x=kappa.real, y=kappa_mean_sum.numpy()[::, 1], mode='markers', showlegend=False,
-                                 marker=dict(color="#EF553B")), row=1, col=2)
-    fig_sum.add_trace(go.Scatter(x=xdata, y=mean_sum.numpy()[::, 1], mode='lines', showlegend=False,
-                                 line=dict(color="#00CC96")), row=1, col=2)
-    fig_sum.add_trace(go.Scatter(x=kappa.imag, y=ev_sum.real, mode='markers', showlegend=False,
-                                 marker=dict(color="#636EFA")), row=2, col=1)
-    fig_sum.add_trace(go.Scatter(x=kappa.imag, y=kappa_mean_sum.numpy()[::, 0], mode='markers', showlegend=False,
-                                 marker=dict(color="#EF553B")), row=2, col=1)
-    fig_sum.add_trace(go.Scatter(x=p(xdata), y=mean_sum.numpy()[::, 0], mode='lines', showlegend=False,
-                                 line=dict(color="#00CC96")), row=2, col=1)
-    fig_sum.add_trace(go.Scatter(x=kappa.imag, y=ev_sum.imag, mode='markers', showlegend=False,
-                                 marker=dict(color="#636EFA")), row=2, col=2)
-    fig_sum.add_trace(go.Scatter(x=kappa.imag, y=kappa_mean_sum.numpy()[::, 1], mode='markers', showlegend=False,
-                                 marker=dict(color="#EF553B")), row=2, col=2)
-    fig_sum.add_trace(go.Scatter(x=p(xdata), y=mean_sum.numpy()[::, 1], mode='lines', showlegend=False,
-                                 line=dict(color="#00CC96")), row=2, col=2)
+    for i in range(4):
+        fig_diff.add_trace(go.Scatter(x=kappa_sep[i], y=ev_diff_sep[i], mode='markers', name='exact',
+                                      showlegend=legend[i], marker=dict(color="#636EFA")), row=row[i], col=col[i])
+        fig_diff.add_trace(go.Scatter(x=kappa_sep[i], y=kappa_mean_diff_sep[i], mode='markers', name='model',
+                                      showlegend=legend[i], marker=dict(color="#EF553B")), row=row[i], col=col[i])
+        fig_diff.add_trace(go.Scatter(x=con_sep[i], y=mean_diff_sep[i], mode='lines', name='continuity',
+                                      showlegend=legend[i], line=dict(color="#00CC96")), row=row[i], col=col[i])
+        fig_sum.add_trace(go.Scatter(x=kappa_sep[i], y=ev_sum_sep[i], mode='markers', name='exact',
+                                     showlegend=legend[i], marker=dict(color="#636EFA")), row=row[i], col=col[i])
+        fig_sum.add_trace(go.Scatter(x=kappa_sep[i], y=kappa_mean_sum_sep[i], mode='markers', name='model',
+                                     showlegend=legend[i], marker=dict(color="#EF553B")), row=row[i], col=col[i])
+        fig_sum.add_trace(go.Scatter(x=con_sep[i], y=mean_sum_sep[i], mode='lines', name='continuity',
+                                     showlegend=legend[i], line=dict(color="#00CC96")), row=row[i], col=col[i])
+        fig_diff.update_xaxes(title_text=x_axis_label[i], row=row[i], col=col[i])
+        fig_diff.update_yaxes(title_text=y_axis_label_diff[i], row=row[i], col=col[i])
+        fig_sum.update_xaxes(title_text=x_axis_label[i], row=row[i], col=col[i])
+        fig_sum.update_yaxes(title_text=y_axis_label_sum[i], row=row[i], col=col[i])
     fig_diff.update_layout(title_text="Diff")
-    fig_diff.update_xaxes(title_text="Re(\\kappa)", row=1, col=1)
-    fig_diff.update_xaxes(title_text="Re(\\kappa)", row=1, col=2)
-    fig_diff.update_xaxes(title_text="Im(\\kappa)", row=2, col=1)
-    fig_diff.update_xaxes(title_text="Im(\\kappa)", row=2, col=2)
-    fig_diff.update_yaxes(title_text="Re(s)", row=1, col=1)
-    fig_diff.update_yaxes(title_text="Im(s)", row=1, col=2)
-    fig_diff.update_yaxes(title_text="Re(s)", row=2, col=1)
-    fig_diff.update_yaxes(title_text="Im(s)", row=2, col=2)
     fig_sum.update_layout(title_text="Sum")
-    fig_sum.update_xaxes(title_text="Re(\\kappa)", row=1, col=1)
-    fig_sum.update_xaxes(title_text="Re(\\kappa)", row=1, col=2)
-    fig_sum.update_xaxes(title_text="Im(\\kappa)", row=2, col=1)
-    fig_sum.update_xaxes(title_text="Im(\\kappa)", row=2, col=2)
-    fig_diff.update_yaxes(title_text="Re(p)", row=1, col=1)
-    fig_diff.update_yaxes(title_text="Im(p)", row=1, col=2)
-    fig_diff.update_yaxes(title_text="Re(p)", row=2, col=1)
-    fig_diff.update_yaxes(title_text="Im(p)", row=2, col=2)
     fig_diff.show()
     fig_sum.show()
+    fig1 = go.Figure()
+    fig1.add_trace(go.Scatter(x=kappa.real, y=kappa.imag, mode="markers"))
+    fig1.add_trace(go.Scatter(x=xdata, y=p(xdata), mode="lines"))
+    fig1.show()
+
+
+def control_model_2d_matplotlib(kappa, ev_diff, ev_sum, model_diff, model_sum):
+    """Matplotlib plot to control model accuracy
+
+    2 times 4 subplots are plotted to compare the smoothness and accuracy of the models to the exact values.
+    4 subplots are needed to plot all possible combinations of a 2D x 2D model.
+
+    Parameters
+    ----------
+    kappa : np.ndarray
+        1D complex array containing all kappa values
+    ev_diff : np.ndarray
+        1D complex array containing the eigenvalue difference squared for each step
+    ev_sum : np.ndarray
+        1D complex array containing the eigenvalue sum for each step
+    model_diff : gpflow.models.GPR
+        2D GPR model of the eigenvalue difference squared
+    model_sum : gpflow.models.GPR
+        2D GPR model of the eigenvalue sum
+    """
+    xdata = np.linspace(kappa.real[0], kappa.real[-1], 400)
+    z = np.polyfit(kappa.real, kappa.imag, 3)
+    p = np.poly1d(z)
+    grid = np.column_stack((xdata, p(xdata)))
+    # grid = np.array((xx.ravel(), yy.ravel())).T
+    mean_diff, var_diff = model_diff.predict_f(grid)
+    mean_sum, var_sum = model_sum.predict_f(grid)
+    grid1 = np.column_stack((kappa.real, kappa.imag))
+    # grid1 = np.array((x1.ravel(), y1.ravel())).T
+    kappa_mean_diff, kappa_var_diff = model_diff.predict_f(grid1)
+    kappa_mean_sum, kappa_var_sum = model_sum.predict_f(grid1)
+    kappa_sep = [kappa.real, kappa.real, kappa.imag, kappa.imag]
+    con_sep = [xdata, xdata, p(xdata), p(xdata)]
+    ev_diff_sep = [ev_diff.real, ev_diff.imag, ev_diff.real, ev_diff.imag]
+    ev_sum_sep = [ev_sum.real, ev_sum.imag, ev_sum.real, ev_sum.imag]
+    kappa_mean_diff_sep = [kappa_mean_diff[:, 0], kappa_mean_diff[:, 1], kappa_mean_diff[:, 0], kappa_mean_diff[:, 1]]
+    kappa_mean_sum_sep = [kappa_mean_sum[:, 0], kappa_mean_sum[:, 1], kappa_mean_sum[:, 0], kappa_mean_sum[:, 1]]
+    mean_diff_sep = [mean_diff[:, 0], mean_diff[:, 1], mean_diff[:, 0], mean_diff[:, 1]]
+    mean_sum_sep = [mean_sum[:, 0], mean_sum[:, 1], mean_sum[:, 0], mean_sum[:, 1]]
+    x_axis_label = ["$\\Re(\\kappa)$", "$\\Re(\\kappa)$", "$\\Im(\\kappa)$", "$\\Im(\\kappa)$"]
+    y_axis_label_diff = ["$\\Re(p)$", "$\\Im(p)$", "$\\Re(p)$", "$\\Im(p)$"]
+    y_axis_label_sum = ["$\\Re(s)$", "$\\Im(s)$", "$\\Re(s)$", "$\\Im(s)$"]
+    fig_diff, ax_diff = plt.subplots(2, 2, constrained_layout=True, figsize=(9, 6.75))
+    fig_diff.suptitle("Model accuracy for $p = \\left(\\lambda_1 - \\lambda_2\\right)^2$")
+    for i, ax in enumerate(ax_diff.flatten()):
+        ax.set_xlabel(x_axis_label[i])
+        ax.set_ylabel(y_axis_label_diff[i])
+        ax.scatter(x=kappa_sep[i], y=ev_diff_sep[i], s=20, label="exact")
+        ax.scatter(x=kappa_sep[i], y=kappa_mean_diff_sep[i], s=20, label="model")
+        ax.plot(con_sep[i], mean_diff_sep[i], color="tab:green", linewidth=1.5, label="continuity")
+        ax.legend()
+    fig_diff.savefig("docs/source/_pages/images/model_accuracy_diff-2.pdf")
+    fig_diff.savefig("docs/source/_pages/images/model_accuracy_diff-2.png")
+    fig_sum, ax_sum = plt.subplots(2, 2, constrained_layout=True, figsize=(9, 6.75))
+    fig_sum.suptitle("Model accuracy for $s = \\frac{1}{2} \\cdot \\left(\\lambda_1 + \\lambda_2\\right)$")
+    for i, ax in enumerate(ax_sum.flatten()):
+        ax.set_xlabel(x_axis_label[i])
+        ax.set_ylabel(y_axis_label_sum[i])
+        ax.scatter(x=kappa_sep[i], y=ev_sum_sep[i], s=20, label="exact")
+        ax.scatter(x=kappa_sep[i], y=kappa_mean_sum_sep[i], s=20, label="model")
+        ax.plot(con_sep[i], mean_sum_sep[i], color="tab:green", linewidth=1.5, label="continuity")
+        ax.legend()
+    fig_sum.savefig("docs/source/_pages/images/model_accuracy_sum-2.pdf")
+    fig_sum.savefig("docs/source/_pages/images/model_accuracy_sum-2.png")
 
 
 def control_model_3d_plotly(kappa, ev_diff, ev_sum, model_diff, model_sum):
@@ -332,3 +420,84 @@ def control_model_3d_plotly(kappa, ev_diff, ev_sum, model_diff, model_sum):
     fig_sum_im.add_trace(go.Scatter3d(x=kappa.real, y=kappa.imag, z=ev_sum.imag))
     fig_sum_re.show()
     fig_sum_im.show()
+
+
+def model_noise_dependency_plotly(kappa_with_noise, kappa_no_noise, training_steps_color):
+    """Plotly plot for noise dependency of the model
+
+    2 subplots are plotted to compare the behavior of the model for a default noise variance and a fixed small
+    noise variance. The complex kappa plane shows the model predictions for the EP of each training steps.
+
+    Parameters
+    ----------
+    kappa_with_noise : np.ndarray
+        1D complex array containing all kappa values of the model with the default noise variance
+    kappa_no_noise : np.ndarray
+        1D complex array containing all kappa values of the model with the fixed small noise variance
+    training_steps_color : np.ndarray
+        1D array containing the training steps which is used for the color bar
+    """
+    """df = pd.read_csv('model_noise_dependency_55_color.csv', header=0, skiprows=0,
+                     names=["kappa_with_noise", "kappa_no_noise", "ev_with_noise", "ev_no_noise",
+                            "training_steps_color"])
+    kappa_no_noise = np.array(df.kappa_no_noise).astype(complex)
+    kappa_with_noise = np.array(df.kappa_with_noise).astype(complex)
+    training_steps_color = np.array(df.training_steps_color)"""
+    ep = np.array([1.18503351 + 1.00848184j])
+    fig1 = px.scatter(x=kappa_with_noise.real, y=kappa_with_noise.imag, color=training_steps_color.tolist(),
+                      labels=dict(x="Re(kappa)", y="Im(kappa)", color="# of training steps"))
+    fig2 = px.scatter(x=kappa_no_noise.real, y=kappa_no_noise.imag, color=training_steps_color.tolist(),
+                      labels=dict(x="Re(kappa)", y="Im(kappa)", color="# of training steps"))
+    fig_ep = px.scatter(x=ep.real, y=ep.imag, color_discrete_sequence=['#00CC96'], color=["EP"],
+                        labels=dict(x="Re(EP)", y="Im(EP)"))
+    fig_ep_no = px.scatter(x=ep.real, y=ep.imag, color_discrete_sequence=['#00CC96'],
+                           labels=dict(x="Re(EP)", y="Im(EP)"))
+    fig = make_subplots(rows=1, cols=2, horizontal_spacing=0.15,
+                        subplot_titles=("Default noise variance setting",
+                                        "Small fixed noise variance"))
+    fig.add_trace(fig1["data"][0], row=1, col=1)
+    fig.add_trace(fig_ep["data"][0], row=1, col=1)
+    fig.add_trace(fig2["data"][0], row=1, col=2)
+    fig.add_trace(fig_ep_no["data"][0], row=1, col=2)
+    fig.update_xaxes(title_text="Re(kappa)", row=1, col=1)
+    fig.update_xaxes(title_text="Re(kappa)", row=1, col=2)
+    fig.update_yaxes(title_text="Im(kappa)", row=1, col=1)
+    fig.update_yaxes(title_text="Im(kappa)", row=1, col=2)
+    fig.update_layout(coloraxis={'colorbar': dict(title="# of trai-<br>ning steps", len=0.9)})
+    fig.show()
+    # fig.write_html("docs/source/_pages/images/model_noise_dependency_55-3")
+
+
+def model_noise_dependency_matplotlib(kappa_with_noise, kappa_no_noise, training_steps_color):
+    """Matplotlib plot for noise dependency of the model
+
+    2 subplots are plotted to compare the behavior of the model for a default noise variance and a fixed small
+    noise variance. The complex kappa plane shows the model predictions for the EP of each training steps.
+
+    Parameters
+    ----------
+    kappa_with_noise : np.ndarray
+        1D complex array containing all kappa values of the model with the default noise variance
+    kappa_no_noise : np.ndarray
+        1D complex array containing all kappa values of the model with the fixed small noise variance
+    training_steps_color : np.ndarray
+        1D array containing the training steps which is used for the color bar
+    """
+    """df = pd.read_csv('model_noise_dependency_55_color.csv', header=0, skiprows=0,
+                     names=["kappa_with_noise", "kappa_no_noise", "ev_with_noise", "ev_no_noise",
+                            "training_steps_color"])
+    kappa_no_noise = np.array(df.kappa_no_noise).astype(complex)
+    kappa_with_noise = np.array(df.kappa_with_noise).astype(complex)
+    training_steps_color = np.array(df.training_steps_color)"""
+    fig, (ax1, ax2) = plt.subplots(1, 2, constrained_layout=True, figsize=(10, 4))
+    ax1.set_title("With noise (default: $\\text{noise variance} = 1$)")
+    ax1.set_xlabel("$\\Re(\\kappa)$")
+    ax1.set_ylabel("$\\Im(\\kappa)$")
+    ax1.scatter(x=kappa_with_noise[:].real, y=kappa_with_noise[:].imag, c=training_steps_color, cmap="inferno")
+    ax2.set_title("Without noise $\\left(\\text{noise variance} \\approx \\num{e-6})\\right)$")
+    ax2.set_xlabel("$\\Re(\\kappa)$")
+    ax2.set_ylabel("$\\Im(\\kappa)$")
+    cb = ax2.scatter(x=kappa_no_noise[:].real, y=kappa_no_noise[:].imag, c=training_steps_color, cmap="inferno")
+    fig.colorbar(cb, ax=ax2, label="\\# of training steps")
+    fig.savefig("docs/source/_pages/images/model_noise_dependency_55-2.pdf")
+    fig.savefig("docs/source/_pages/images/model_noise_dependency_55-2.png")
