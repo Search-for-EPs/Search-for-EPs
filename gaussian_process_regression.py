@@ -115,9 +115,9 @@ def gp_create_rbf_model(kappa, validation_data):
     Parameters
     ----------
     kappa : np.ndarray
-        2D array which contains the real and the complex part of all kappa values
+        2D array which contains the real and the imaginary part of all kappa values
     validation_data : np.ndarray
-        2D array which contains usually the real and complex part of the validation data
+        2D array which contains usually the real and imaginary part of the validation data
 
     Returns
     ----------
@@ -141,9 +141,9 @@ def gp_create_matern52_model(kappa, validation_data):
     Parameters
     ----------
     kappa : np.ndarray
-        2D array which contains the real and the complex part of all kappa values
+        2D array which contains the real and the imaginary part of all kappa values
     validation_data : np.ndarray
-        2D array which contains usually the real and complex part of the validation data
+        2D array which contains usually the real and imaginary part of the validation data
 
     Returns
     ----------
