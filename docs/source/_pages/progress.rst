@@ -3,6 +3,11 @@ Progress
 
 This section documents the progress and the difficulties while working on this project.
 
+Initial dataset
+---------------
+
+
+
 Convergence criteria
 --------------------
 
@@ -44,6 +49,7 @@ Kernel eigenvalues
 `Has to be edited!`
 
 The parameter space (e.g. the :math:`\kappa` space) is the input space of the kernel function for which the eigenvalues
+:math:`\lambda_\text{k}`
 can be calculated. The more :math:`\kappa` values, the smaller the eigenvalues become. If there are a lot of training
 points especially if they are close together like in the left picture of :numref:`noise dependency`, a drop in the
 eigenvalues is visible from :math:`\mathcal{O}\left(10^{-2}\right)` to :math:`\mathcal{O}\left(10^{-16}\right)`. An
@@ -55,20 +61,60 @@ done).
 
 **Entropy**
 
-The entropy can be calculated from the eigenvalues. When plotting the entropy over the number of training steps one 
-should observe a drop at the training step where the eigenvalue drop occurs. Untill now it was not possible to see this
+The entropy can be calculated from the kernel eigenvalues :math:`\lambda_\text{k}`. When plotting the entropy over the
+number of training steps one
+should observe a drop at the training step where the eigenvalue drop occurs. Until now it was not possible to see this
 drop. A possible reason is that the matrix is not unitary which results in not normalized eigenvalues. Calculating the
 entropy from these leads to negative entropy values.
+
+At the moment there are two approaches to normalize the eigenvalues :math:`\lambda_\text{k}`. The first one is to
+normalize the vector containing all eigenvalues to get the entropy
+
+.. math::
+
+    S = -\sum_i \frac{\lambda_{\text{k}, i}}{\left||\vec{\lambda}_\text{k}|\right|} \cdot \log\left(\frac{
+    \lambda_{\text{k}, i}}{\left||\vec{\lambda}_\text{k}|\right|}\right)\, ,
+
+where :math:`i` denotes an element of the vector :math:`\vec{\lambda}_\text{k}`. This leads to an entropy curve as shown
+in :numref:`entropy normalized`.
+
+.. figure:: images/entropy_diff_normalized.png
+    :width: 100 %
+    :align: center
+    :name: entropy normalized
+
+    The entropy calculated from the kernel eigenvalues normalized by the norm of the kernel eigenvalue vector
+    :math:`\left||\vec{\lambda}_\text{k}|\right|`.
+
+The other approach is to normalize by
+the length of the vector :math:`\text{len}\left(\vec{\lambda}_\text{k}\right)`, i.e. the number of elements, which
+leads to the entropy
+
+.. math::
+
+    S = -\sum_i \frac{\lambda_{\text{k}, i}}{\text{len}\left(\vec{\lambda}_\text{k}\right)} \cdot \log\left(\frac{
+    \lambda_{\text{k}, i}}{\text{len}\left(\vec{\lambda}_\text{k}\right)}\right)
+
+This results in an entropy curve shown in :numref:`entropy divided length`.
+
+.. figure:: images/entropy_diff_divided_length.png
+    :width: 100 %
+    :align: center
+    :name: entropy divided length
+
+    The entropy calculated from the kernel eigenvalues normalized by the length of the kernel eigenvalue vector
+    :math:`\text{len}\left(\vec{\lambda}_\text{k}\right)`.
+
 `Further research required!`
 
 Eigenvalue difference
 +++++++++++++++++++++
 
-At the EP the difference of the two eigenvalues should be zero due to their degenracy. Because of this square root 
+At the EP the difference of the two eigenvalues should be zero due to their degeneracy. Because of this square root
 behavior the gradient is infinite at the EP which results in a strong dependency of the eigenvalue difference and the
 :math:`\kappa` value. This strong dependence is also the reason why it is very difficult to find a suitable value for 
-the eigenvalue difference as conevergence parameter. However this seems to be the best convergence criteria so far 
-since it is directly related to a propertie of an EP.
+the eigenvalue difference as convergence parameter. However this seems to be the best convergence criteria so far
+since it is directly related to a property of an EP.
 
 As visible in :numref:`noise dependency` there is already a really good prediction for the EP after the second training
 step. After that the model jumps away and converges slowly towards the EP again. Thus a suitable value for the 
