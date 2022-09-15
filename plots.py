@@ -6,6 +6,7 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
+import pandas as pd
 
 
 def init_matplotlib():
@@ -17,7 +18,8 @@ def init_matplotlib():
 
     plt.rc('text', **{
         'usetex': True,
-        'latex.preamble': '\\usepackage{siunitx} \\usepackage{amsmath} \\usepackage{amssymb} \\usepackage{physics}',
+        'latex.preamble': '\\usepackage{siunitx} \\usepackage{amsmath} \\usepackage{amssymb} \\usepackage{physics}'
+                          '\\usepackage{nicefrac}',
     })
 
     plt.style.use('tableau-colorblind10')
@@ -234,12 +236,12 @@ def three_d_eigenvalue_kappa_2d_model_plotly(kappa_0, r, m):
     kappa_0
         Center of circulation in parameter space
     r
-        Radius of circulation in parameter space
+        Radius of circulation in parameter space as part of the field strength
     m : gpflow.models.GPR
         2D GPR model for the preprocessed eigenvalues
     """
-    x = np.linspace(kappa_0.real - r, kappa_0.real + r, 50)
-    y = np.linspace(kappa_0.imag - r, kappa_0.imag + r, 50)
+    x = np.linspace(kappa_0.real - kappa_0.real * r, kappa_0.real + kappa_0.real * r, 50)
+    y = np.linspace(kappa_0.imag - kappa_0.imag * r, kappa_0.imag + kappa_0.imag * r, 50)
     xx, yy = np.meshgrid(x, y)
     grid = np.array((xx.ravel(), yy.ravel())).T
     mean, var = m.predict_f(grid)
@@ -501,3 +503,26 @@ def model_noise_dependency_matplotlib(kappa_with_noise, kappa_no_noise, training
     fig.colorbar(cb, ax=ax2, label="\\# of training steps")
     fig.savefig("docs/source/_pages/images/model_noise_dependency_55-2.pdf")
     fig.savefig("docs/source/_pages/images/model_noise_dependency_55-2.png")
+
+
+def entropy_kernel_ev_matplotlib():
+    """Matplotlib plot for entropy
+
+    The entropy is calculated from the kernel eigenvalues and plotted over the number of training steps.
+    """
+    df = pd.read_csv("data_kernel_ev_25.csv", skiprows=0)
+    entropy = []
+    for i in range(1, df.shape[1]):
+        kernel_ev = np.array(df.iloc[:, i])
+        kernel_ev = kernel_ev[~np.isnan(kernel_ev)]
+        entropy_step = -np.sum((kernel_ev / np.linalg.norm(kernel_ev)) * np.log(kernel_ev / np.linalg.norm(kernel_ev)))
+        entropy.append(entropy_step)
+    fig1 = plt.figure(1, figsize=(10, 7.5))
+    ax1 = fig1.add_subplot(1, 1, 1)
+    ax1.set_ylabel("Entropy")
+    ax1.set_xlabel("\\# of training steps")
+    ax1.plot(entropy)
+    ax1.set_title("Entropy calculated with $\\nicefrac{\\lambda_{\\text{k}, i}}{\\left|\\vec{\\lambda}_\\text{k}\\right|}$")
+    # print(fig1.get_size_inches())
+    # fig1.savefig("entropy_diff_normalized_3.pdf")
+    # fig1.savefig("entropy_diff_normalized_3.png")
