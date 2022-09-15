@@ -164,3 +164,8 @@ def eigenvalues(matrices):
 def ev_one_close(kappa):
     mat = matrix_one_close_re(kappa)
     return np.linalg.eigvals(mat)
+
+
+def ev_two_close(kappa):
+    mat = matrix_two_close_im(kappa)
+    return np.linalg.eigvals(mat)
