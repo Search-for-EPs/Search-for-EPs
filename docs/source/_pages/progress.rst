@@ -111,7 +111,8 @@ Eigenvalue difference
 +++++++++++++++++++++
 
 At the EP the difference of the two eigenvalues should be zero due to their degeneracy. Because of this square root
-behavior the gradient is infinite at the EP which results in a strong dependency of the eigenvalue difference and the
+behavior the gradient is infinite at the EP which results in a strong dependency
+between the eigenvalue difference and the
 :math:`\kappa` value. This strong dependence is also the reason why it is very difficult to find a suitable value for 
 the eigenvalue difference as convergence parameter. However this seems to be the best convergence criteria so far
 since it is directly related to a property of an EP.
@@ -119,17 +120,39 @@ since it is directly related to a property of an EP.
 As visible in :numref:`noise dependency` there is already a really good prediction for the EP after the second training
 step. After that the model jumps away and converges slowly towards the EP again. Thus a suitable value for the 
 eigenvalue difference could be a promising convergence parameter to prevent the model from overtraining.
-`Further research required!`
+
+If the real and imaginary part of the eigenvalue difference is smaller than :math:`5 \cdot 10^{-3}` the found EP is
+exact up to the fifth decimal place but the model is already overtrained. Notable is that the real part of the
+eigenvalue difference is about one tenth of the imaginary part. The model only needs ten steps to achieve this accuracy.
+For a convergence parameter of :math:`10^{-2}` the EP is exact up to the fourth decimal place and the model is not
+overtrained.
 
 Model accuracy
 --------------
+
+To control the model accuracy, the exactness and the smoothness, in :numref:`accuracy diff` and
+:numref:`accuracy sum` the model predictions as well as the exact values are plotted.
 
 .. figure:: images/model_accuracy_diff.png
     :width: 100 %
     :align: center
     :name: accuracy diff
 
+    Model predictions compared to the exact values of the square eigenvalue difference.
+
 .. figure:: images/model_accuracy_sum.png
     :width: 100 %
     :align: center
     :name: accuracy sum
+
+    Model predictions compared to the exact values of the eigenvalue sum.
+
+Both figures show the model predictions for the case shown in :numref:`noise dependency` after the sixth training step.
+This could be a reason for the discrepancy between the model predictions and the exact values,
+since the model jumps away from the EP after the second training step and is thus overtrained.
+
+
+
+When using data of the exciton simulations, the eigenvalue difference as well as the eigenvalue sum has to be
+scaled due to minimal differences in the resulting values. Without scaling the GPR model is not able to train on the
+given data.
