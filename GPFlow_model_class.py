@@ -13,7 +13,7 @@ class GPFlowModel:
 
     def __init__(
             self,
-            model: gpflow.models.GPModel,
+            model_diff: gpflow.models.GPModel,
             model_sum: gpflow.models.GPModel
     ):
         """
@@ -21,11 +21,13 @@ class GPFlowModel:
 
         Parameters
         ----------
-        model : gpflow.models.GPFlow
-                Optimized model from GPFlow
+        model_diff : gpflow.models.GPFlow
+                Optimized model from GPFlow for eigenvalue difference squared
+        model_sum : gpflow.models.GPFlow
+                Optimized model from GPFlow for eigenvalue sum
         """
         self.model_sum = model_sum
-        self.model = model
+        self.model_diff = model_diff
 
     def get_model_generator(self):
         """
@@ -43,7 +45,7 @@ class GPFlowModel:
             """
             xx, yy = numpy.meshgrid(x_data[0], x_data[1])
             grid = numpy.array((xx.ravel(), yy.ravel())).T
-            values, _ = self.model.predict_f(grid)
+            values, _ = self.model_diff.predict_f(grid)
 
             return [numpy.float_(values.numpy().ravel()[0]), numpy.float_(values.numpy().ravel()[1])]
 
@@ -67,7 +69,7 @@ class GPFlowModel:
             ev_new = matrix.eigenvalues(symmatrix)
             xx, yy = numpy.meshgrid(kappa[0], kappa[1])
             grid = numpy.array((xx.ravel(), yy.ravel())).T
-            mean_diff, var_diff = self.model.predict_f(grid)
+            mean_diff, var_diff = self.model_diff.predict_f(grid)
             mean_sum, var_sum = self.model_sum.predict_f(grid)
             pairs_diff_all = np.empty(0)
             pairs_sum_all = np.empty(0)
