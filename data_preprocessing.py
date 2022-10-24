@@ -5,6 +5,33 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import matrix
+import uuid
+
+
+class Data:
+
+    def __init__(self, r):  # filename
+        kappa_0 = 0.5 + 0.5j  # 1.1847 + 1.0097j
+        # r = 1
+        steps = 200
+        self.kappa, self.phi = matrix.parametrization(kappa_0, r, steps)  # load_dat_file(filename)
+        symmatrix = matrix.matrix_two_close_im(self.kappa)
+        ev_new = matrix.eigenvalues(symmatrix)
+        self.ev = initial_dataset(ev_new)[::11]
+        self.kappa = self.kappa[::11]
+        self.training_steps_color = [0 for _ in self.kappa]
+        # self.ev = initial_dataset(self.ev)
+        self.diff_scale, self.sum_mean_complex, self.sum_scale = self.update_scaling()
+        self.kappa_new = np.empty(0)
+
+    def update_scaling(self):
+        self.diff_scale = np.max(abs(np.column_stack([((self.ev[::, 0] - self.ev[::, 1]) ** 2).real,
+                                                      ((self.ev[::, 0] - self.ev[::, 1]) ** 2).imag])))
+        ev_sum_complex = (0.5 * (self.ev[::, 0] + self.ev[::, 1]))
+        self.sum_mean_complex = complex(np.mean(ev_sum_complex.real), np.mean(ev_sum_complex.imag))
+        self.sum_scale = np.max(abs(np.column_stack([ev_sum_complex.real - self.sum_mean_complex.real,
+                                                     ev_sum_complex.imag - self.sum_mean_complex.imag])))
+        return self.diff_scale, self.sum_mean_complex, self.sum_scale
 
 
 def load_dat_file(filename):
@@ -95,6 +122,7 @@ def getting_new_ev_of_ep_old(kappa, ev, model_diff, model_sum):
     ev_2 = np.empty(0)
     for i, val in enumerate(ev_new[0, ::]):
         pairs_diff = vmap(lambda a, b: np.power((a - b), 2), in_axes=(None, 0), out_axes=0)(val, ev_new[0, (i + 1):])
+
         pairs_sum = vmap(lambda a, b: 0.5 * np.add(a, b), in_axes=(None, 0), out_axes=0)(val, ev_new[0, (i + 1):])
         ev_1 = np.concatenate((ev_1, np.array([val for _ in range(len(ev_new[0, (i + 1):]))])))
         ev_2 = np.concatenate((ev_2, ev_new[0, (i + 1):]))
@@ -106,7 +134,7 @@ def getting_new_ev_of_ep_old(kappa, ev, model_diff, model_sum):
                     - np.power(pairs_sum_all.imag - mean_sum.numpy()[0, 1], 2) / (2 * var_sum.numpy()[0, 1])
     c = np.array([0 for _ in compatibility])
     fig1 = px.scatter(x=c, y=abs(compatibility), log_y=True)
-    fig1.show()
+    # fig1.show()
     new = np.array([[ev_1[np.argmax(compatibility)], ev_2[np.argmax(compatibility)]]])
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=ev_new.ravel().real, y=ev_new.ravel().imag, mode='markers', name="All eigenvalues"))
@@ -116,7 +144,7 @@ def getting_new_ev_of_ep_old(kappa, ev, model_diff, model_sum):
     return numpy.concatenate((ev, np.array([[ev_1[np.argmax(compatibility)], ev_2[np.argmax(compatibility)]]])))
 
 
-def getting_new_ev_of_ep(kappa, ev, model_diff, model_sum):
+def getting_new_ev_of_ep(data, gpflow_model):
     """Getting new eigenvalues belonging to the EP
 
     Selecting the two eigenvalues of a new point belonging to the EP by comparing it to a GPR model prediction and
@@ -124,25 +152,29 @@ def getting_new_ev_of_ep(kappa, ev, model_diff, model_sum):
 
     Parameters
     ----------
-    kappa : np.ndarray
-        All complex kappa values
-    ev : np.ndarray
-        Containing all old eigenvalues belonging to the EP
-    model_diff : gpflow.models.GPR
-        2D GPR model for eigenvalue difference squared
-    model_sum : gpflow.models.GPR
-        2D GPR model for eigenvalue sum
+    data : data_preprocessing.Data
+        Class which contains all scale-, kappa- and eigenvalues
+    gpflow_model : GPFlow_model_class.GPFlowModel
+        Class which contains both 2D GPR models
+    # kappa : np.ndarray
+    #     All complex kappa values
+    # ev : np.ndarray
+    #     Containing all old eigenvalues belonging to the EP
+    # model_diff : gpflow.models.GPR
+    #     2D GPR model for eigenvalue difference squared
+    # model_sum : gpflow.models.GPR
+    #     2D GPR model for eigenvalue sum
 
     Returns
     -------
     np.ndarray
         2D array containing all old and the new eigenvalues belonging to the EP
     """
-    symmatrix = matrix.matrix_two_close_im(kappa)
+    symmatrix = matrix.matrix_two_close_im(data.kappa_new)
     ev_new = matrix.eigenvalues(symmatrix)
-    grid = numpy.column_stack((kappa.real, kappa.imag))
-    mean_diff, var_diff = model_diff.predict_f(grid)
-    mean_sum, var_sum = model_sum.predict_f(grid)
+    grid = numpy.column_stack((data.kappa_new.real, data.kappa_new.imag))
+    mean_diff, var_diff = gpflow_model.model_diff.predict_f(grid)
+    mean_sum, var_sum = gpflow_model.model_sum.predict_f(grid)
     pairs_diff_all = np.empty(0)
     pairs_sum_all = np.empty(0)
     pairs_difference = np.empty(0)
@@ -151,7 +183,13 @@ def getting_new_ev_of_ep(kappa, ev, model_diff, model_sum):
     for i, val in enumerate(ev_new[0, ::]):
         pairs_diff_squared = vmap(lambda a, b: np.power((a - b), 2), in_axes=(None, 0), out_axes=0)(val,
                                                                                                     ev_new[0, (i + 1):])
+        pairs_diff_squared = pairs_diff_squared / data.diff_scale
         pairs_sum = vmap(lambda a, b: 0.5 * np.add(a, b), in_axes=(None, 0), out_axes=0)(val, ev_new[0, (i + 1):])
+        ev_sum_real = (pairs_sum.real - data.sum_mean_complex.real)
+        ev_sum_imag = (pairs_sum.imag - data.sum_mean_complex.imag)
+        ev_sum = ev_sum_real + ev_sum_imag * 1j
+        # ev_sum = np.column_stack([ev_sum_complex.real, ev_sum_complex.imag])
+        pairs_sum = ev_sum / data.sum_scale
         pairs_diff = vmap(lambda a, b: abs(a - b), in_axes=(None, 0), out_axes=0)(val, ev_new[0, (i + 1):])
         ev_1 = np.concatenate((ev_1, np.array([val for _ in range(len(ev_new[0, (i + 1):]))])))
         ev_2 = np.concatenate((ev_2, ev_new[0, (i + 1):]))
@@ -166,6 +204,10 @@ def getting_new_ev_of_ep(kappa, ev, model_diff, model_sum):
     fig1 = px.scatter(x=c, y=abs(compatibility), log_y=True)
     # fig1.write_html("docs/source/_pages/images/compatibility_%1d.html" % np.shape(ev)[0])
     # fig1.show()
+    # unique_filename = str(uuid.uuid4())
+    # df = pd.DataFrame()
+    # df['compatibility'] = compatibility.tolist()
+    # df.to_csv(unique_filename + '.csv')
     new = np.array([[ev_1[np.argmax(compatibility)], ev_2[np.argmax(compatibility)]]])
     new_diff = np.array([[ev_1[np.argmin(pairs_difference)], ev_2[np.argmin(pairs_difference)]]])
     fig = go.Figure()
@@ -180,4 +222,4 @@ def getting_new_ev_of_ep(kappa, ev, model_diff, model_sum):
                                   name="Eigenvalues of EP", marker=dict(color='red')))
     # fig_diff.write_html("docs/source/_pages/images/selected_eigenvalues_%1d.html" % np.shape(ev)[0])
     # fig_diff.show()
-    return numpy.concatenate((ev, np.array([[ev_1[np.argmax(compatibility)], ev_2[np.argmax(compatibility)]]])))
+    return numpy.concatenate((data.ev, np.array([[ev_1[np.argmax(compatibility)], ev_2[np.argmax(compatibility)]]])))
