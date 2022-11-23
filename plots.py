@@ -93,6 +93,29 @@ def energy_plane_matplotlib(ev, phi):
     # plt.show()
 
 
+def thesis_parameter_energy(kappa, ev, phi, ep=0.+1.j):
+    phi_all = np.sort(np.array([phi.copy() for _ in range(np.shape(ev)[1])]).ravel())
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10,4.5), constrained_layout=True)  # gridspec_kw={'width_ratios': [1, 1]}
+    ax1.set_xlabel("Re($\\kappa$)")
+    ax1.set_ylabel("Im($\\kappa$)")
+    cax = ax1.scatter(x=kappa[:].real, y=kappa[:].imag, c=phi, cmap="plasma")
+    ax1.scatter(x=ep.real, y=ep.imag, marker='x', c="tab:green", label="EP")
+    ax1.set_yticks([0.9, 0.95, 1., 1.05, 1.1])
+    ax1.legend()
+    # ax1.colorbar("Angle / \\si{\\radian}")
+    ax2.set_xlabel("Re($\\lambda$)")
+    ax2.set_ylabel("Im($\\lambda$)")
+    ax2.scatter(x=ev.ravel().real, y=ev.ravel().imag, c=phi_all, cmap="plasma")
+    # ax2.colorbar(label="Angle / \\si{\\radian}")
+    cb = fig.colorbar(cax, ax=ax2, label="Angle / \\si{\\radian}", ticks=[0, np.pi/2, np.pi, 3*np.pi/2, 2*np.pi])
+    cb.ax.set_yticklabels(["$0$", "$\\frac{\\pi}{2}$", "$\\pi$", "$\\frac{3\\pi}{2}$", "$2\\pi$"])
+    ax1.text(0.5,-0.24, "(a) Parameter space", ha="center", transform=ax1.transAxes)
+    ax2.text(0.5,-0.24, "(b) Energy plane", ha="center", transform=ax2.transAxes)
+    # plt.savefig("../mastersthesis/plots/plots/EPexample2d_parameter_energy.pdf")
+    # plt.savefig("../mastersthesis/plots/plots/EPexample2d_parameter_energy.png")
+    plt.show()
+
+
 def eigenvalues_angle_plotly(ev, phi, m_re, m_im):
     """Plotly plot for GPR model prediction of the eigenvalue difference with respect to the angle
 
