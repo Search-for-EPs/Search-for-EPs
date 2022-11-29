@@ -14,6 +14,7 @@ import jax.numpy as jnp
 from jax import vmap
 import data_preprocessing as dpp
 import ast
+from gpflow.utilities import print_summary
 
 ep_one_close = 1.18503337 + 1.00848169j
 ep_two_close = 0.88278093 + 1.09360073j
@@ -191,16 +192,131 @@ def two_close_5d_works():
     # df.to_csv('paper_data_kappa_trained_model_extra3.csv')
 
 
+def two_close_5d_with_data_class():
+    n = False
+    i = 0
+    eps = 1.e-15
+    eps_diff = 5.e-3
+    kappa_0 = 0.5 + 0.5j
+    r = 1
+    data = dpp.Data(r)
+    # data.update_scaling()
+    while not n:
+        model_diff, kernel_ev_diff = gpr.gp_2d_diff_kappa(data)
+        model_sum, kernel_ev_sum = gpr.gp_2d_sum_kappa(data)
+        if np.any(abs(kernel_ev_diff) < eps):
+            print("MODEL FULLY TRAINED!")
+        gpflow_model = GPFmc.GPFlowModel(model_diff, model_sum)
+        gpflow_function = gpflow_model.get_model_generator()
+        data.kappa_new = zs.zero_search(gpflow_function, kappa_0)
+        data.kappa = np.concatenate((data.kappa, data.kappa_new))
+        data.ev = dpp.getting_new_ev_of_ep(data, gpflow_model)
+        data.update_scaling()
+        i += 1
+        data.training_steps_color.append(i)
+        print("Root: ", data.kappa_new)
+        print("Real EP: ", ep_two_close)
+        ev_diff = data.ev[-1, 0] - data.ev[-1, 1]
+        print(ev_diff)
+        print(ev_diff.real)
+        print(ev_diff.imag)
+        if i == 2:
+            data.kappa_new = np.array([2 * data.kappa[-1] - data.kappa[-2]])
+            print(data.kappa_new)
+            data.kappa = np.concatenate(
+                (data.kappa, data.kappa_new))  # np.array([complex(data.kappa_new.real, data.kappa_new.imag)])
+            print(data.kappa)
+            data.ev = dpp.getting_new_ev_of_ep(data, gpflow_model)
+            data.update_scaling()
+            data.training_steps_color.append(i)
+        if abs(ev_diff.real) < eps_diff and abs(ev_diff.imag) < eps_diff:
+            print("Could find EP:")
+            print(data.kappa_new)
+            print("Real EP: ")
+            # print(ep)
+            print(ep_two_close)
+            print("Eigenvalue difference:")
+            print(ev_diff)
+            n = True
+        if i == 25:
+            print("Could not find EP yet:")
+            print(data.kappa_new)
+            print("Real EP: ")
+            # print(ep)
+            print(ep_two_close)
+            n = True
+    fig1 = px.scatter(x=data.kappa.real, y=data.kappa.imag, color=data.training_steps_color,
+                      labels=dict(x="Re(kappa)", y="Im(kappa)", color="# of training steps"))
+    # fig2 = px.scatter(x=kappa_no_noise.real, y=kappa_no_noise.imag, color=training_steps_color,
+    #                  labels=dict(x="Re(kappa)", y="Im(kappa)", color="# of training steps"))
+    fig_ep = px.scatter(x=ep_two_close.real, y=ep_two_close.imag, color_discrete_sequence=['#00CC96'], color=["EP"],
+                        labels=dict(x="Re(EP)", y="Im(EP)"))
+    fig = make_subplots(rows=1, cols=1)
+    fig.add_trace(fig1["data"][0], row=1, col=1)
+    fig.add_trace(fig_ep["data"][0], row=1, col=1)
+    fig.update_xaxes(title_text="Re(kappa)", row=1, col=1)
+    fig.update_yaxes(title_text="Im(kappa)", row=1, col=1)
+    fig.update_layout(coloraxis={'colorbar': dict(title="# of training steps", len=0.9)})
+    fig.show()
+
+
 if __name__ == '__main__':
     # exact_ep()
-    two_close_5d_works()
-    """kappa_0 = 1.247 + 88.698 * 1j
+    # two_close_5d_works()
+    # two_close_5d_with_data_class()
+    kappa_0 = 1.247 + 88.698 * 1j
     guess = 1. + 88.j
-    kappa, ev, phi = dpp.load_dat_file("../Punkt23/output_031_1.dat")
-    # kappa = kappa[::4]
-    # phi = phi[::4]
-    training_steps_color = [0 for _ in kappa]
-    ev = dpp.initial_dataset(ev)
+    data = dpp.Data("../my_calculations/Punkt23/Punkt23_initial_dataset.csv")
+    phi_all = np.sort(np.array([data.phi.copy() for _ in range(np.shape(data.ev)[1])]).ravel())
+    fig_ev = px.scatter(x=data.ev.ravel().real, y=data.ev.ravel().imag, color=phi_all.tolist(),
+                        labels=dict(x="Re(\\lambda)", y="Im(\\lambda)", color="Angle / \\si{\\degree}"))
+    # fig_ev.show()
+    # fig_ev.write_html("../my_calculations/Punkt29/Punkt29_energy_space.html")
+    model_diff, kernel_ev_diff = gpr.gp_2d_diff_kappa(data)
+    print_summary(model_diff)
+    model_sum, kernel_ev_sum = gpr.gp_2d_sum_kappa(data)
+    print_summary(model_sum)
+    plots.three_d_eigenvalue_kappa_2d_model_plotly(0. + 0.j, 1, model_diff)
+    plots.three_d_eigenvalue_kappa_2d_model_plotly(0. + 0.j, 1, model_sum)
+    # print(data.kappa.shape)
+    # print(kernel_ev_diff.shape)
+    gpflow_model = GPFmc.GPFlowModel(model_diff, model_sum)
+    gpflow_function = gpflow_model.get_model_generator()
+    data.kappa_new_scaled = zs.zero_search(gpflow_function, 0. + 0.j)
+    print(data.kappa_new_scaled)
+    data.kappa_new = np.array([complex(data.kappa_new_scaled.real * data.kappa_scaling.real + data.kappa_center.real,
+                                       data.kappa_new_scaled.imag * data.kappa_scaling.imag + data.kappa_center.imag)])
+    print(data.kappa_new)
+    data.kappa = np.concatenate((data.kappa, data.kappa_new))
+    data.training_steps_color.append(1)
+    fig1 = px.scatter(x=data.kappa.real, y=data.kappa.imag, color=data.training_steps_color,
+                      labels=dict(x="Re(kappa)", y="Im(kappa)", color="# of training steps"))
+    # fig2 = px.scatter(x=kappa_no_noise.real, y=kappa_no_noise.imag, color=training_steps_color,
+    #                  labels=dict(x="Re(kappa)", y="Im(kappa)", color="# of training steps"))
+    # fig_ep = px.scatter(x=ep_two_close.real, y=ep_two_close.imag, color_discrete_sequence=['#00CC96'], color=["EP"],
+    #                    labels=dict(x="Re(EP)", y="Im(EP)"))
+    fig = make_subplots(rows=1, cols=1)
+    fig.add_trace(fig1["data"][0], row=1, col=1)
+    # fig.add_trace(fig_ep["data"][0], row=1, col=1)
+    fig.update_xaxes(title_text="Re(kappa)", row=1, col=1)
+    fig.update_yaxes(title_text="Im(kappa)", row=1, col=1)
+    fig.update_layout(coloraxis={'colorbar': dict(title="# of training steps", len=0.9)})
+    # fig.write_html("docs/source/_pages/images/Punkt23_kappa_space.html")
+    fig.show()
+    # print("start")
+    # dpp.start_exact_calculation(data)
+    # ev = dpp.read_new_ev(data)
+    # print(str("{:e}".format(kappa.real[0])).replace("e", "d"))
+    """df = pd.DataFrame()
+    df['kappa'] = kappa.tolist()
+    # df['kappa_no_noise'] = kappa_no_noise.tolist()
+    df = pd.concat([df, pd.DataFrame(ev)], axis=1)
+    # df['ev'] = ev_with_noise.tolist()
+    # df['ev_no_noise'] = ev_no_noise.tolist()
+    df['training_steps_color'] = training_steps_color
+    # df = pd.concat([df, pd.DataFrame(ev)], axis=1)
+    df.columns = ['kappa', 'ev1', 'ev2', 'training_steps_color']
+    # df.to_csv('paper_data_kappa_trained_model_extra3.csv')
     # ev = ev[::4]
     print(ev)
     ev_diff_complex = ((ev[::, 0] - ev[::, 1]) ** 2)  # .astype(np.float64)
