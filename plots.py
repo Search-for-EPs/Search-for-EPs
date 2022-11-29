@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 import pandas as pd
+import configurematplotlib as confmp
 
 
 def init_matplotlib():
@@ -240,8 +241,8 @@ def three_d_eigenvalue_kappa_2d_model_plotly(kappa_0, r, m):
     m : gpflow.models.GPR
         2D GPR model for the preprocessed eigenvalues
     """
-    x = np.linspace(kappa_0.real - kappa_0.real * r, kappa_0.real + kappa_0.real * r, 50)
-    y = np.linspace(kappa_0.imag - kappa_0.imag * r, kappa_0.imag + kappa_0.imag * r, 50)
+    x = np.linspace(kappa_0.real - r, kappa_0.real + r, 100)
+    y = np.linspace(kappa_0.imag - r, kappa_0.imag + r, 100)
     xx, yy = np.meshgrid(x, y)
     grid = np.array((xx.ravel(), yy.ravel())).T
     mean, var = m.predict_f(grid)
@@ -252,6 +253,8 @@ def three_d_eigenvalue_kappa_2d_model_plotly(kappa_0, r, m):
                            color=mean.numpy()[::, 1])
     fig_re.show()
     fig_im.show()
+    # fig_re.write_html("../my_calculations/Punkt29/Punkt29_model_real.html")
+    # fig_im.write_html("../my_calculations/Punkt29/Punkt29_model_imag.html")
 
 
 def control_model_2d_plotly(kappa, ev_diff, ev_sum, model_diff, model_sum):
@@ -526,3 +529,8 @@ def entropy_kernel_ev_matplotlib():
     # print(fig1.get_size_inches())
     # fig1.savefig("entropy_diff_normalized_3.pdf")
     # fig1.savefig("entropy_diff_normalized_3.png")
+
+
+def check_selected_evs():
+    pass
+    # for i in range(26)
