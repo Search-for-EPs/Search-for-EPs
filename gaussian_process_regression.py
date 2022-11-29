@@ -2,7 +2,7 @@
 
 import numpy as np
 import gpflow
-# from gpflow.utilities import print_summary
+from gpflow.utilities import print_summary
 
 
 def gp_diff_angle(ev, phi):
@@ -61,9 +61,9 @@ def gp_2d_diff_kappa(data):
         contains the kernel eigenvalues of the input space.
     """
     ev_diff_complex = ((data.ev[::, 0] - data.ev[::, 1]) ** 2)  # .astype(np.float64)
-    ev_diff = np.column_stack([ev_diff_complex.real, ev_diff_complex.imag])
+    ev_diff = np.column_stack((ev_diff_complex.real, ev_diff_complex.imag))
     ev_diff = ev_diff / data.diff_scale
-    kappa_sep = np.column_stack([data.kappa.real, data.kappa.imag])  # .astype(np.float64)
+    kappa_sep = np.column_stack((data.kappa_scaled.real, data.kappa_scaled.imag))  # .astype(np.float64)
     model, kernel_ev = gp_create_matern52_model(kappa_sep, ev_diff)
     return model, kernel_ev
 
@@ -92,10 +92,10 @@ def gp_2d_sum_kappa(data):
     ev_sum_complex = (0.5 * (data.ev[::, 0] + data.ev[::, 1]))
     ev_sum_real = (ev_sum_complex.real - data.sum_mean_complex.real)
     ev_sum_imag = (ev_sum_complex.imag - data.sum_mean_complex.imag)
-    ev_sum = np.column_stack([ev_sum_real, ev_sum_imag])
+    ev_sum = np.column_stack((ev_sum_real, ev_sum_imag))
     # ev_sum = np.column_stack([ev_sum_complex.real, ev_sum_complex.imag])
     ev_sum = ev_sum / data.sum_scale
-    kappa_sep = np.column_stack([data.kappa.real, data.kappa.imag])
+    kappa_sep = np.column_stack((data.kappa_scaled.real, data.kappa_scaled.imag))
     model, kernel_ev = gp_create_matern52_model(kappa_sep, ev_sum)
     return model, kernel_ev
 
@@ -160,7 +160,7 @@ def gp_create_matern52_model(kappa, validation_data):
         Returns a 2D GPR model created with the matern52 kernel and a 1D array which
         contains the kernel eigenvalues of the input space.
     """
-    k = gpflow.kernels.Matern52()
+    k = gpflow.kernels.Matern52(lengthscales=[3., 0.1])
     kernel_ev = np.linalg.eigvals(k.K(kappa))
     model = gpflow.models.GPR(data=(kappa, validation_data), kernel=k, mean_function=None)
     opt = gpflow.optimizers.Scipy()
