@@ -4,33 +4,75 @@ from jax import vmap
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import matrix
-import uuid
+import subprocess
+import os
 
 
 class Data:
 
-    def __init__(self, r):  # filename
+    def __init__(self, filename):  # filename
         kappa_0 = 0.5 + 0.5j  # 1.1847 + 1.0097j
         # r = 1
         steps = 200
-        self.kappa, self.phi = matrix.parametrization(kappa_0, r, steps)  # load_dat_file(filename)
-        symmatrix = matrix.matrix_two_close_im(self.kappa)
-        ev_new = matrix.eigenvalues(symmatrix)
-        self.ev = initial_dataset(ev_new)[::11]
-        self.kappa = self.kappa[::11]
-        self.training_steps_color = [0 for _ in self.kappa]
+        df = pd.read_csv(filename, header=0, skiprows=0,
+                         names=["kappa", "ev1", "ev2", "phi"])
+        self.kappa = numpy.array(df.kappa).astype(complex)
+        self.ev = numpy.column_stack((numpy.array(df.ev1).astype(complex), numpy.array(df.ev2).astype(complex)))
+        self.phi = numpy.array(df.phi)
+        # self.kappa, self.ev, self.phi = load_dat_file(filename)
+        # fig_all = px.scatter(x=self.ev.ravel().real, y=self.ev.ravel().imag,
+        #                     labels=dict(x="Re(\\lambda)", y="Im(\\lambda)"))
+        # self.kappa, self.phi = matrix.parametrization(kappa_0, r, steps)
+        # symmatrix = matrix.matrix_two_close_im(self.kappa)
+        # ev_new = matrix.eigenvalues(symmatrix)
         # self.ev = initial_dataset(self.ev)
+        # fig_ev = px.scatter(x=self.ev.ravel().real, y=self.ev.ravel().imag, c="EF553B",
+        #                    labels=dict(x="Re(\\lambda)", y="Im(\\lambda)"))
+        """df = pd.DataFrame()
+        df['kappa'] = self.kappa.tolist()
+        df = pd.concat([df, pd.DataFrame(self.ev)], axis=1)
+        df['phi'] = self.phi.tolist()
+        df.columns = ['kappa', 'ev1', 'ev2', 'phi']"""
+        # self.ev = initial_dataset(ev_new)
+        # self.ev = self.ev[::11]
+        # self.kappa = self.kappa[::11]
+        # self.ev = initial_dataset(self.ev)
+        # a = int(np.ceil(np.shape(self.kappa)[0]/20))
+        """self.ev = self.ev[::2]
+        self.kappa = self.kappa[::2]
+        self.phi = self.phi[::2]"""
+        self.e_real = (0.5 * (self.ev[0, 0] + self.ev[0, 1])).real
+        self.training_steps_color = [0 for _ in self.kappa]
+
+        """fig = make_subplots(rows=1, cols=1)
+        fig.add_trace(fig_all["data"][0], row=1, col=1)
+        fig.add_trace(fig_ev["data"][0], row=1, col=1)
+        fig.show()"""
+
         self.diff_scale, self.sum_mean_complex, self.sum_scale = self.update_scaling()
+        self.kappa_center = complex(0.5 * (numpy.max(self.kappa.real) + numpy.min(self.kappa.real)),
+                                    0.5 * (numpy.max(self.kappa.imag) + numpy.min(self.kappa.imag)))
+        self.kappa_scaling = complex(numpy.max(self.kappa.real) - self.kappa_center.real,
+                                     numpy.max(self.kappa.imag) - self.kappa_center.imag)
+        self.kappa_scaled = numpy.array((self.kappa.real - self.kappa_center.real) / self.kappa_scaling.real +
+                                        ((self.kappa.imag - self.kappa_center.imag) / self.kappa_scaling.imag) * 1j)
+        self.kappa_new_scaled = np.empty(0)
         self.kappa_new = np.empty(0)
+        self.output_name = 2
+        self.working_directory = os.path.normpath(os.path.join(os.getcwd(), "../my_calculations/Punkt23/"))
+        # df.to_csv(os.path.join(self.working_directory, 'Punkt29_initial_dataset.csv'))
 
     def update_scaling(self):
-        self.diff_scale = np.max(abs(np.column_stack([((self.ev[::, 0] - self.ev[::, 1]) ** 2).real,
-                                                      ((self.ev[::, 0] - self.ev[::, 1]) ** 2).imag])))
+        ev_diff_complex = ((self.ev[::, 0] - self.ev[::, 1]) ** 2)
+        self.diff_scale = numpy.max(abs(numpy.column_stack((ev_diff_complex.real, ev_diff_complex.imag))))
         ev_sum_complex = (0.5 * (self.ev[::, 0] + self.ev[::, 1]))
         self.sum_mean_complex = complex(np.mean(ev_sum_complex.real), np.mean(ev_sum_complex.imag))
-        self.sum_scale = np.max(abs(np.column_stack([ev_sum_complex.real - self.sum_mean_complex.real,
-                                                     ev_sum_complex.imag - self.sum_mean_complex.imag])))
+        self.sum_scale = numpy.max(abs(numpy.column_stack([ev_sum_complex.real - self.sum_mean_complex.real,
+                                                           ev_sum_complex.imag - self.sum_mean_complex.imag])))
+        self.kappa_center = complex(0.5 * (numpy.max(self.kappa.real) + numpy.min(self.kappa.real)),
+                                    0.5 * (numpy.max(self.kappa.imag) + numpy.min(self.kappa.imag)))
         return self.diff_scale, self.sum_mean_complex, self.sum_scale
 
 
@@ -84,7 +126,7 @@ def initial_dataset(ev):
         ev_all.append(ev_sorted)
     ev_all_sorted = numpy.column_stack([ev_all[k] for k in range(np.shape(ev_all)[0])])
     ep_ev_index = np.argwhere(abs(ev_all_sorted[0, :] - ev_all_sorted[-1, :]) > 3.e-6)
-    # print(type(numpy.array(ev_all_sorted[:, ep_ev_index])))
+    # print(type(np.array(ev_all_sorted[:, ep_ev_index])))
     return numpy.column_stack([ev_all_sorted[:, n] for n in ep_ev_index])  # ev_all_sorted[:, ep_ev_index])
 
 
@@ -170,8 +212,10 @@ def getting_new_ev_of_ep(data, gpflow_model):
     np.ndarray
         2D array containing all old and the new eigenvalues belonging to the EP
     """
-    symmatrix = matrix.matrix_two_close_im(data.kappa_new)
-    ev_new = matrix.eigenvalues(symmatrix)
+    # symmatrix = matrix.matrix_two_close_im(data.kappa_new)
+    # ev_new = matrix.eigenvalues(symmatrix)
+    start_exact_calculation(data)
+    ev_new = read_new_ev(data)
     grid = numpy.column_stack((data.kappa_new.real, data.kappa_new.imag))
     mean_diff, var_diff = gpflow_model.model_diff.predict_f(grid)
     mean_sum, var_sum = gpflow_model.model_sum.predict_f(grid)
@@ -202,7 +246,7 @@ def getting_new_ev_of_ep(data, gpflow_model):
                     - np.power(pairs_sum_all.imag - mean_sum.numpy()[0, 1], 2) / (2 * var_sum.numpy()[0, 1])
     c = np.array([0 for _ in compatibility])
     fig1 = px.scatter(x=c, y=abs(compatibility), log_y=True)
-    # fig1.write_html("docs/source/_pages/images/compatibility_%1d.html" % np.shape(ev)[0])
+    fig1.write_html(os.path.join(data.working_directory, "compatibility_%1d.html" % np.shape(data.ev)[0]))
     # fig1.show()
     # unique_filename = str(uuid.uuid4())
     # df = pd.DataFrame()
@@ -214,12 +258,55 @@ def getting_new_ev_of_ep(data, gpflow_model):
     fig.add_trace(go.Scatter(x=ev_new.ravel().real, y=ev_new.ravel().imag, mode='markers', name="All eigenvalues"))
     fig.add_trace(go.Scatter(x=new.ravel().real, y=new.ravel().imag, mode='markers', name="Eigenvalues of EP",
                              marker=dict(color='red')))
-    # fig.write_html("docs/source/_pages/images/selected_eigenvalues_%1d.html" % np.shape(ev)[0])
-    # fig.show()
+    fig.write_html(os.path.join(data.working_directory, "selected_eigenvalues_%1d.html" % np.shape(data.ev)[0]))
     fig_diff = go.Figure()
     fig_diff.add_trace(go.Scatter(x=ev_new.ravel().real, y=ev_new.ravel().imag, mode='markers', name="All eigenvalues"))
     fig_diff.add_trace(go.Scatter(x=new_diff.ravel().real, y=new_diff.ravel().imag, mode='markers',
                                   name="Eigenvalues of EP", marker=dict(color='red')))
-    # fig_diff.write_html("docs/source/_pages/images/selected_eigenvalues_%1d.html" % np.shape(ev)[0])
+    fig_diff.write_html(os.path.join(data.working_directory, "selected_eigenvalue_diff_%1d.html" % np.shape(data.ev)[0]))
     # fig_diff.show()
     return numpy.concatenate((data.ev, np.array([[ev_1[np.argmax(compatibility)], ev_2[np.argmax(compatibility)]]])))
+
+
+def start_exact_calculation(data):
+    inp = "input_%s.inp" % str((3 - len(str(data.output_name))) * "0" + str(data.output_name))
+    input_file = os.path.join(data.working_directory, inp)
+    out = "out%s.dat" % str((3 - len(str(data.output_name))) * "0" + str(data.output_name))
+    gamma_m = str("{:e}".format(data.kappa_new.real[0])).replace("e", "d")
+    f_m = str("{:e}".format(data.kappa_new.imag[0])).replace("e", "d")
+    e_real = str("{:e}".format(data.e_real)).replace("e", "d")
+    with open(input_file, 'w') as f:
+        f.write("30                  ! N_max\n" +
+                "1                   ! F2min\n" +
+                "28                  ! F2max\n" +
+                "28                   ! N_max Green\n" +
+                "18                  ! F2max Green\n" +
+                "2                   ! delta 0: diagonalize with additional read in states 1: write out states\n" +
+                "2                   ! parity 0: only even, 1: only odd, 2: even and odd basis states\n" +
+                "42                  ! abs(alpha) (for N: N*7.5*2.8 = N*21) \n" +
+                "0.14d0              ! arg(alpha_i)\n" +
+                "0.14d0              ! arg(alpha_f) \n" +
+                "0.02d0              ! arg(alpha_del)\n" +
+                "%s            ! f_m  => Mittelpunkt des Kreises (f-Koordinate)\n" % str(f_m) +
+                "0                 ! phi_f  => Endwinkel in Grad               \n" +
+                "0                ! r  => Radius als Anteil an der Feldstärke   \n" +
+                "%s                ! gamma_m  => Mittelpunkt des Kreises (gamma-Koordinate)\n" % str(gamma_m) +
+                "0               ! phi_i  => Startwinkel in Grad           Magnetic field in T\n" +
+                "0                 ! n_phi => Anzahl Winkel \n" +
+                "1.0d0               ! s_i               \n" +
+                "1.0d0               ! s_f                Strength of the band structure\n" +
+                "0.02d0              ! s_del\n" +
+                "%s               ! e_real Energie position in the complex plane, around\n" % str(e_real) +
+                "0.0                 ! e_imag which the eigenvalues are searched, in eV\n" +
+                "70                  ! nev  Number of eigenvalues and eigenvectors to be computed\n" +
+                "200                 ! statenr number for file containing additional states for delta diagonalization\n" +
+                "%s                 ! ofnr  Punkt 35\n" % str((3 - len(str(data.output_name))) * "0" + str(data.output_name)))
+    subprocess.run('cd {0} && ./main < {1} > {2}'.format(data.working_directory, inp, out), shell=True)
+
+
+def read_new_ev(data):
+    out = "output_%s_1.dat" % str((3 - len(str(data.output_name))) * "0" + str(data.output_name))
+    output_file = os.path.join(data.working_directory, out)
+    kappa, ev, phi = load_dat_file(output_file)
+    data.output_name += 1
+    return ev
