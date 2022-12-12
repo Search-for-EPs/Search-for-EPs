@@ -2,7 +2,7 @@ import numpy as np
 import matrix
 import plots
 import time
-import gaussian_process_regression as gpr
+import gpr
 import zero_search as zs
 import matplotlib.pyplot as plt
 import GPFlow_model_class as GPFmc
@@ -12,7 +12,7 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import jax.numpy as jnp
 from jax import vmap
-import data_preprocessing as dpp
+import data as dpp
 import ast
 from gpflow.utilities import print_summary
 import gpflow.config as gpconfig
