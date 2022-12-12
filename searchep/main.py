@@ -1,12 +1,12 @@
 import numpy as np
 import plots
-import gaussian_process_regression as gpr
+import gpr
 import zero_search as zs
 import GPFlow_model_class as GPFmc
 import pandas as pd
 import plotly.express as px
 from plotly.subplots import make_subplots
-import data_preprocessing as dpp
+import data as dpp
 import os
 from gpflow.utilities import print_summary
 
