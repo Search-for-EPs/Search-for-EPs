@@ -160,7 +160,7 @@ def gp_create_matern52_model(kappa, validation_data):
         Returns a 2D GPR model created with the matern52 kernel and a 1D array which
         contains the kernel eigenvalues of the input space.
     """
-    k = gpflow.kernels.Matern52(lengthscales=[3., 0.1])
+    k = gpflow.kernels.Matern52(lengthscales=[3., 0.1])  # gpflow.kernels.Matern52(active_dims=[0]) + gpflow.kernels.Matern52(active_dims=[1])
     kernel_ev = np.linalg.eigvals(k.K(kappa))
     model = gpflow.models.GPR(data=(kappa, validation_data), kernel=k, mean_function=None)
     opt = gpflow.optimizers.Scipy()
