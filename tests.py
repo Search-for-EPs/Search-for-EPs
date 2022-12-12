@@ -15,6 +15,8 @@ from jax import vmap
 import data_preprocessing as dpp
 import ast
 from gpflow.utilities import print_summary
+import gpflow.config as gpconfig
+import os
 
 ep_one_close = 1.18503337 + 1.00848169j
 ep_two_close = 0.88278093 + 1.09360073j
@@ -260,29 +262,94 @@ def two_close_5d_with_data_class():
     fig.show()
 
 
+IINITIAL_DATASET = "../my_calculations/Punkt23/Punkt23_initial_dataset.csv"
+POINT = "Punkt23"
+DIRECTORY = "../my_calculations/Punkt23/"
+EXTRA_TRAININGS_STEP = False
+
+
 if __name__ == '__main__':
     # exact_ep()
     # two_close_5d_works()
     # two_close_5d_with_data_class()
-    kappa_0 = 1.247 + 88.698 * 1j
-    guess = 1. + 88.j
-    data = dpp.Data("../my_calculations/Punkt23/Punkt23_initial_dataset.csv")
-    phi_all = np.sort(np.array([data.phi.copy() for _ in range(np.shape(data.ev)[1])]).ravel())
-    fig_ev = px.scatter(x=data.ev.ravel().real, y=data.ev.ravel().imag, color=phi_all.tolist(),
-                        labels=dict(x="Re(\\lambda)", y="Im(\\lambda)", color="Angle / \\si{\\degree}"))
-    # fig_ev.show()
-    # fig_ev.write_html("../my_calculations/Punkt29/Punkt29_energy_space.html")
+    # gpconfig.set_default_jitter(1e-5)
+
+    data = dpp.Data(IINITIAL_DATASET, DIRECTORY)
     model_diff, kernel_ev_diff = gpr.gp_2d_diff_kappa(data)
     print_summary(model_diff)
     model_sum, kernel_ev_sum = gpr.gp_2d_sum_kappa(data)
     print_summary(model_sum)
-    plots.three_d_eigenvalue_kappa_2d_model_plotly(0. + 0.j, 1, model_diff)
-    plots.three_d_eigenvalue_kappa_2d_model_plotly(0. + 0.j, 1, model_sum)
+    #plots.three_d_eigenvalue_kappa_2d_model_plotly(0. + 0.j, 1, model_diff)
+    #plots.three_d_eigenvalue_kappa_2d_model_plotly(0. + 0.j, 1, model_sum)
     # print(data.kappa.shape)
     # print(kernel_ev_diff.shape)
     gpflow_model = GPFmc.GPFlowModel(model_diff, model_sum)
     gpflow_function = gpflow_model.get_model_generator()
     data.kappa_new_scaled = zs.zero_search(gpflow_function, 0. + 0.j)
+    print(data.kappa_new_scaled)
+    data.kappa_new = np.array([complex(data.kappa_new_scaled.real * data.kappa_scaling.real + data.kappa_center.real,
+                                       data.kappa_new_scaled.imag * data.kappa_scaling.imag + data.kappa_center.imag)])
+    print(data.kappa_new)
+    data.kappa_scaled = np.concatenate((data.kappa_scaled, data.kappa_new_scaled))
+    data.kappa = np.concatenate((data.kappa, data.kappa_new))
+    data.ev = dpp.getting_new_ev_of_ep(data, gpflow_model)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=data.kappa.real, y=data.kappa.imag, mode='markers', name="Kappa"))
+    fig.add_trace(go.Scatter(x=data.kappa_new.real, y=data.kappa_new.imag, mode='markers', name="Im"))
+    fig.write_html(os.path.join(data.working_directory, "{}_kappa_space.html".format(POINT)))
+    # fig.show()
+    """kappa_0 = 1.247 + 88.698 * 1j
+    guess = 1. + 88.j
+    data = dpp.Data("../my_calculations/Punkt23/Punkt23_initial_dataset.csv")
+    # phi_all = np.sort(np.array([data.phi.copy() for _ in range(np.shape(data.ev)[1])]).ravel())
+    # fig_ev = px.scatter(x=data.ev.ravel().real, y=data.ev.ravel().imag, color=phi_all.tolist(),
+    #                    labels=dict(x="Re(\\lambda)", y="Im(\\lambda)", color="Angle / \\si{\\degree}"))
+    # fig_ev.show()
+    # fig_ev.write_html("../my_calculations/Punkt29/Punkt29_energy_space.html")
+    i = 0
+    while i < 2:
+        model_diff, kernel_ev_diff = gpr.gp_2d_diff_kappa(data)
+        print_summary(model_diff)
+        model_sum, kernel_ev_sum = gpr.gp_2d_sum_kappa(data)
+        print_summary(model_sum)
+        #plots.three_d_eigenvalue_kappa_2d_model_plotly(0. + 0.j, 1, model_diff)
+        #plots.three_d_eigenvalue_kappa_2d_model_plotly(0. + 0.j, 1, model_sum)
+        # print(data.kappa.shape)
+        # print(kernel_ev_diff.shape)
+        gpflow_model = GPFmc.GPFlowModel(model_diff, model_sum)
+        gpflow_function = gpflow_model.get_model_generator()
+        data.ev = dpp.getting_new_ev_of_ep(data, gpflow_model)
+        # data.ev[-1, 0] = 2.169725134 - 3.383456876e-06j
+        # data.ev[-1, 1] = 2.169722134 - 3.583456876e-06j
+        i += 1
+
+    #model_diff, kernel_ev_diff = gpr.gp_2d_diff_kappa(data)
+    #print_summary(model_diff)
+    #model_sum, kernel_ev_sum = gpr.gp_2d_sum_kappa(data)
+    #print_summary(model_sum)
+    #plots.three_d_eigenvalue_kappa_2d_model_plotly(0. + 0.j, 1, model_diff)
+    #plots.three_d_eigenvalue_kappa_2d_model_plotly(0. + 0.j, 1, model_sum)
+    data.kappa_new_scaled = zs.zero_search(gpflow_function, 0. + 0.j)
+    print(data.kappa_new_scaled)
+    data.kappa_new = np.array([complex(data.kappa_new_scaled.real * data.kappa_scaling.real + data.kappa_center.real,
+                                       data.kappa_new_scaled.imag * data.kappa_scaling.imag + data.kappa_center.imag)])
+    print(data.kappa_new)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=data.kappa.real, y=data.kappa.imag, mode='markers', name="Kappa"))
+    fig.add_trace(go.Scatter(x=data.kappa_new.real, y=data.kappa_new.imag, mode='markers', name="Im"))
+    fig.show()"""
+    """df = pd.DataFrame()
+    df['kappa'] = data.kappa.tolist()
+    # df['kappa_no_noise'] = kappa_no_noise.tolist()
+    df = pd.concat([df, pd.DataFrame(data.ev)], axis=1)
+    # df['ev'] = ev_with_noise.tolist()
+    # df['ev_no_noise'] = ev_no_noise.tolist()
+    # df['training_steps_color'] = data.training_steps_color
+    df['kappa_scaled'] = data.kappa_scaled.tolist()
+    # df = pd.concat([df, pd.DataFrame(ev)], axis=1)
+    df.columns = ['kappa', 'ev1', 'ev2', 'kappa_scaled']
+    df.to_csv('../my_calculations/Punkt23/Punkt23_initial_dataset_2.csv')"""
+    """data.kappa_new_scaled = zs.zero_search(gpflow_function, 0. + 0.j)
     print(data.kappa_new_scaled)
     data.kappa_new = np.array([complex(data.kappa_new_scaled.real * data.kappa_scaling.real + data.kappa_center.real,
                                        data.kappa_new_scaled.imag * data.kappa_scaling.imag + data.kappa_center.imag)])
@@ -300,9 +367,9 @@ if __name__ == '__main__':
     # fig.add_trace(fig_ep["data"][0], row=1, col=1)
     fig.update_xaxes(title_text="Re(kappa)", row=1, col=1)
     fig.update_yaxes(title_text="Im(kappa)", row=1, col=1)
-    fig.update_layout(coloraxis={'colorbar': dict(title="# of training steps", len=0.9)})
+    fig.update_layout(coloraxis={'colorbar': dict(title="# of training steps", len=0.9)})"""
     # fig.write_html("docs/source/_pages/images/Punkt23_kappa_space.html")
-    fig.show()
+    # fig.show()
     # print("start")
     # dpp.start_exact_calculation(data)
     # ev = dpp.read_new_ev(data)
