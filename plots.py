@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 import pandas as pd
-import configurematplotlib as confmp
+# import configurematplotlib as confmp
 
 
 def init_matplotlib():
@@ -241,8 +241,8 @@ def three_d_eigenvalue_kappa_2d_model_plotly(kappa_0, r, m):
     m : gpflow.models.GPR
         2D GPR model for the preprocessed eigenvalues
     """
-    x = np.linspace(kappa_0.real - r, kappa_0.real + r, 100)
-    y = np.linspace(kappa_0.imag - r, kappa_0.imag + r, 100)
+    x = np.linspace(kappa_0.real - r, kappa_0.real + r, 20)
+    y = np.linspace(kappa_0.imag - r, kappa_0.imag + r, 20)
     xx, yy = np.meshgrid(x, y)
     grid = np.array((xx.ravel(), yy.ravel())).T
     mean, var = m.predict_f(grid)
