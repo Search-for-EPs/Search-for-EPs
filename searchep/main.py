@@ -13,7 +13,7 @@ from gpflow.utilities import print_summary
 ep = np.array([1.185034 + 1.008482j])
 ep_two_close = np.array([0.88278093 + 1.09360073j])
 
-IINITIAL_DATASET = "../my_calculations/Punkt23/Punkt23_initial_dataset.csv"
+INITIAL_DATASET = "../my_calculations/Punkt23/Punkt23_initial_dataset.csv"
 POINT = "Punkt23"
 DIRECTORY = "../my_calculations/Punkt23/"
 EXTRA_TRAININGS_STEP = False
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     i = 0
     eps = 1.e-15
     eps_diff = 1.e-8
-    data = dpp.Data(IINITIAL_DATASET, DIRECTORY, OUTPUT_NAME)
+    data = dpp.Data(INITIAL_DATASET, DIRECTORY, OUTPUT_NAME)
     # data.kappa_new = np.array([kappa_0])
     # model_diff, kernel_ev_diff = gpr.gp_2d_diff_kappa(data)
     # model_sum, kernel_ev_sum = gpr.gp_2d_sum_kappa(data)

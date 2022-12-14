@@ -33,9 +33,11 @@ def train(training_data: data.Data, new_calculations: bool = True, extra_trainin
             training_data.kappa_new_scaled = zero_search.zero_search(gpflow_function, 0. + 0.j)
             training_data.kappa_scaled = np.concatenate((training_data.kappa_scaled, training_data.kappa_new_scaled))
             training_data.kappa_new = np.array([complex(training_data.kappa_new_scaled.real *
-                                                        training_data.kappa_scaling.real + training_data.kappa_center.real,
+                                                        training_data.kappa_scaling.real +
+                                                        training_data.kappa_center.real,
                                                         training_data.kappa_new_scaled.imag *
-                                                        training_data.kappa_scaling.imag + training_data.kappa_center.imag)])
+                                                        training_data.kappa_scaling.imag +
+                                                        training_data.kappa_center.imag)])
             training_data.kappa = np.concatenate((training_data.kappa, training_data.kappa_new))
         training_data.ev = data.getting_new_ev_of_ep(training_data, gpflow_model, new_calculations,
                                                      eval_plots=eval_plots, plotname=plotname)

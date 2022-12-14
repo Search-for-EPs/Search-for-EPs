@@ -76,11 +76,10 @@ class GPFlowModel:
             ev_1 = np.empty(0)
             ev_2 = np.empty(0)
             for i, val in enumerate(ev_new[0, ::]):
-                pairs_diff = vmap(lambda a, b: jnp.power((a - b), 2), in_axes=(None, 0), out_axes=0)(val,
-                                                                                                     ev_new[0,
-                                                                                                     (i + 1):])
-                pairs_sum = vmap(lambda a, b: 0.5 * jnp.add(a, b), in_axes=(None, 0), out_axes=0)(val,
-                                                                                                  ev_new[0, (i + 1):])
+                pairs_diff = vmap(lambda a, b: jnp.power((a - b), 2),
+                                  in_axes=(None, 0), out_axes=0)(val, ev_new[0, (i + 1):])
+                pairs_sum = vmap(lambda a, b: 0.5 * jnp.add(a, b),
+                                 in_axes=(None, 0), out_axes=0)(val, ev_new[0, (i + 1):])
                 ev_1 = np.concatenate((ev_1, np.array([val for _ in range(len(ev_new[0, (i + 1):]))])))
                 ev_2 = np.concatenate((ev_2, ev_new[0, (i + 1):]))
                 pairs_diff_all = np.concatenate((pairs_sum_all, np.array(pairs_diff)))
