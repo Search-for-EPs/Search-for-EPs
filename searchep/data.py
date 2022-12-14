@@ -5,47 +5,40 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-import matrix
+from . import GPFlow_model_class as GPFmc
 import subprocess
 import os
+from typing import Tuple
 
 
 class Data:
 
-    def __init__(self, filename, directory, output_name):
-        df = pd.read_csv(filename, header=0, skiprows=0,
-                         names=["kappa", "ev1", "ev2", "phi"])
-        self.kappa = np.array(df.kappa).astype(complex)
-        self.ev = np.column_stack((np.array(df.ev1).astype(complex), np.array(df.ev2).astype(complex)))
-        self.phi = np.array(df.phi)
-        # self.kappa, self.ev, self.phi = load_dat_file(filename)
-        # fig_all = px.scatter(x=self.ev.ravel().real, y=self.ev.ravel().imag,
-        #                     labels=dict(x="Re(\\lambda)", y="Im(\\lambda)"))
-        # self.kappa, self.phi = matrix.parametrization(kappa_0, r, steps)
-        # symmatrix = matrix.matrix_two_close_im(self.kappa)
-        # ev_new = matrix.eigenvalues(symmatrix)
-        # self.ev = initial_dataset(self.ev)
-        # fig_ev = px.scatter(x=self.ev.ravel().real, y=self.ev.ravel().imag, c="EF553B",
-        #                    labels=dict(x="Re(\\lambda)", y="Im(\\lambda)"))
+    def __init__(self, filename, directory, output_name=2, evs_EP=True, distance=3.e-6):
+        self.working_directory = directory
+        if evs_EP:
+            df = pd.read_csv(os.path.normpath(os.path.join(self.working_directory, filename)), header=0, skiprows=0,
+                            names=["kappa", "ev1", "ev2", "phi"])
+            self.kappa = np.array(df.kappa).astype(complex)
+            self.ev = np.column_stack((np.array(df.ev1).astype(complex), np.array(df.ev2).astype(complex)))
+            self.phi = np.array(df.phi)
+        else:
+            self.kappa, self.ev, self.phi = load_dat_file(os.path.normpath(os.path.join(self.working_directory, filename)))
+            fig_all = px.scatter(x=self.ev.ravel().real, y=self.ev.ravel().imag,
+                                 labels=dict(x="Re(\\lambda)", y="Im(\\lambda)"))
+            self.ev = initial_dataset(self.ev, distance=distance)
+            phi_all = np.sort(np.array([self.phi.copy() for _ in range(np.shape(self.ev)[1])]).ravel())
+            fig_ev = px.scatter(x=self.ev.ravel().real, y=self.ev.ravel().imag, color=phi_all,
+                                labels=dict(x="Re(\\lambda)", y="Im(\\lambda)"))
+            fig = make_subplots(rows=1, cols=1)
+            # fig.add_trace(fig_all["data"][0], row=1, col=1, )
+            fig.add_trace(fig_ev["data"][0], row=1, col=1)
+            # fig.show()
         """df = pd.DataFrame()
         df['kappa'] = self.kappa.tolist()
         df = pd.concat([df, pd.DataFrame(self.ev)], axis=1)
         df['phi'] = self.phi.tolist()
         df.columns = ['kappa', 'ev1', 'ev2', 'phi']"""
-        # self.ev = initial_dataset(ev_new)
-        # self.ev = self.ev[::11]
-        # self.kappa = self.kappa[::11]
-        # self.ev = initial_dataset(self.ev)
-        # a = int(np.ceil(np.shape(self.kappa)[0]/20))
-        """self.ev = self.ev[::2]
-        self.kappa = self.kappa[::2]
-        self.phi = self.phi[::2]"""
         self.training_steps_color = [0 for _ in self.kappa]
-
-        """fig = make_subplots(rows=1, cols=1)
-        fig.add_trace(fig_all["data"][0], row=1, col=1)
-        fig.add_trace(fig_ev["data"][0], row=1, col=1)
-        fig.show()"""
 
         self.diff_scale, self.sum_mean_complex, self.sum_scale = self.update_scaling()
         self.kappa_center = complex(0.5 * (np.max(self.kappa.real) + np.min(self.kappa.real)),
@@ -57,7 +50,7 @@ class Data:
         self.kappa_new_scaled = np.empty(0)
         self.kappa_new = np.empty(0)
         self.output_name = output_name
-        self.working_directory = os.path.normpath(os.path.join(os.getcwd(), directory))
+        self.exception = False
         # df.to_csv(os.path.join(self.working_directory, 'Punkt29_initial_dataset.csv'))
 
     def update_scaling(self):
@@ -72,7 +65,23 @@ class Data:
         return self.diff_scale, self.sum_mean_complex, self.sum_scale
 
 
-def load_dat_file(filename):
+def load_dat_file(filename: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Load dat file (output of external program)
+
+    Data file containing all kappa values, angles and respective eigenvalues.
+
+    Parameters
+    ----------
+    filename : str
+        Absolute path to dat file
+
+    Returns
+    -------
+    (np.ndarray, np.ndarray, np.ndarray)
+        First return is the kappa array which contains every kappa value only once. Second return is an array 
+        containing all eigenvalues where each row belongs to one kappa value. Third return is the phi array
+        similar to the kappa array.
+    """
     df = pd.read_csv(filename, sep='\s+', skiprows=7, skip_blank_lines=False,
                      names=["Z1", "Z2", "Z3", "Z4", "Z5", "f", "gamma", "Z8", "Z9", "Z10", "Z11", "ev_re", "ev_im",
                             "Z14", "Z15", "Z16", "Z17", "Z18", "Z19", "Z20", "Z21", "Z22", "Z23", "Z24", "Z25", "Z26",
@@ -92,16 +101,18 @@ def clump(a):
     return np.array([a[s] for s in np.ma.clump_unmasked(np.ma.masked_invalid(a))])
 
 
-def initial_dataset(ev):
+def initial_dataset(ev:np.ndarray, distance: float=3.e-6) -> np.ndarray:
     """Get initial dataset
 
     Selecting the eigenvalues belonging to the EP by ordering all eigenvalues and comparing the first end last point.
-    If it is greater than 0 the eigenvalues exchange their positions and belong to the EP.
+    If it is greater than 0 the eigenvalues exchange their positions and belong to the EP.        
 
     Parameters
     ----------
     ev : np.ndarray
         All exact complex eigenvalues
+    distance : float, optional
+        Distance between start and end of a loop, by default 3.e-6
 
     Returns
     -------
@@ -121,68 +132,13 @@ def initial_dataset(ev):
                 ev_sorted.append(ev[(j + 1), l])
         ev_all.append(ev_sorted)
     ev_all_sorted = np.column_stack([ev_all[k] for k in range(np.shape(ev_all)[0])])
-    ep_ev_index = np.argwhere(abs(ev_all_sorted[0, :] - ev_all_sorted[-1, :]) > 3.e-6)
+    ep_ev_index = np.argwhere(abs(ev_all_sorted[0, :] - ev_all_sorted[-1, :]) > distance)
     # print(type(np.array(ev_all_sorted[:, ep_ev_index])))
     return np.column_stack([ev_all_sorted[:, n] for n in ep_ev_index])  # ev_all_sorted[:, ep_ev_index])
 
 
-def getting_new_ev_of_ep_old(kappa, ev, model_diff, model_sum):
-    """Getting new eigenvalues belonging to the EP
-
-    Selecting the two eigenvalues of a new point belonging to the EP by comparing it to a GPR model prediction and
-    its variance.
-
-    Parameters
-    ----------
-    kappa : np.ndarray
-        All complex kappa values
-    ev : np.ndarray
-        Containing all old eigenvalues belonging to the EP
-    model_diff : gpflow.models.GPR
-        2D GPR model for eigenvalue difference squared
-    model_sum : gpflow.models.GPR
-        2D GPR model for eigenvalue sum
-
-    Returns
-    -------
-    np.ndarray
-        2D array containing all old and the new eigenvalues belonging to the EP
-    """
-    symmatrix = matrix.matrix_one_close_re(kappa)
-    ev_new = matrix.eigenvalues(symmatrix)
-    xx, yy = np.meshgrid(kappa.real, kappa.imag)
-    grid = np.array((xx.ravel(), yy.ravel())).T
-    mean_diff, var_diff = model_diff.predict_f(grid)
-    mean_sum, var_sum = model_sum.predict_f(grid)
-    pairs_diff_all = np.empty(0)
-    pairs_sum_all = np.empty(0)
-    ev_1 = np.empty(0)
-    ev_2 = np.empty(0)
-    for i, val in enumerate(ev_new[0, ::]):
-        pairs_diff = vmap(lambda a, b: jnp.power((a - b), 2), in_axes=(None, 0), out_axes=0)(val, ev_new[0, (i + 1):])
-
-        pairs_sum = vmap(lambda a, b: 0.5 * jnp.add(a, b), in_axes=(None, 0), out_axes=0)(val, ev_new[0, (i + 1):])
-        ev_1 = np.concatenate((ev_1, np.array([val for _ in range(len(ev_new[0, (i + 1):]))])))
-        ev_2 = np.concatenate((ev_2, ev_new[0, (i + 1):]))
-        pairs_diff_all = np.concatenate((pairs_sum_all, np.array(pairs_diff)))
-        pairs_sum_all = np.concatenate((pairs_sum_all, np.array(pairs_sum)))
-    compatibility = - np.power(pairs_diff_all.real - mean_diff.numpy()[0, 0], 2) / (2 * var_diff.numpy()[0, 0]) \
-                    - np.power(pairs_diff_all.imag - mean_diff.numpy()[0, 1], 2) / (2 * var_diff.numpy()[0, 1]) \
-                    - np.power(pairs_sum_all.real - mean_sum.numpy()[0, 0], 2) / (2 * var_sum.numpy()[0, 0]) \
-                    - np.power(pairs_sum_all.imag - mean_sum.numpy()[0, 1], 2) / (2 * var_sum.numpy()[0, 1])
-    c = np.array([0 for _ in compatibility])
-    fig1 = px.scatter(x=c, y=abs(compatibility), log_y=True)
-    # fig1.show()
-    new = np.array([[ev_1[np.argmax(compatibility)], ev_2[np.argmax(compatibility)]]])
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=ev_new.ravel().real, y=ev_new.ravel().imag, mode='markers', name="All eigenvalues"))
-    fig.add_trace(go.Scatter(x=new.ravel().real, y=new.ravel().imag, mode='markers', name="Eigenvalues of EP",
-                             marker=dict(color='red')))
-    fig.show()
-    return np.concatenate((ev, np.array([[ev_1[np.argmax(compatibility)], ev_2[np.argmax(compatibility)]]])))
-
-
-def getting_new_ev_of_ep(data, gpflow_model):
+def getting_new_ev_of_ep(data:Data, gpflow_model:GPFmc.GPFlowModel, new_calculations=True, 
+                         eval_plots=True, plotname="") -> np.ndarray:
     """Getting new eigenvalues belonging to the EP
 
     Selecting the two eigenvalues of a new point belonging to the EP by comparing it to a GPR model prediction and
@@ -194,24 +150,22 @@ def getting_new_ev_of_ep(data, gpflow_model):
         Class which contains all scale-, kappa- and eigenvalues
     gpflow_model : GPFlow_model_class.GPFlowModel
         Class which contains both 2D GPR models
-    # kappa : np.ndarray
-    #     All complex kappa values
-    # ev : np.ndarray
-    #     Containing all old eigenvalues belonging to the EP
-    # model_diff : gpflow.models.GPR
-    #     2D GPR model for eigenvalue difference squared
-    # model_sum : gpflow.models.GPR
-    #     2D GPR model for eigenvalue sum
+    new_calculations : bool, optional
+        Controls if it is a new calculation and if not the kappa value needs to be read as well and 
+        no extra calculation of the eigenvalues has to be started, by default True
+    eval_plots : bool, optional
+        Controls if compatibility and selected eigenvalues should be plotted or not, by default True
+    plotname : str, optional
+        Specifies special name for plot files, by default ""
 
     Returns
     -------
     np.ndarray
         2D array containing all old and the new eigenvalues belonging to the EP
     """
-    # symmatrix = matrix.matrix_two_close_im(data.kappa_new)
-    # ev_new = matrix.eigenvalues(symmatrix)
-    start_exact_calculation(data)
-    ev_new = read_new_ev(data)
+    if new_calculations:
+        start_exact_calculation(data)
+    ev_new = read_new_ev(data, new_calculations)
     grid = np.column_stack((data.kappa_new_scaled.real, data.kappa_new_scaled.imag))
     mean_diff, var_diff = gpflow_model.model_diff.predict_f(grid)
     mean_sum, var_sum = gpflow_model.model_sum.predict_f(grid)
@@ -240,41 +194,49 @@ def getting_new_ev_of_ep(data, gpflow_model):
                     - np.power(pairs_diff_all.imag - mean_diff.numpy()[0, 1], 2) / (2 * var_diff.numpy()[0, 1]) \
                     - np.power(pairs_sum_all.real - mean_sum.numpy()[0, 0], 2) / (2 * var_sum.numpy()[0, 0]) \
                     - np.power(pairs_sum_all.imag - mean_sum.numpy()[0, 1], 2) / (2 * var_sum.numpy()[0, 1])
-    c = np.array([0 for _ in compatibility])
-    fig1 = px.scatter(x=c, y=abs(compatibility), log_y=True)
-    fig1.write_html(os.path.join(data.working_directory, "compatibility_%1d.html" % np.shape(data.ev)[0]))
-    # fig1.show()
-    # a = np.argsort(compatibility)
-    # unique_filename = str(uuid.uuid4())
-    # df = pd.DataFrame()
-    # df['compatibility'] = compatibility.tolist()
-    # df.to_csv(unique_filename + '.csv')
-    new = np.array([[ev_1[np.argmax(compatibility)], ev_2[np.argmax(compatibility)]]])
-    # new2 = np.array([[ev_1[a[-2]], ev_2[a[-2]]]])
-    # new3 = np.array([[ev_1[a[-3]], ev_2[a[-3]]]])
-    # new_diff = np.array([[ev_1[np.argmin(pairs_difference)], ev_2[np.argmin(pairs_difference)]]])
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=ev_new.ravel().real, y=ev_new.ravel().imag, mode='markers', name="All eigenvalues"))
-    fig.add_trace(go.Scatter(x=data.ev.ravel().real, y=data.ev.ravel().imag, mode='markers', name='EP eigenvalues',
-                             marker=dict(color='green')))
-    fig.add_trace(go.Scatter(x=new.ravel().real, y=new.ravel().imag, mode='markers', name="Eigenvalues of EP",
-                             marker=dict(color='red')))
-    # fig.add_trace(go.Scatter(x=new2.ravel().real, y=new2.ravel().imag, mode='markers', name="Eigenvalues of EP2",
-    #                         marker=dict(color='red')))
-    # fig.add_trace(go.Scatter(x=new3.ravel().real, y=new3.ravel().imag, mode='markers', name="Eigenvalues of EP3",
-    #                         marker=dict(color='red')))
-    fig.write_html(os.path.join(data.working_directory, "selected_eigenvalues_%1d.html" % np.shape(data.ev)[0]))
-    # fig.show()
-    # fig_diff = go.Figure()
-    # fig_diff.add_trace(go.Scatter(x=ev_new.ravel().real, y=ev_new.ravel().imag, mode='markers', name="All eigenvalues"))
-    # fig_diff.add_trace(go.Scatter(x=new_diff.ravel().real, y=new_diff.ravel().imag, mode='markers',
-    #                              name="Eigenvalues of EP", marker=dict(color='red')))
-    # fig_diff.write_html(os.path.join(data.working_directory, "selected_eigenvalue_diff_%1d.html" % np.shape(data.ev)[0]))
-    # fig_diff.show()
+    if eval_plots:
+        c = np.array([0 for _ in compatibility])
+        fig1 = px.scatter(x=c, y=abs(compatibility), log_y=True)
+        fig1.write_html(os.path.join(data.working_directory, "compatibility_%s%1d.html" % (plotname, np.shape(data.ev)[0])))
+        # fig1.show()
+        # a = np.argsort(compatibility)
+        # unique_filename = str(uuid.uuid4())
+        # df = pd.DataFrame()
+        # df['compatibility'] = compatibility.tolist()
+        # df.to_csv(unique_filename + '.csv')
+        new = np.array([[ev_1[np.argmax(compatibility)], ev_2[np.argmax(compatibility)]]])
+        # new2 = np.array([[ev_1[a[-2]], ev_2[a[-2]]]])
+        # new3 = np.array([[ev_1[a[-3]], ev_2[a[-3]]]])
+        # new_diff = np.array([[ev_1[np.argmin(pairs_difference)], ev_2[np.argmin(pairs_difference)]]])
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=ev_new.ravel().real, y=ev_new.ravel().imag, mode='markers', name="All eigenvalues"))
+        fig.add_trace(go.Scatter(x=data.ev.ravel().real, y=data.ev.ravel().imag, mode='markers', name='EP eigenvalues',
+                                marker=dict(color='green')))
+        fig.add_trace(go.Scatter(x=new.ravel().real, y=new.ravel().imag, mode='markers', name="Eigenvalues of EP",
+                                marker=dict(color='red')))
+        # fig.add_trace(go.Scatter(x=new2.ravel().real, y=new2.ravel().imag, mode='markers', name="Eigenvalues of EP2",
+        #                         marker=dict(color='red')))
+        # fig.add_trace(go.Scatter(x=new3.ravel().real, y=new3.ravel().imag, mode='markers', name="Eigenvalues of EP3",
+        #                         marker=dict(color='red')))
+        fig.write_html(os.path.join(data.working_directory, "selected_eigenvalues_%s%1d.html" % (plotname, np.shape(data.ev)[0])))
+        # fig.show()
+        # fig_diff = go.Figure()
+        # fig_diff.add_trace(go.Scatter(x=ev_new.ravel().real, y=ev_new.ravel().imag, mode='markers', name="All eigenvalues"))
+        # fig_diff.add_trace(go.Scatter(x=new_diff.ravel().real, y=new_diff.ravel().imag, mode='markers',
+        #                              name="Eigenvalues of EP", marker=dict(color='red')))
+        # fig_diff.write_html(os.path.join(data.working_directory, "selected_eigenvalue_diff_%1d.html" % (plotname, np.shape(data.ev)[0])))
+        # fig_diff.show()
     return np.concatenate((data.ev, np.array([[ev_1[np.argmax(compatibility)], ev_2[np.argmax(compatibility)]]])))
 
 
-def start_exact_calculation(data):
+def start_exact_calculation(data:Data):
+    """Star new exact calculation of the eigenvalues
+
+    Parameters
+    ----------
+    data : Data
+        Class which contains all scale-, kappa- and eigenvalues
+    """
     inp = "input_%s.inp" % str((3 - len(str(data.output_name))) * "0" + str(data.output_name))
     input_file = os.path.join(data.working_directory, inp)
     out = "out%s.dat" % str((3 - len(str(data.output_name))) * "0" + str(data.output_name))
@@ -309,14 +271,29 @@ def start_exact_calculation(data):
     subprocess.run('cd {0} && ./main < {1} > {2}'.format(data.working_directory, inp, out), shell=True)
 
 
-def read_new_ev(data):
+def read_new_ev(data: Data, new_calculations=True) -> np.ndarray:
+    """Reads the eigenvalues of a new diagonalization
+
+    Parameters
+    ----------
+    data : Data
+        Class which contains all scale-, kappa- and eigenvalues
+    new_calculations : bool, optional
+        Controls if it is a new calculation and if not the kappa value needs to be read as well, by default True
+
+    Returns
+    -------
+    np.ndarray
+        All eigenvalues of the new diagonalization
+    """
     out = "output_%s_1.dat" % str((3 - len(str(data.output_name))) * "0" + str(data.output_name))
     output_file = os.path.join(data.working_directory, out)
     kappa, ev, phi = load_dat_file(output_file)
-    # data.kappa_new = kappa
-    # data.kappa_new_scaled = np.array((data.kappa_new.real - data.kappa_center.real) / data.kappa_scaling.real +
-    #                                    ((data.kappa_new.imag - data.kappa_center.imag) / data.kappa_scaling.imag) * 1j)
-    # data.kappa = np.concatenate((data.kappa, data.kappa_new))
-    # data.kappa_scaled = np.concatenate((data.kappa_scaled, data.kappa_new_scaled))
+    if not new_calculations:
+        data.kappa_new = kappa
+        data.kappa_new_scaled = np.array((data.kappa_new.real - data.kappa_center.real) / data.kappa_scaling.real +
+                                         ((data.kappa_new.imag - data.kappa_center.imag) / data.kappa_scaling.imag) * 1j)
+        data.kappa = np.concatenate((data.kappa, data.kappa_new))
+        data.kappa_scaled = np.concatenate((data.kappa_scaled, data.kappa_new_scaled))
     data.output_name += 1
     return ev

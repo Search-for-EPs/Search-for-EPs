@@ -1,7 +1,7 @@
 import jax.numpy as jnp
 from jax import vmap
 import numpy as np
-import matrix
+from . import matrix
 import gpflow
 
 

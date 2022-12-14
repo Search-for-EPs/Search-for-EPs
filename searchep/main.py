@@ -1,12 +1,12 @@
 import numpy as np
-import plots
-import gpr
-import zero_search as zs
-import GPFlow_model_class as GPFmc
+from . import plots
+from . import gpr
+from . import zero_search as zs
+from . import GPFlow_model_class as GPFmc
 import pandas as pd
 import plotly.express as px
 from plotly.subplots import make_subplots
-import data as dpp
+from . import data as dpp
 import os
 from gpflow.utilities import print_summary
 

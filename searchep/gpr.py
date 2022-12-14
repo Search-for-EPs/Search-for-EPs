@@ -64,7 +64,7 @@ def gp_2d_diff_kappa(data):
     ev_diff = np.column_stack((ev_diff_complex.real, ev_diff_complex.imag))
     ev_diff = ev_diff / data.diff_scale
     kappa_sep = np.column_stack((data.kappa_scaled.real, data.kappa_scaled.imag))  # .astype(np.float64)
-    model, kernel_ev = gp_create_matern52_model(kappa_sep, ev_diff)
+    model, kernel_ev = gp_create_matern52_model(kappa_sep, ev_diff, data)
     return model, kernel_ev
 
 
@@ -96,7 +96,7 @@ def gp_2d_sum_kappa(data):
     # ev_sum = np.column_stack([ev_sum_complex.real, ev_sum_complex.imag])
     ev_sum = ev_sum / data.sum_scale
     kappa_sep = np.column_stack((data.kappa_scaled.real, data.kappa_scaled.imag))
-    model, kernel_ev = gp_create_matern52_model(kappa_sep, ev_sum)
+    model, kernel_ev = gp_create_matern52_model(kappa_sep, ev_sum, data)
     return model, kernel_ev
 
 
@@ -116,7 +116,7 @@ def gp_2d_sum_kappa_no_noise(ev, kappa):
     return model, kernel_ev
 
 
-def gp_create_rbf_model(kappa, validation_data):
+def gp_create_rbf_model(kappa, validation_data, data):
     """2D gaussian process model with rbf kernel
 
     GPflow is used to make a 2D prediction model with the rbf kernel.
@@ -142,7 +142,7 @@ def gp_create_rbf_model(kappa, validation_data):
     return model, kernel_ev
 
 
-def gp_create_matern52_model(kappa, validation_data):
+def gp_create_matern52_model(kappa, validation_data, data):
     """2D gaussian process model with matern52 kernel
 
     GPflow is used to make a 2D prediction model with the matern52 kernel.
@@ -160,12 +160,23 @@ def gp_create_matern52_model(kappa, validation_data):
         Returns a 2D GPR model created with the matern52 kernel and a 1D array which
         contains the kernel eigenvalues of the input space.
     """
-    k = gpflow.kernels.Matern52(lengthscales=[3., 0.1])  # gpflow.kernels.Matern52(active_dims=[0]) + gpflow.kernels.Matern52(active_dims=[1])
-    kernel_ev = np.linalg.eigvals(k.K(kappa))
-    model = gpflow.models.GPR(data=(kappa, validation_data), kernel=k, mean_function=None)
-    opt = gpflow.optimizers.Scipy()
-    opt.minimize(model.training_loss, model.trainable_variables)
-    return model, kernel_ev
+    try:
+        k = gpflow.kernels.Matern52(lengthscales=[3., 0.1])  # gpflow.kernels.Matern52(active_dims=[0]) + gpflow.kernels.Matern52(active_dims=[1])
+        kernel_ev = np.linalg.eigvals(k.K(kappa))
+        if np.any(kernel_ev < 0):
+            raise FloatingPointError("Negative kernel eigenvalues.\n\tMatrix is not invertible.")
+        model = gpflow.models.GPR(data=(kappa, validation_data), kernel=k, mean_function=None)
+        opt = gpflow.optimizers.Scipy()
+        opt.minimize(model.training_loss, model.trainable_variables)
+        return model, kernel_ev
+    except FloatingPointError:
+        print("Error: Negative kernel eigenvalues.\n\tMatrix is not invertible.")
+        data.exception = True
+        return 0, 0
+    except Exception as e:
+        print("The error raised is: ", e)
+        data.exception = True
+        return 0, 0
 
 
 def gp_create_matern52_model_no_noise(kappa, validation_data):

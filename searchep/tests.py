@@ -1,18 +1,18 @@
 import numpy as np
-import matrix
-import plots
+from . import matrix
+from . import plots
 import time
-import gpr
-import zero_search as zs
+from . import gpr
+from . import zero_search as zs
 import matplotlib.pyplot as plt
-import GPFlow_model_class as GPFmc
+from . import GPFlow_model_class as GPFmc
 import pandas as pd
 import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import jax.numpy as jnp
 from jax import vmap
-import data as dpp
+from . import data as dpp
 import ast
 from gpflow.utilities import print_summary
 import gpflow.config as gpconfig
