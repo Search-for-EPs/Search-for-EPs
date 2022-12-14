@@ -6,9 +6,9 @@ from . import data
 from . import zero_search
 
 
-
-def train(training_data, new_calculations=True, extra_training_step=False, eps_kernel_ev=1.e-15, 
-          eps_diff=2.e-8, info=True, eval_plots=True, plotname=""):
+def train(training_data: data.Data, new_calculations: bool = True, extra_training_step: bool = False,
+          eps_kernel_ev: float = 1.e-15, eps_diff: float = 2.e-8, info: bool = True, eval_plots: bool = True,
+          plotname: str = ""):
     n = False
     current_training_step = training_data.training_steps_color[-1]
     while not n:
@@ -18,10 +18,11 @@ def train(training_data, new_calculations=True, extra_training_step=False, eps_k
             print_summary(model_diff)
             print_summary(model_sum)
         if training_data.exception:
-            print("Exception occured. Current EP:")
+            print("Exception occurred. Current EP:")
             print(training_data.kappa_new)
             print("Eigenvalue difference:")
-            print(ev_diff)
+            if 'ev_diff' in locals():
+                print(ev_diff)
             n = True
             break
         if np.any(abs(kernel_ev_diff) < eps_kernel_ev):
@@ -31,12 +32,12 @@ def train(training_data, new_calculations=True, extra_training_step=False, eps_k
         if new_calculations:
             training_data.kappa_new_scaled = zero_search.zero_search(gpflow_function, 0. + 0.j)
             training_data.kappa_scaled = np.concatenate((training_data.kappa_scaled, training_data.kappa_new_scaled))
-            training_data.kappa_new = np.array([complex(training_data.kappa_new_scaled.real * 
-                                                training_data.kappa_scaling.real + training_data.kappa_center.real, 
-                                                training_data.kappa_new_scaled.imag * 
-                                                training_data.kappa_scaling.imag + training_data.kappa_center.imag)])
+            training_data.kappa_new = np.array([complex(training_data.kappa_new_scaled.real *
+                                                        training_data.kappa_scaling.real + training_data.kappa_center.real,
+                                                        training_data.kappa_new_scaled.imag *
+                                                        training_data.kappa_scaling.imag + training_data.kappa_center.imag)])
             training_data.kappa = np.concatenate((training_data.kappa, training_data.kappa_new))
-        training_data.ev = data.getting_new_ev_of_ep(training_data, gpflow_model, new_calculations, 
+        training_data.ev = data.getting_new_ev_of_ep(training_data, gpflow_model, new_calculations,
                                                      eval_plots=eval_plots, plotname=plotname)
         training_data.update_scaling()
         current_training_step += 1
@@ -50,7 +51,7 @@ def train(training_data, new_calculations=True, extra_training_step=False, eps_k
         if extra_training_step and current_training_step == 2:
             training_data.kappa_new = np.array([2 * training_data.kappa[-1] - training_data.kappa[-2]])
             training_data.kappa = np.concatenate((training_data.kappa, training_data.kappa_new))
-            training_data.ev = training_data.getting_new_ev_of_ep(training_data, gpflow_model)
+            training_data.ev = data.getting_new_ev_of_ep(training_data, gpflow_model)
             training_data.update_scaling()
             training_data.training_steps_color.append(current_training_step)
         if abs(ev_diff.real) < eps_diff and abs(ev_diff.imag) < eps_diff:

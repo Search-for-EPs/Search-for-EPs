@@ -33,4 +33,4 @@ def eigenvalue_space_plotly(filename):
     phi_all = np.sort(np.array([phi.copy() for _ in range(np.shape(ev)[1])]).ravel())
     fig = px.scatter(x=ev.ravel().real, y=ev.ravel().imag, color=phi_all,
                      labels=dict(x="Re(\\lambda)", y="Im(\\lambda)", color="Angle"))
-    fig.show()                        
+    fig.show()

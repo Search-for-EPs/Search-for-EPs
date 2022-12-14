@@ -17,12 +17,13 @@ class Data:
         self.working_directory = directory
         if evs_EP:
             df = pd.read_csv(os.path.normpath(os.path.join(self.working_directory, filename)), header=0, skiprows=0,
-                            names=["kappa", "ev1", "ev2", "phi"])
+                             names=["kappa", "ev1", "ev2", "phi"])
             self.kappa = np.array(df.kappa).astype(complex)
             self.ev = np.column_stack((np.array(df.ev1).astype(complex), np.array(df.ev2).astype(complex)))
             self.phi = np.array(df.phi)
         else:
-            self.kappa, self.ev, self.phi = load_dat_file(os.path.normpath(os.path.join(self.working_directory, filename)))
+            self.kappa, self.ev, self.phi = load_dat_file(
+                os.path.normpath(os.path.join(self.working_directory, filename)))
             fig_all = px.scatter(x=self.ev.ravel().real, y=self.ev.ravel().imag,
                                  labels=dict(x="Re(\\lambda)", y="Im(\\lambda)"))
             self.ev = initial_dataset(self.ev, distance=distance)
@@ -46,7 +47,7 @@ class Data:
         self.kappa_scaling = complex(np.max(self.kappa.real) - self.kappa_center.real,
                                      np.max(self.kappa.imag) - self.kappa_center.imag)
         self.kappa_scaled = np.array((self.kappa.real - self.kappa_center.real) / self.kappa_scaling.real +
-                                        ((self.kappa.imag - self.kappa_center.imag) / self.kappa_scaling.imag) * 1j)
+                                     ((self.kappa.imag - self.kappa_center.imag) / self.kappa_scaling.imag) * 1j)
         self.kappa_new_scaled = np.empty(0)
         self.kappa_new = np.empty(0)
         self.output_name = output_name
@@ -57,9 +58,10 @@ class Data:
         ev_diff_complex = ((self.ev[::, 0] - self.ev[::, 1]) ** 2)
         self.diff_scale = np.max(abs(np.column_stack((ev_diff_complex.real, ev_diff_complex.imag))))
         ev_sum_complex = (0.5 * (self.ev[::, 0] + self.ev[::, 1]))
-        self.sum_mean_complex = complex(np.mean(ev_sum_complex.real), np.mean(ev_sum_complex.imag))
+        self.sum_mean_complex = complex(np.float64(np.mean(ev_sum_complex.real)),
+                                        np.float64(np.mean(ev_sum_complex.imag)))
         self.sum_scale = np.max(abs(np.column_stack([ev_sum_complex.real - self.sum_mean_complex.real,
-                                                           ev_sum_complex.imag - self.sum_mean_complex.imag])))
+                                                     ev_sum_complex.imag - self.sum_mean_complex.imag])))
         self.kappa_center = complex(0.5 * (np.max(self.kappa.real) + np.min(self.kappa.real)),
                                     0.5 * (np.max(self.kappa.imag) + np.min(self.kappa.imag)))
         return self.diff_scale, self.sum_mean_complex, self.sum_scale
@@ -101,7 +103,7 @@ def clump(a):
     return np.array([a[s] for s in np.ma.clump_unmasked(np.ma.masked_invalid(a))])
 
 
-def initial_dataset(ev:np.ndarray, distance: float=3.e-6) -> np.ndarray:
+def initial_dataset(ev: np.ndarray, distance: float = 3.e-6) -> np.ndarray:
     """Get initial dataset
 
     Selecting the eigenvalues belonging to the EP by ordering all eigenvalues and comparing the first end last point.
@@ -137,8 +139,8 @@ def initial_dataset(ev:np.ndarray, distance: float=3.e-6) -> np.ndarray:
     return np.column_stack([ev_all_sorted[:, n] for n in ep_ev_index])  # ev_all_sorted[:, ep_ev_index])
 
 
-def getting_new_ev_of_ep(data:Data, gpflow_model:GPFmc.GPFlowModel, new_calculations=True, 
-                         eval_plots=True, plotname="") -> np.ndarray:
+def getting_new_ev_of_ep(data: Data, gpflow_model: GPFmc.GPFlowModel, new_calculations: bool = True,
+                         eval_plots: bool = True, plotname: str = "") -> np.ndarray:
     """Getting new eigenvalues belonging to the EP
 
     Selecting the two eigenvalues of a new point belonging to the EP by comparing it to a GPR model prediction and
@@ -175,8 +177,8 @@ def getting_new_ev_of_ep(data:Data, gpflow_model:GPFmc.GPFlowModel, new_calculat
     ev_1 = np.empty(0)
     ev_2 = np.empty(0)
     for i, val in enumerate(ev_new[0, ::]):
-        pairs_diff_squared = vmap(lambda a, b: jnp.power((a - b), 2), in_axes=(None, 0), out_axes=0)(val,
-                                                                                                    ev_new[0, (i + 1):])
+        pairs_diff_squared = vmap(lambda a, b: jnp.power((a - b), 2),
+                                  in_axes=(None, 0), out_axes=0)(val, ev_new[0, (i + 1):])
         pairs_diff_squared = pairs_diff_squared / data.diff_scale
         pairs_sum = vmap(lambda a, b: 0.5 * jnp.add(a, b), in_axes=(None, 0), out_axes=0)(val, ev_new[0, (i + 1):])
         ev_sum_real = (pairs_sum.real - data.sum_mean_complex.real)
@@ -197,7 +199,8 @@ def getting_new_ev_of_ep(data:Data, gpflow_model:GPFmc.GPFlowModel, new_calculat
     if eval_plots:
         c = np.array([0 for _ in compatibility])
         fig1 = px.scatter(x=c, y=abs(compatibility), log_y=True)
-        fig1.write_html(os.path.join(data.working_directory, "compatibility_%s%1d.html" % (plotname, np.shape(data.ev)[0])))
+        fig1.write_html(
+            os.path.join(data.working_directory, "compatibility_%s%1d.html" % (plotname, np.shape(data.ev)[0])))
         # fig1.show()
         # a = np.argsort(compatibility)
         # unique_filename = str(uuid.uuid4())
@@ -211,14 +214,15 @@ def getting_new_ev_of_ep(data:Data, gpflow_model:GPFmc.GPFlowModel, new_calculat
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=ev_new.ravel().real, y=ev_new.ravel().imag, mode='markers', name="All eigenvalues"))
         fig.add_trace(go.Scatter(x=data.ev.ravel().real, y=data.ev.ravel().imag, mode='markers', name='EP eigenvalues',
-                                marker=dict(color='green')))
+                                 marker=dict(color='green')))
         fig.add_trace(go.Scatter(x=new.ravel().real, y=new.ravel().imag, mode='markers', name="Eigenvalues of EP",
-                                marker=dict(color='red')))
+                                 marker=dict(color='red')))
         # fig.add_trace(go.Scatter(x=new2.ravel().real, y=new2.ravel().imag, mode='markers', name="Eigenvalues of EP2",
         #                         marker=dict(color='red')))
         # fig.add_trace(go.Scatter(x=new3.ravel().real, y=new3.ravel().imag, mode='markers', name="Eigenvalues of EP3",
         #                         marker=dict(color='red')))
-        fig.write_html(os.path.join(data.working_directory, "selected_eigenvalues_%s%1d.html" % (plotname, np.shape(data.ev)[0])))
+        fig.write_html(
+            os.path.join(data.working_directory, "selected_eigenvalues_%s%1d.html" % (plotname, np.shape(data.ev)[0])))
         # fig.show()
         # fig_diff = go.Figure()
         # fig_diff.add_trace(go.Scatter(x=ev_new.ravel().real, y=ev_new.ravel().imag, mode='markers', name="All eigenvalues"))
@@ -229,7 +233,7 @@ def getting_new_ev_of_ep(data:Data, gpflow_model:GPFmc.GPFlowModel, new_calculat
     return np.concatenate((data.ev, np.array([[ev_1[np.argmax(compatibility)], ev_2[np.argmax(compatibility)]]])))
 
 
-def start_exact_calculation(data:Data):
+def start_exact_calculation(data: Data):
     """Star new exact calculation of the eigenvalues
 
     Parameters
@@ -267,7 +271,8 @@ def start_exact_calculation(data:Data):
                 "0.0                 ! e_imag which the eigenvalues are searched, in eV\n" +
                 "70                  ! nev  Number of eigenvalues and eigenvectors to be computed\n" +
                 "200                 ! statenr number for file containing additional states for delta diagonalization\n" +
-                "%s                 ! ofnr  Punkt 35\n" % str((3 - len(str(data.output_name))) * "0" + str(data.output_name)))
+                "%s                 ! ofnr  Punkt 35\n" % str(
+                    (3 - len(str(data.output_name))) * "0" + str(data.output_name)))
     subprocess.run('cd {0} && ./main < {1} > {2}'.format(data.working_directory, inp, out), shell=True)
 
 
@@ -292,7 +297,8 @@ def read_new_ev(data: Data, new_calculations=True) -> np.ndarray:
     if not new_calculations:
         data.kappa_new = kappa
         data.kappa_new_scaled = np.array((data.kappa_new.real - data.kappa_center.real) / data.kappa_scaling.real +
-                                         ((data.kappa_new.imag - data.kappa_center.imag) / data.kappa_scaling.imag) * 1j)
+                                         ((data.kappa_new.imag - data.kappa_center.imag) / data.kappa_scaling.imag)
+                                         * 1j)
         data.kappa = np.concatenate((data.kappa, data.kappa_new))
         data.kappa_scaled = np.concatenate((data.kappa_scaled, data.kappa_new_scaled))
     data.output_name += 1

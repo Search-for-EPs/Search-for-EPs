@@ -161,7 +161,8 @@ def gp_create_matern52_model(kappa, validation_data, data):
         contains the kernel eigenvalues of the input space.
     """
     try:
-        k = gpflow.kernels.Matern52(lengthscales=[3., 0.1])  # gpflow.kernels.Matern52(active_dims=[0]) + gpflow.kernels.Matern52(active_dims=[1])
+        k = gpflow.kernels.Matern52(lengthscales=[3.,
+                                                  0.1])  # gpflow.kernels.Matern52(active_dims=[0]) + gpflow.kernels.Matern52(active_dims=[1])
         kernel_ev = np.linalg.eigvals(k.K(kappa))
         if np.any(kernel_ev < 0):
             raise FloatingPointError("Negative kernel eigenvalues.\n\tMatrix is not invertible.")

@@ -267,7 +267,6 @@ POINT = "Punkt23"
 DIRECTORY = "../my_calculations/Punkt23/"
 EXTRA_TRAININGS_STEP = False
 
-
 if __name__ == '__main__':
     # exact_ep()
     # two_close_5d_works()
@@ -279,8 +278,8 @@ if __name__ == '__main__':
     print_summary(model_diff)
     model_sum, kernel_ev_sum = gpr.gp_2d_sum_kappa(data)
     print_summary(model_sum)
-    #plots.three_d_eigenvalue_kappa_2d_model_plotly(0. + 0.j, 1, model_diff)
-    #plots.three_d_eigenvalue_kappa_2d_model_plotly(0. + 0.j, 1, model_sum)
+    # plots.three_d_eigenvalue_kappa_2d_model_plotly(0. + 0.j, 1, model_diff)
+    # plots.three_d_eigenvalue_kappa_2d_model_plotly(0. + 0.j, 1, model_sum)
     # print(data.kappa.shape)
     # print(kernel_ev_diff.shape)
     gpflow_model = GPFmc.GPFlowModel(model_diff, model_sum)
@@ -415,4 +414,3 @@ if __name__ == '__main__':
     training_steps_color.append(1)
     plots.parameter_plane_plotly(kappa, training_steps_color)
     print("Predicted EP: ", kappa_new)"""
-
