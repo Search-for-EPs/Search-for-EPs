@@ -72,7 +72,7 @@ def gp_2d_diff_kappa(ev, kappa):
     ev_diff_complex = ((ev[::, 0] - ev[::, 1]) ** 2)  # .astype(np.float64)
     ev_diff = np.column_stack([ev_diff_complex.real, ev_diff_complex.imag])
     kappa_sep = np.column_stack([kappa.real, kappa.imag])  # .astype(np.float64)
-    model, kernel_ev = gp_create_rbf_model(kappa_sep, ev_diff)
+    model, kernel_ev = gp_create_matern52_model(kappa_sep, ev_diff)
     return model, kernel_ev
 
 
@@ -80,12 +80,12 @@ def gp_2d_sum_kappa(ev, kappa):
     ev_sum_complex = (0.5 * (ev[::, 0] + ev[::, 1]))
     ev_sum = np.column_stack([ev_sum_complex.real, ev_sum_complex.imag])
     kappa_sep = np.column_stack([kappa.real, kappa.imag])
-    model, kernel_ev = gp_create_rbf_model(kappa_sep, ev_sum)
+    model, kernel_ev = gp_create_matern52_model(kappa_sep, ev_sum)
     return model, kernel_ev
 
 
-def gp_create_rbf_model(kappa, validation_data):
-    k = gpflow.kernels.RBF()
+def gp_create_matern52_model(kappa, validation_data):
+    k = gpflow.kernels.Matern52(lengthscales=[1. for _ in range(np.shape(kappa)[1])])
     kernel_ev = np.linalg.eigvals(k.K(kappa))
     model = gpflow.models.GPR(data=(kappa, validation_data), kernel=k, mean_function=None)
     opt = gpflow.optimizers.Scipy()

@@ -4,6 +4,7 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
+import configurematplotlib.plot as confmp
 
 
 def init_matplotlib():
@@ -218,5 +219,34 @@ def three_d_eigenvalue_kappa_plotly(kappa_0, r, m_re, m_im):
                            color=mean_re.numpy().ravel())
     fig_im = px.scatter_3d(df, x=grid[::, 0].ravel(), y=grid[::, 1].ravel(), z=mean_im.numpy().ravel(),
                            color=mean_im.numpy().ravel())
+    fig_re.show()
+    fig_im.show()
+
+
+def three_d_eigenvalue_kappa_2d_model_plotly(kappa_0, r, m):
+    """3D plotly plot for eigenvalues
+
+    The 2D model for preprocessed eigenvalues is plotted in two plots. One shows the real and the other one the
+    imaginary part.
+
+    Parameters
+    ----------
+    kappa_0
+        Center of circulation in parameter space
+    r
+        Radius of circulation in parameter space as part of the field strength
+    m : gpflow.models.GPR
+        2D GPR model for the preprocessed eigenvalues
+    """
+    x = np.linspace(kappa_0.real - r, kappa_0.real + r, 20)
+    y = np.linspace(kappa_0.imag - r, kappa_0.imag + r, 20)
+    xx, yy = np.meshgrid(x, y)
+    grid = np.array((xx.ravel(), yy.ravel())).T
+    mean, var = m.predict_f(grid)
+    df = px.data.iris()
+    fig_re = px.scatter_3d(df, x=grid[::, 0].ravel(), y=grid[::, 1].ravel(), z=mean.numpy()[::, 0],
+                           color=mean.numpy()[::, 0])
+    fig_im = px.scatter_3d(df, x=grid[::, 0].ravel(), y=grid[::, 1].ravel(), z=mean.numpy()[::, 1],
+                           color=mean.numpy()[::, 1])
     fig_re.show()
     fig_im.show()
