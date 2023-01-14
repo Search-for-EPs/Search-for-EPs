@@ -34,3 +34,12 @@ def eigenvalue_space_plotly(filename):
     fig = px.scatter(x=ev.ravel().real, y=ev.ravel().imag, color=phi_all,
                      labels=dict(x="Re(\\lambda)", y="Im(\\lambda)", color="Angle"))
     fig.show()
+
+
+def write_new_dataset(filename, init_data):
+    df = pd.DataFrame()
+    df['kappa'] = init_data.kappa.tolist()
+    df = pd.concat([df, pd.DataFrame(init_data.ev)], axis=1)
+    df['phi'] = init_data.phi.tolist()
+    df.columns = ['kappa', 'ev1', 'ev2', 'phi']
+    df.to_csv(os.path.join(init_data.working_directory, filename))

@@ -26,6 +26,7 @@ class Data:
                 os.path.normpath(os.path.join(self.working_directory, filename)))
             fig_all = px.scatter(x=self.ev.ravel().real, y=self.ev.ravel().imag,
                                  labels=dict(x="Re(\\lambda)", y="Im(\\lambda)"))
+            # fig_all.show()
             self.ev = initial_dataset(self.ev, distance=distance)
             phi_all = np.sort(np.array([self.phi.copy() for _ in range(np.shape(self.ev)[1])]).ravel())
             fig_ev = px.scatter(x=self.ev.ravel().real, y=self.ev.ravel().imag, color=phi_all,
