@@ -8,12 +8,17 @@ from plotly.subplots import make_subplots
 from . import GPFlow_model_class as GPFmc
 import subprocess
 import os
-from typing import Tuple
+from typing import Tuple, Union
+
+parameters = ["N_max", "F2min", "F2max", "delta", "parity",
+              "abs(alpha)", "arg(alpha_i)", "arg(alpha_f)", "arg(alpha_del)",
+              "nev", "statenr"]
 
 
 class Data:
 
-    def __init__(self, filename, directory, output_name=2, evs_EP=True, distance=3.e-6):
+    def __init__(self, filename, directory, output_name=2, evs_EP=True, input_parameters: Union[dict, str] = None,
+                 distance=3.e-6):
         self.working_directory = directory
         if evs_EP:
             df = pd.read_csv(os.path.normpath(os.path.join(self.working_directory, filename)), header=0, skiprows=0,
@@ -24,8 +29,8 @@ class Data:
         else:
             self.kappa, self.ev, self.phi = load_dat_file(
                 os.path.normpath(os.path.join(self.working_directory, filename)))
-            fig_all = px.scatter(x=self.ev.ravel().real, y=self.ev.ravel().imag,
-                                 labels=dict(x="Re(\\lambda)", y="Im(\\lambda)"))
+            # fig_all = px.scatter(x=self.ev.ravel().real, y=self.ev.ravel().imag,
+            #                     labels=dict(x="Re(\\lambda)", y="Im(\\lambda)"))
             # fig_all.show()
             self.ev = initial_dataset(self.ev, distance=distance)
             phi_all = np.sort(np.array([self.phi.copy() for _ in range(np.shape(self.ev)[1])]).ravel())
@@ -35,6 +40,44 @@ class Data:
             # fig.add_trace(fig_all["data"][0], row=1, col=1, )
             fig.add_trace(fig_ev["data"][0], row=1, col=1)
             # fig.show()
+        if input_parameters:
+            try:
+                if type(input_parameters) == dict:
+                    self.input_parameters = input_parameters
+                elif type(input_parameters) == str:
+                    self.input_parameters = dict()
+                    with open(os.path.normpath(os.path.join(self.working_directory, input_parameters)),
+                              encoding='utf-8') as f:
+                        for line in f.readlines():
+                            parameter = set(parameters).intersection(line.split())
+                            if parameter:
+                                if len(parameter) > 1:
+                                    self.input_parameters[str(parameters[-1])] = line.split()[0]
+                                elif "Green" in line.split():
+                                    self.input_parameters[str(list(parameter)[0] + "_Green")] = line.split()[0]
+                                else:
+                                    self.input_parameters[str(list(parameter)[0])] = line.split()[0]
+                else:
+                    raise TypeError
+            except TypeError as e:
+                print("The optional argument \"input_parameters\" should be of type dict or string. Using default "
+                      "input parameters for new calculations.")
+                print(e)
+                self.input_parameters = dict()
+            except OSError as e:
+                print("The optional argument \"input_parameters\" is specified as string but the file can not be found."
+                      " Using default input parameters for new calculations.")
+                print(e)
+                self.input_parameters = dict()
+            except Exception as e:
+                print("Exception occurred for input parameters (see below). Using default input parameters for new "
+                      "calculations.")
+                print(e)
+                self.input_parameters = dict()
+        else:
+            print("Using default input parameters for new calculations.")
+            self.input_parameters = dict()
+
         """df = pd.DataFrame()
         df['kappa'] = self.kappa.tolist()
         df = pd.concat([df, pd.DataFrame(self.ev)], axis=1)
@@ -226,10 +269,12 @@ def getting_new_ev_of_ep(data: Data, gpflow_model: GPFmc.GPFlowModel, new_calcul
             os.path.join(data.working_directory, "selected_eigenvalues_%s%1d.html" % (plotname, np.shape(data.ev)[0])))
         # fig.show()
         # fig_diff = go.Figure()
-        # fig_diff.add_trace(go.Scatter(x=ev_new.ravel().real, y=ev_new.ravel().imag, mode='markers', name="All eigenvalues"))
+        # fig_diff.add_trace(go.Scatter(x=ev_new.ravel().real, y=ev_new.ravel().imag,
+        #                              mode='markers', name="All eigenvalues"))
         # fig_diff.add_trace(go.Scatter(x=new_diff.ravel().real, y=new_diff.ravel().imag, mode='markers',
         #                              name="Eigenvalues of EP", marker=dict(color='red')))
-        # fig_diff.write_html(os.path.join(data.working_directory, "selected_eigenvalue_diff_%1d.html" % (plotname, np.shape(data.ev)[0])))
+        # fig_diff.write_html(os.path.join(data.working_directory,
+        #                                 "selected_eigenvalue_diff_%1d.html" % (plotname, np.shape(data.ev)[0])))
         # fig_diff.show()
     return np.concatenate((data.ev, np.array([[ev_1[np.argmax(compatibility)], ev_2[np.argmax(compatibility)]]])))
 
@@ -248,17 +293,20 @@ def start_exact_calculation(data: Data):
     gamma_m = str("{:e}".format(data.kappa_new.real[0])).replace("e", "d")
     f_m = str("{:e}".format(data.kappa_new.imag[0])).replace("e", "d")
     with open(input_file, 'w') as f:
-        f.write("30                  ! N_max\n" +
-                "1                   ! F2min\n" +
-                "28                  ! F2max\n" +
-                "28                   ! N_max Green\n" +
-                "18                  ! F2max Green\n" +
-                "2                   ! delta 0: diagonalize with additional read in states 1: write out states\n" +
-                "2                   ! parity 0: only even, 1: only odd, 2: even and odd basis states\n" +
-                "42                  ! abs(alpha) (for N: N*7.5*2.8 = N*21) \n" +
-                "0.14d0              ! arg(alpha_i)\n" +
-                "0.14d0              ! arg(alpha_f) \n" +
-                "0.02d0              ! arg(alpha_del)\n" +
+        f.write("%s                  ! N_max\n" % data.input_parameters.get("N_max", "30") +
+                "%s                   ! F2min\n" % data.input_parameters.get("F2min", "1") +
+                "%s                  ! F2max\n" % data.input_parameters.get("F2max", "28") +
+                "%s                   ! N_max Green\n" % data.input_parameters.get("N_max_Green", "28") +
+                "%s                  ! F2max Green\n" % data.input_parameters.get("F2max_Green", "18") +
+                "%s                   ! delta 0: diagonalize with additional read in states 1: write out states\n"
+                % data.input_parameters.get("delta", "2") +
+                "%s                   ! parity 0: only even, 1: only odd, 2: even and odd basis states\n"
+                % data.input_parameters.get("parity", "2") +
+                "%s                  ! abs(alpha) (for N: N*7.5*2.8 = N*21) \n"
+                % data.input_parameters.get("abs(alpha)", "42") +
+                "%s              ! arg(alpha_i)\n" % data.input_parameters.get("arg(alpha_i)", "0.14d0") +
+                "%s              ! arg(alpha_f) \n" % data.input_parameters.get("arg(alpha_f)", "0.14d0") +
+                "%s              ! arg(alpha_del)\n" % data.input_parameters.get("arg(alpha_del)", "0.02d0") +
                 "%s            ! f_m  => Mittelpunkt des Kreises (f-Koordinate)\n" % str(f_m) +
                 "0                 ! phi_f  => Endwinkel in Grad               \n" +
                 "0                ! r  => Radius als Anteil an der Feldstärke   \n" +
@@ -270,8 +318,10 @@ def start_exact_calculation(data: Data):
                 "0.02d0              ! s_del\n" +
                 "2.00               ! e_real Energie position in the complex plane, around\n" +
                 "0.0                 ! e_imag which the eigenvalues are searched, in eV\n" +
-                "70                  ! nev  Number of eigenvalues and eigenvectors to be computed\n" +
-                "200                 ! statenr number for file containing additional states for delta diagonalization\n" +
+                "%s                  ! nev  Number of eigenvalues and eigenvectors to be computed\n"
+                % data.input_parameters.get("nev", "70") +
+                "%s                 ! statenr number for file containing additional states for delta diagonalization\n"
+                % data.input_parameters.get("statenr", "200") +
                 "%s                 ! ofnr  Punkt 35\n" % str(
                     (3 - len(str(data.output_name))) * "0" + str(data.output_name)))
     subprocess.run('cd {0} && ./main < {1} > {2}'.format(data.working_directory, inp, out), shell=True)
