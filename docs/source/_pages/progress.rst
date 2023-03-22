@@ -156,3 +156,29 @@ since the model jumps away from the EP after the second training step and is thu
 When using data of the exciton simulations, the eigenvalue difference as well as the eigenvalue sum has to be
 scaled due to minimal differences in the resulting values. Without scaling the GPR model is not able to train on the
 given data.
+Also the kappa values are scaled onto the unit circle for better model accuracy and to prevent matrix inversion error.
+
+
+
+Eigenvalue selection
+--------------------
+
+After a new diagonalization for the predicted EP the eigenvalues of the EP have to be found to evaluate the results and
+to train the model again with more training data. To do so all possible eigenvalue pairs are calculated via
+
+.. math::
+
+    p &= \left(\lambda_1 - \lambda_2\right)^2 \quad \text{and} \\
+    s &= \frac{1}{2} \left(\lambda_1 + \lambda_2\right)
+
+and compared to the model prediction at that point by
+
+.. math::
+
+    c = \frac{\text{Re}(p) - \text{Re}(p_\text{m})}{2 \sigma_\text{p,Re}^2} + \frac{\text{Im}(p) -
+        \text{Im}(p_\text{m})}{2 \sigma_\text{p,Im}^2} +
+        \frac{\text{Re}(s) - \text{Re}(s_\text{m})}{2 \sigma_\text{s,Re}^2} + \frac{\text{Im}(s) -
+        \text{Im}(s_\text{m})}{2 \sigma_\text{s,Im}^2}~,
+
+where :math:`c` is the compatibility which is gaussian-like (:math:`\exp(-c)`), :math:`p_\text{m}` and :math:`s_\text{m}` the
+model prediction for the respective variable and :math:`\sigma_{i,j}` the respective variance given from the model.
