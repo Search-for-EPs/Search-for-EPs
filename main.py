@@ -3,7 +3,7 @@ import matrix
 import plots
 import time
 import gaussian_process_regression as gpr
-import zerosearch as zs
+import zero_search as zs
 import matplotlib.pyplot as plt
 import GPFlow_model_class as GPFmc
 import pandas as pd
@@ -12,10 +12,351 @@ import plotly.graph_objects as go
 import jax.numpy as jnp
 from jax import vmap
 import data_preprocessing as dpp
+from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
+from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
+from matplotlib.patches import Rectangle
+from matplotlib.patches import ConnectionPatch
+import configurematplotlib.plot as confmp
+
+
+def energy_plane_5d_model():
+    kappa_0 = 0.5 + 0.5j  # 1.1847 + 1.0097j
+    r = 1
+    steps = 200
+    kappa, phi = matrix.parametrization(kappa_0, r, steps)
+    symmatrix = matrix.matrix_one_close_re(kappa)
+    ev_new = matrix.eigenvalues(symmatrix)
+    phi_all = np.sort(np.array([phi.copy() for _ in range(np.shape(ev_new)[1])]).ravel())
+    ep = np.array([0.88278093 + 1.09360073j])
+    fig, axes = confmp.newfig(nrows=1, ncols=1, left=48, right=50, bottom=35)
+    im = axes.scatter(ev_new.real, ev_new.imag, c=phi_all, cmap='plasma', marker='o', s=8)
+    axes.set_xlabel("Re($\lambda$)")
+    axes.set_ylabel("Im($\lambda$)")
+    axes.set_yticks([-1, -0.5, 0, 0.5])
+    rect = [0.6, 0.12, 0.38, 0.38]
+    pos = axes.get_position()
+    width = pos.width
+    height = pos.height
+    inax_position = axes.transAxes.transform(rect[0:2])
+    transFigure = fig.transFigure.inverted()
+    infig_position = transFigure.transform(inax_position)
+    x = infig_position[0]
+    y = infig_position[1]
+    width *= rect[2]
+    height *= rect[3]
+    subax = fig.add_axes([x, y, width, height])
+    subax.scatter(kappa.real, kappa.imag, marker='o', s=8, c=phi, cmap='plasma')
+    subax.scatter(ep.real, ep.imag, marker='x', s=8, c='tab:green', label="EP")
+    subax.set_ylabel("Im($\kappa$)", labelpad=1.5, size=12 * rect[3] ** 0.5)
+    subax.set_xlabel("Re($\kappa$)", labelpad=1.5, size=12 * rect[2] ** 0.5)
+    x_ticklabelsize = subax.get_xticklabels()[0].get_size()
+    y_ticklabelsize = subax.get_yticklabels()[0].get_size()
+    x_ticklabelsize *= rect[2] ** 0.5
+    y_ticklabelsize *= rect[3] ** 0.5
+    subax.xaxis.set_tick_params(labelsize=x_ticklabelsize)
+    subax.yaxis.set_tick_params(labelsize=y_ticklabelsize)
+    subax.legend(loc=4)
+    cbar_width = 10 / 72
+    cax = fig.add_axes((pos.xmax + 0.01, pos.ymin, cbar_width / fig.get_figwidth(), pos.ymax - pos.ymin))
+    cbar = fig.colorbar(im, cax=cax, orientation='vertical')
+    cbar.set_label("Angle / \\si{\\radian}")
+    cbar.ax.set_yticks([0, np.pi / 2, np.pi, 3 * np.pi / 2])
+    cbar.ax.set_yticklabels(["$0$", "$\\frac{\\pi}{2}$", "$\\pi$", "$\\frac{3\\pi}{2}$"])
+    fig.savefig("../../mastersthesis/plots/plots/EPexample5d_energy.pdf")
+
+
+def energy_plane_5d_model2():
+    kappa_0 = 0.5 + 0.5j  # 1.1847 + 1.0097j
+    r = 1
+    steps = 200
+    kappa, phi = matrix.parametrization(kappa_0, r, steps)
+    symmatrix = matrix.matrix_two_close_im(kappa)
+    ev_new = matrix.eigenvalues(symmatrix)
+    phi_all = np.sort(np.array([phi.copy() for _ in range(np.shape(ev_new)[1])]).ravel())
+    ep = np.array([0.88278093 + 1.09360073j])
+    fig, axes = confmp.newfig(nrows=1, ncols=1, left=35, right=48, bottom=33)
+    im = axes.scatter(ev_new.real, ev_new.imag, c=phi_all, cmap='plasma', marker='o', s=2)
+    axes.set_xlabel("Re($\lambda$)")
+    axes.set_ylabel("Im($\lambda$)")
+    # axes.set_yticks([-1, -0.5, 0, 0.5])
+    rect = [0.12, 0.48, 0.55, 0.5]
+    pos = axes.get_position()
+    width = pos.width
+    height = pos.height
+    inax_position = axes.transAxes.transform(rect[0:2])
+    transFigure = fig.transFigure.inverted()
+    infig_position = transFigure.transform(inax_position)
+    x = infig_position[0]
+    y = infig_position[1]
+    width *= rect[2]
+    height *= rect[3]
+    subax = fig.add_axes([x, y, width, height])
+    subax.scatter(kappa.real, kappa.imag, marker='o', s=2, c=phi, cmap='plasma')
+    subax.scatter(ep.real, ep.imag, marker='x', s=6, lw=0.5, c='tab:green', label="EP")
+    subax.set_ylabel("Im($\kappa$)", labelpad=1.5, size=(34.8/3) * rect[3] ** 0.5)
+    subax.set_xlabel("Re($\kappa$)", labelpad=1.5, size=(34.8/3) * rect[2] ** 0.5)
+    x_ticklabelsize = subax.get_xticklabels()[0].get_size()
+    y_ticklabelsize = subax.get_yticklabels()[0].get_size()
+    x_ticklabelsize *= rect[2] ** 0.5
+    y_ticklabelsize *= rect[3] ** 0.5
+    subax.xaxis.set_tick_params(labelsize=x_ticklabelsize)
+    subax.yaxis.set_tick_params(labelsize=y_ticklabelsize)
+    subax.legend(loc=4)
+    cbar_width = 10 / 72
+    cax = fig.add_axes((pos.xmax + 0.01, pos.ymin, cbar_width / fig.get_figwidth(), pos.ymax - pos.ymin))
+    cbar = fig.colorbar(im, cax=cax, orientation='vertical')
+    cbar.set_label("Angle / rad")
+    cbar.ax.set_yticks([0, np.pi / 2, np.pi, 3 * np.pi / 2])
+    cbar.ax.set_yticklabels(["$0$", "$\\frac{\\pi}{2}$", "$\\pi$", "$\\frac{3\\pi}{2}$"])
+    fig.savefig("../../mastersthesis/plots/plots/EPexample5d_energy_model2Poster.pdf")
+
+
+def gpr_plane_trained():
+    ep = np.array([0.88278093 + 1.09360073j])
+    df_extra2 = pd.read_csv('../../mastersthesis/plots/data/paper_data_kappa_trained_model_extra2.csv',
+                            header=0, skiprows=0,
+                            names=["kappa", "ev1", "ev2", "training_steps_color"])
+    ev_extra2 = np.column_stack([np.array(df_extra2.ev1).astype(complex),
+                                 np.array(df_extra2.ev2).astype(complex)])
+    kappa_extra2 = np.array(df_extra2.kappa).astype(complex)
+    training_steps_color_extra2 = np.array(df_extra2.training_steps_color)
+
+    m_diff, kernel_ev = gpr.gp_2d_diff_kappa(ev_extra2[:-1], kappa_extra2[:-1])
+    m_sum, kernel_ev_sum = gpr.gp_2d_sum_kappa(ev_extra2[:-1], kappa_extra2[:-1])
+    x = np.linspace(-0.5, 1.5, 100)
+    y = np.linspace(-0.5, 1.5, 100)
+    extent = np.min(x), np.max(x), np.min(y), np.max(y)
+    xx, yy = np.meshgrid(x, y)
+    grid = np.array((xx.ravel(), yy.ravel())).T
+    mean_diff, _ = m_diff.predict_f(grid)
+    mean_sum, _ = m_sum.predict_f(grid)
+    fig, axes = confmp.newfig(nrows=2, ncols=2, left=39, top=17, bottom=34, right=46,
+                              wspace=5, hspace=25, sharex=True, sharey=True)
+    axes[0, 0].set_title("Re($p$)")
+    max_diff = np.max(abs(mean_diff.numpy()))
+    vmin_diff = -max_diff
+    vmax_diff = max_diff
+    vmin_sum = np.min(mean_sum.numpy())
+    vmax_sum = np.max(mean_sum.numpy())
+    for i in range(np.shape(axes)[0]):
+        axes[i, 0].set_ylabel("Im($\kappa$)")
+        for j in range(np.shape(axes)[1]):
+            if i == 0:
+                im_diff = confmp.imshow(axes[0, j], mean_diff[:, j].numpy().reshape(-100, 100), extent,
+                                        cmap='seismic', vmin=vmin_diff, vmax=vmax_diff)
+                axes[0, j].scatter(ep.real, ep.imag, marker='x', s=8, c='tab:green')
+            if i == 1:
+                im_sum = confmp.imshow(axes[1, j], mean_sum[:, j].numpy().reshape(-100, 100), extent,
+                                       vmin=vmin_sum, vmax=vmax_sum)
+            axes[1, j].set_xlabel("Re($\kappa$)")
+            axes[i, j].set_xticks([0., 0.5, 1.])
+            axes[i, j].set_yticks([0., 0.5, 1.])
+    axes[0, 1].set_title("Im($p$)")
+    axes[1, 0].set_title("Re($s$)")
+    axes[1, 1].set_title("Im($s$)")
+    confmp.cbar_beside(fig, axes[0, :], im_diff, dx=0.01)
+    confmp.cbar_beside(fig, axes[1, :], im_sum, dx=0.01)
+    plt.savefig("../../mastersthesis/plots/plots/GPRPlane5DModelTrained.pdf")
+
+
+def gpr_plane_trained_only_p():
+    ep = np.array([0.88278093 + 1.09360073j])
+    df_extra2 = pd.read_csv('../../mastersthesis/plots/data/paper_data_kappa_trained_model_extra2.csv',
+                            header=0, skiprows=0,
+                            names=["kappa", "ev1", "ev2", "training_steps_color"])
+    ev_extra2 = np.column_stack([np.array(df_extra2.ev1).astype(complex),
+                                 np.array(df_extra2.ev2).astype(complex)])
+    kappa_extra2 = np.array(df_extra2.kappa).astype(complex)
+    training_steps_color_extra2 = np.array(df_extra2.training_steps_color)
+
+    m_diff, kernel_ev = gpr.gp_2d_diff_kappa(ev_extra2[:-1], kappa_extra2[:-1])
+    m_sum, kernel_ev_sum = gpr.gp_2d_sum_kappa(ev_extra2[:-1], kappa_extra2[:-1])
+    x = np.linspace(-0.5, 1.5, 100)
+    y = np.linspace(-0.5, 1.5, 100)
+    extent = np.min(x), np.max(x), np.min(y), np.max(y)
+    xx, yy = np.meshgrid(x, y)
+    grid = np.array((xx.ravel(), yy.ravel())).T
+    mean_diff, _ = m_diff.predict_f(grid)
+    mean_sum, _ = m_sum.predict_f(grid)
+    fig, axes = confmp.newfig(nrows=1, ncols=2, left=39, top=47, bottom=34,
+                              wspace=5, sharey=True)
+    axes[0].set_title("Re($p$)")
+    max_diff = np.max(abs(mean_diff.numpy()))
+    vmin_diff = -max_diff
+    vmax_diff = max_diff
+    vmin_sum = np.min(mean_sum.numpy())
+    vmax_sum = np.max(mean_sum.numpy())
+    axes[0].set_ylabel("Im($\kappa$)")
+    for i in range(np.shape(axes)[0]):
+        im_diff = confmp.imshow(axes[i], mean_diff[:, i].numpy().reshape(-100, 100), extent,
+                                cmap='seismic', vmin=vmin_diff, vmax=vmax_diff)
+        axes[i].scatter(ep.real, ep.imag, marker='x', s=8, c='tab:green')
+        axes[i].set_xlabel("Re($\kappa$)")
+        axes[i].set_xticks([0., 0.5, 1.])
+        axes[i].set_yticks([0., 0.5, 1.])
+    axes[1].set_title("Im($p$)")
+    # axes[1, 0].set_title("Re($s$)")
+    # axes[1, 1].set_title("Im($s$)")
+    confmp.cbar_above(fig, axes[:], im_diff, dy=0.1)
+    # confmp.cbar_beside(fig, axes[1, :], im_sum, dx=0.01)
+    plt.savefig("../../mastersthesis/plots/plots/GPRPlane5DModelTrainedOnlyP.pdf")
+
+
+def gpr_plane_trained_only_p_with_kappa_space():
+    ep = np.array([0.88278093 + 1.09360073j])
+    df_extra2 = pd.read_csv('../../mastersthesis/plots/data/paper_data_kappa_trained_model_extra2.csv',
+                            header=0, skiprows=0,
+                            names=["kappa", "ev1", "ev2", "training_steps_color"])
+    ev_extra2 = np.column_stack([np.array(df_extra2.ev1).astype(complex),
+                                 np.array(df_extra2.ev2).astype(complex)])
+    kappa_extra2 = np.array(df_extra2.kappa).astype(complex)
+    training_steps_color_extra2 = np.array(df_extra2.training_steps_color)
+
+    m_diff, kernel_ev = gpr.gp_2d_diff_kappa(ev_extra2[:-1], kappa_extra2[:-1])
+    m_sum, kernel_ev_sum = gpr.gp_2d_sum_kappa(ev_extra2[:-1], kappa_extra2[:-1])
+    x = np.linspace(-0.5, 1.5, 100)
+    y = np.linspace(-0.5, 1.5, 100)
+    extent = np.min(x), np.max(x), np.min(y), np.max(y)
+    xx, yy = np.meshgrid(x, y)
+    grid = np.array((xx.ravel(), yy.ravel())).T
+    mean_diff, _ = m_diff.predict_f(grid)
+    mean_sum, _ = m_sum.predict_f(grid)
+    fig, axes = confmp.newfig(nrows=2, ncols=2, left=39, top=17, bottom=34, right=41,
+                              wspace=5, hspace=38)
+    axes[0, 0].set_title("Re($p$)")
+    max_diff = np.max(abs(mean_diff.numpy()))
+    vmin_diff = -max_diff
+    vmax_diff = max_diff
+    vmin_sum = np.min(mean_sum.numpy())
+    vmax_sum = np.max(mean_sum.numpy())
+    axes[0, 0].set_ylabel("Im($\kappa$)")
+    for i in range(np.shape(axes)[0]):
+        im_diff = confmp.imshow(axes[0, i], mean_diff[:, i].numpy().reshape(-100, 100), extent,
+                                cmap='seismic', vmin=vmin_diff, vmax=vmax_diff)
+        axes[0, i].scatter(ep.real, ep.imag, marker='x', s=6, lw=0.5, c='tab:green')
+        axes[0, i].set_xlabel("Re($\kappa$)")
+        axes[0, i].set_ylim([-0.5, 1.5])
+        axes[0, i].set_xticks([0., 0.5, 1.])
+        axes[0, i].set_yticks([0., 0.5, 1.])
+    axes[0, 1].set_title("Im($p$)")
+    axes[0, 1].set(yticklabels=[])
+    # axes[1, 0].set_title("Re($s$)")
+    # axes[1, 1].set_title("Im($s$)")
+    confmp.cbar_beside(fig, axes[0, :], im_diff, dx=0.01)
+    # confmp.cbar_beside(fig, axes[1, :], im_sum, dx=0.01)
+    axes[1, 0].set_xlabel("Re($\\kappa$)")
+    axes[1, 0].set_ylabel("Im($\\kappa$)")
+    # axes[1, 0].set_xlim([-0.6, 1.6])
+    axes[1, 0].set_ylim([-0.6, 1.6])
+    # ax1.set_title('Training points in kappa space')
+    axes[1, 0].scatter(x=kappa_extra2.real, y=kappa_extra2.imag, marker='o', s=2, c=training_steps_color_extra2, cmap="viridis")
+    # ax1.set_yticks([-0.5, 0., 0.5, 1., 1.5])
+    axes[1, 0].add_patch(Rectangle((0.852, 1.047), 0.062, 0.0947,
+                            edgecolor='black',
+                            fill=False,
+                            lw=0.5))
+    con1 = ConnectionPatch(xyA=(0.8812, 1.0895), xyB=(0.914, 1.047),
+                           coordsA="data", coordsB="data",
+                           axesA=axes[1, 1], axesB=axes[1, 0],
+                           color="black", lw=0.5)
+    con2 = ConnectionPatch(xyA=(0.8812, 1.09755), xyB=(0.914, 1.1417),
+                           coordsA="data", coordsB="data",
+                           axesA=axes[1, 1], axesB=axes[1, 0],
+                           color="black", lw=0.5)
+    fig.add_artist(con1)
+    fig.add_artist(con2)
+    # ax2.set_xlabel("Re($\\kappa$)")
+    # ax2.set_ylabel("Im($\\kappa$)")
+    # ax2.set_title('No extra training points')
+    axes[1, 1].set_xlim([0.8812, 0.88425])
+    axes[1, 1].set_ylim([1.0895, 1.09755])
+    # ax3.tick_params(labelleft=False, labelbottom=False)
+    axes[1, 1].scatter(x=ep.real, y=ep.imag, marker='x', s=6, lw=0.5, c="tab:green", label="EP")
+    axes[1, 1].set(yticklabels=[], xticklabels=[])
+    axes[1, 1].tick_params(
+        axis='both',          # changes apply to the both axes
+        which='both',      # both major and minor ticks are affected
+        bottom=False,      # ticks along the bottom edge are off
+        top=False,         # ticks along the top edge are off
+        left=False,
+        right=False,
+        labelbottom=False) # labels along the bottom edge are off
+    cb3 = axes[1, 1].scatter(x=kappa_extra2.real, y=kappa_extra2.imag, marker='8', s=2,
+                      c=training_steps_color_extra2, cmap="viridis")
+    axes[1, 1].legend()
+    cbar, cax = confmp.cbar_beside(fig, axes[1, :], cb3, dx=0.01)
+    cbar.set_label("\\# of training steps")
+    axes[1, 1].text(0.5, -0.2, "$\\mathbb{L}_2$ norm: \\num{1.344e-6}", size=12, ha="center",
+                    transform=axes[1, 1].transAxes)
+    # fig.colorbar(cb3, ax=axes[1, 1], label="\\# of training steps", ticks=[0, 1, 2, 3])
+    fig.savefig("../../mastersthesis/plots/plots/GPRPlane5DModelTrainedOnlyPWithKappaSpaceViridis.pdf")
+
+
+def energy_plane_trained():
+    ep = np.array([0.88278093 + 1.09360073j])
+    df_extra2 = pd.read_csv('../../mastersthesis/plots/data/paper_data_kappa_trained_model_extra2.csv',
+                            header=0, skiprows=0,
+                            names=["kappa", "ev1", "ev2", "training_steps_color"])
+    ev_extra2 = np.column_stack([np.array(df_extra2.ev1).astype(complex),
+                                 np.array(df_extra2.ev2).astype(complex)])
+    kappa_extra2 = np.array(df_extra2.kappa).astype(complex)
+    training_steps_color_extra2 = np.array(df_extra2.training_steps_color)
+    fig, axes = confmp.newfig(width=.61, left=36, right=41, bottom=33, top=9)
+    im = axes.scatter(ev_extra2[:, 0].real, ev_extra2[:, 0].imag, marker='o', s=2,
+                      c=training_steps_color_extra2, cmap='plasma')
+    im = axes.scatter(ev_extra2[:, 1].real, ev_extra2[:, 1].imag, marker='o', s=2,
+                      c=training_steps_color_extra2, cmap='plasma')
+    axes.set_xlabel("Re($\lambda$)")
+    axes.set_ylabel("Im($\lambda$)")
+    pos = axes.get_position()
+    cax = fig.add_axes((pos.xmax + 0.0164, pos.ymin, (10./72.) / fig.get_figwidth(), pos.ymax - pos.ymin))
+    cbar = fig.colorbar(im, cax=cax, orientation='vertical')
+    cbar.set_label("\# of training steps")
+    cbar.ax.set_yticks([0, 1, 2, 3])
+    fig.savefig("../../mastersthesis/plots/plots/5DModelEnergyPlaneTrainedPosterSmall.pdf")
+
+
+def compatibility_and_energy_plane_trained():
+    ep = np.array([0.88278093 + 1.09360073j])
+    df_extra2 = pd.read_csv('../../mastersthesis/plots/data/paper_data_kappa_trained_model_extra2.csv',
+                            header=0, skiprows=0,
+                            names=["kappa", "ev1", "ev2", "training_steps_color"])
+    df_select_evs = pd.read_csv('../../mastersthesis/plots/data/paper_data_selecting_evs.csv',
+                                header=0, skiprows=0,
+                                names=["compatibility"])
+    c = np.array(df_select_evs.compatibility)
+    ev_extra2 = np.column_stack([np.array(df_extra2.ev1).astype(complex),
+                                 np.array(df_extra2.ev2).astype(complex)])
+    kappa_extra2 = np.array(df_extra2.kappa).astype(complex)
+    training_steps_color_extra2 = np.array(df_extra2.training_steps_color)
+    fig, axes = confmp.newfig(aspect=.61, ncols=2, left=34, right=42, bottom=34, top=4, wspace=40, gridspec=True,
+                              width_ratios=np.array([1, 5]))
+    ax1 = fig.add_subplot(axes[0])
+    ax2 = fig.add_subplot(axes[1])
+    x = [0 for _ in c]
+    ax1.semilogy(x, abs(c), "_", ms=20, color=(0,81/256,158/256))
+    ax1.set_ylabel("$c$")
+    ax1.tick_params(labelbottom=False, bottom=False)
+    im = ax2.scatter(ev_extra2[:, 0].real, ev_extra2[:, 0].imag, marker='o', s=2,
+                      c=training_steps_color_extra2, cmap='plasma')
+    im = ax2.scatter(ev_extra2[:, 1].real, ev_extra2[:, 1].imag, marker='o', s=2,
+                      c=training_steps_color_extra2, cmap='plasma')
+    ax2.set_xlabel("Re($\lambda$)")
+    ax2.set_ylabel("Im($\lambda$)")
+    pos = ax2.get_position()
+    cax = fig.add_axes((pos.xmax + 0.01, pos.ymin, (10./72.) / fig.get_figwidth(), pos.ymax - pos.ymin))
+    cbar = fig.colorbar(im, cax=cax, orientation='vertical')
+    cbar.set_label("\# of training steps")
+    cbar.ax.set_yticks([0, 1, 2, 3])
+    fig.savefig("../../mastersthesis/plots/plots/CompatibilityAnd5DModelEnergyPlaneTrainedPoster.pdf")
 
 
 if __name__ == '__main__':
     # plots.init_matplotlib()
+    # energy_plane_5d_model2()
+    # gpr_plane_trained_only_p_with_kappa_space()
+    energy_plane_trained()
+    # compatibility_and_energy_plane_trained()
 
     kappa_0 = 0.5 + 0.5j  # 1.1847 + 1.0097j
     r = 1
@@ -27,16 +368,22 @@ if __name__ == '__main__':
     eps = 1.e-15
     eps_var = 1.e-6
     eps_diff = 1.e-2
-    while not m:
+    # kappa, phi = matrix.parametrization(kappa_0, r, steps)
+    # symmatrix = matrix.matrix_one_close_re(kappa)
+    # ev_new = matrix.eigenvalues(symmatrix)
+    # plots.energy_plane_plotly(ev_new, phi)
+    # ev = dpp.initial_dataset(ev_new)
+
+    """while not m:
         kappa, phi = matrix.parametrization(kappa_0, r, steps)
         kappa_new = kappa
         # plot_color = [0 for _ in kappa]
-        ev = np.empty((0, 2))
+        # ev = np.empty((0, 2))
         symmatrix = matrix.matrix_one_close_re(kappa)
         ev_new = matrix.eigenvalues(symmatrix)
-        plots.energy_plane_plotly(ev_new, phi)
+        # plots.energy_plane_plotly(ev_new, phi)
         ev = dpp.initial_dataset(ev_new)
-        plots.energy_plane_plotly(ev, phi)
+        # plots.energy_plane_plotly(ev, phi)
         # ep = zs.zero_search()
         # ev_1_one_close_re = np.concatenate((ev_new[:28, 3], ev_new[28:30, 2], ev_new[30:, 1]))
         # ev_2_one_close_re = np.concatenate((ev_new[:14, 1], ev_new[14:28, 2], ev_new[28:30, 1], ev_new[30:78, 2],
@@ -52,8 +399,8 @@ if __name__ == '__main__':
         # df = pd.DataFrame()
         # df = pd.concat([df, pd.DataFrame(ev_one_close_re)], axis=1)
         # df.columns = ['ev1', 'ev2']
-        # df.to_csv('eigenvalues_5d_one_close_re.csv')
-        """df = pd.read_csv('data_kappa.csv', header=0, skiprows=0,
+        # df.to_csv('eigenvalues_5d_one_close_re.csv')"""
+    """df = pd.read_csv('data_kappa.csv', header=0, skiprows=0,
                          names=["kappa", "ev1", "ev2"])
         ev = np.concatenate((ev, np.column_stack([np.array(df.ev1).astype(complex),
                                                   np.array(df.ev2).astype(complex)])))
@@ -65,7 +412,7 @@ if __name__ == '__main__':
         print(kappa[-1])
         ep = zs.zero_search(ep_search_fun, kappa[-1])
         print(ep)"""
-        ev = ev[::p]
+    """ev = ev[::p]
         kappa = kappa[::p]
         n = False
         print(np.shape(kappa))
@@ -183,23 +530,8 @@ if __name__ == '__main__':
     # print("Time for while loop without jit: ", end1 - start1)
     # fig = px.scatter(x=kappa.real, y=kappa.imag, color=training_steps_color,
     #                 labels=dict(x="Re(\\kappa)", y="Im(\\kappa)", color="# of training steps"))
-    # fig.show()
+    # fig.show()"""
     """print(np.shape(kappa))
-    ev_diff = ev[::, 0] - ev[::, 1]
-    ev_diff_squared = ((ev[::, 0]-ev[::, 1])**2)
-    ev_sum = (0.5 * (ev[::, 0] + ev[::, 1]))
-    model_diff, kernel_ev_diff = gpr.gp_2d_diff_kappa(ev, kappa)
-    model_sum, kernel_ev_sum = gpr.gp_2d_sum_kappa(ev, kappa)
-    grid = np.column_stack((kappa.real, kappa.imag))
-    # print(xx)
-    # grid = np.array(xx.ravel()).T
-    # print(grid)
-    mean_diff_old, var_diff_old = model_diff.predict_f(grid)
-    mean_sum_old, var_sum_old = model_sum.predict_f(grid)
-    # print(mean_diff_old.numpy())
-    # print(np.shape(mean_diff_old.numpy()))
-    # print(var_diff_old.numpy())
-    # print(np.shape(var_diff_old.numpy()))
     df = pd.DataFrame()
     df['kappa'] = kappa.tolist()
     # df['kernel_ev'] = kernel_ev.tolist()
@@ -220,16 +552,6 @@ if __name__ == '__main__':
     ev_sum_complex = (0.5 * (ev[::, 0] + ev[::, 1]))"""
     # plots.control_model_2d_plotly(kappa[18:], ev_diff_complex[18:], ev_sum_complex[18:], model_diff, model_sum)
     # plots.control_model_3d_plotly(kappa, ev_diff_complex, ev_sum_complex, model_diff, model_sum)
-    """plt.figure(1)
-    plt.ylabel("Entropy")
-    plt.xlabel("# of training steps")
-    plt.plot(entropy_diff)
-    plt.savefig("entropy_diff.pdf")
-    plt.figure(2)
-    plt.ylabel("Entropy")
-    plt.xlabel("# of training steps")
-    plt.plot(entropy_sum)
-    plt.savefig("entropy_sum.pdf")"""
 
     # plots.three_d_eigenvalue_kappa_plotly(kappa_0, r, m_re, m_im)
     # plots.parameter_plane_plotly(kappa, phi)
