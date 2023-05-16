@@ -63,7 +63,7 @@ class GPFlowModel:
             Parameters
             ----------
             kappa : np.ndarray
-                    kappa value for which you want the eigenvalues.
+                    kappa value for which you want the eigenvalues
             """
             symmatrix = matrix.matrix_one_close_re(np.array([complex(kappa[0], kappa[1])]))
             ev_new = matrix.eigenvalues(symmatrix)

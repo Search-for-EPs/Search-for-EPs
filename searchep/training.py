@@ -40,7 +40,7 @@ def train(training_data: data.Data, new_calculations: bool = True, extra_trainin
                                                         training_data.kappa_center.imag)])
             training_data.kappa = np.concatenate((training_data.kappa, training_data.kappa_new))
         training_data.ev = data.getting_new_ev_of_ep(training_data, gpflow_model, new_calculations,
-                                                     eval_plots=eval_plots, plotname=plotname)
+                                                     eval_plots=eval_plots, plot_name=plotname)
         training_data.update_scaling()
         current_training_step += 1
         training_data.training_steps_color.append(current_training_step)
