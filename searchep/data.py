@@ -1,6 +1,8 @@
 import jax.numpy as jnp
 import numpy as np
 from jax import vmap
+from sklearn.metrics import pairwise_distances
+from scipy.spatial.distance import cosine
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -16,29 +18,56 @@ parameters = ["N_max", "F2min", "F2max", "delta", "parity",
 
 
 class Data:
+    """Data class containing all relevant Data
 
-    def __init__(self, filename, directory, output_name=2, evs_EP=True, input_parameters: Union[dict, str] = None,
-                 distance=3.e-6):
+    Save and update all relevant values during the training process.
+    """
+
+    def __init__(self, filename: str, directory: str, output_name: int = 2, evs_ep: bool = True,
+                 input_parameters: Union[dict, str] = None, distance: float = 3.e-6):
+        """Constructor of the Data class
+
+        Parameters
+        ----------
+        filename : str
+            Name of file  which contains the relevant data
+        directory : str
+            Absolute path to working directory
+        output_name : int, optional
+            For new calculations a new file is created and this parameter controls the number of this new input file
+        evs_ep : bool, optional
+            If the given file contains only the eigenvalues of the EP and the corresponding kappa and phi values this
+            parameter should be True and if not it should be False
+        input_parameters : Union[dict, str], optional
+            The parameters of the input file. Default are listed in User Guide. A filename of the input file which
+            contains the parameters or a dictionary which contains the relevant parameters which are different from
+            the default ones
+        distance : float, optional
+            Distance between first and last eigenvalue after one circulation. Needed for function initial_dataset
+        """
         self.working_directory = directory
-        if evs_EP:
+        if evs_ep:
             df = pd.read_csv(os.path.normpath(os.path.join(self.working_directory, filename)), header=0, skiprows=0,
                              names=["kappa", "ev1", "ev2", "phi"])
             self.kappa = np.array(df.kappa).astype(complex)
             self.ev = np.column_stack((np.array(df.ev1).astype(complex), np.array(df.ev2).astype(complex)))
             self.phi = np.array(df.phi)
         else:
-            self.kappa, self.ev, self.phi = load_dat_file(
+            self.kappa, self.ev, self.phi, self.vec, self.vec_normalized = load_dat_file(
                 os.path.normpath(os.path.join(self.working_directory, filename)))
-            # fig_all = px.scatter(x=self.ev.ravel().real, y=self.ev.ravel().imag,
+            #phi_all = np.sort(np.array([self.phi.copy() for _ in range(np.shape(self.ev)[1])]).ravel())
+            #fig_all = px.scatter(x=self.ev.ravel().real, y=self.ev.ravel().imag, color=phi_all,
             #                     labels=dict(x="Re(\\lambda)", y="Im(\\lambda)"))
             # fig_all.show()
-            self.ev = initial_dataset(self.ev, distance=distance)
-            phi_all = np.sort(np.array([self.phi.copy() for _ in range(np.shape(self.ev)[1])]).ravel())
-            fig_ev = px.scatter(x=self.ev.ravel().real, y=self.ev.ravel().imag, color=phi_all,
-                                labels=dict(x="Re(\\lambda)", y="Im(\\lambda)"))
-            fig = make_subplots(rows=1, cols=1)
+            # self.ev_old = initial_dataset_old(self.ev, distance=distance)
+            #self.ev = initial_dataset(self.vec, distance=distance) # self.vec_normalized
+            #phi_all = np.sort(np.array([self.phi.copy() for _ in range(np.shape(self.ev)[1])]).ravel())
+            #fig_ev = px.scatter(x=self.ev.ravel().real, y=self.ev.ravel().imag, color=phi_all,
+            #                    labels=dict(x="Re(\\lambda)", y="Im(\\lambda)"))
+            # fig_ev.show()
+            # fig = make_subplots(rows=1, cols=1)
             # fig.add_trace(fig_all["data"][0], row=1, col=1, )
-            fig.add_trace(fig_ev["data"][0], row=1, col=1)
+            # fig.add_trace(fig_ev["data"][0], row=1, col=1)
             # fig.show()
         if input_parameters:
             try:
@@ -111,7 +140,7 @@ class Data:
         return self.diff_scale, self.sum_mean_complex, self.sum_scale
 
 
-def load_dat_file(filename: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def load_dat_file(filename: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Load dat file (output of external program)
 
     Data file containing all kappa values, angles and respective eigenvalues.
@@ -130,8 +159,10 @@ def load_dat_file(filename: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     df = pd.read_csv(filename, sep='\s+', skiprows=7, skip_blank_lines=False,
                      names=["Z1", "Z2", "Z3", "Z4", "Z5", "f", "gamma", "Z8", "Z9", "Z10", "Z11", "ev_re", "ev_im",
-                            "Z14", "Z15", "Z16", "Z17", "Z18", "Z19", "Z20", "Z21", "Z22", "Z23", "Z24", "Z25", "Z26",
-                            "Z27", "Z28", "Z29", "Z30", "phi"])
+                            "Z14", "oscR_x_re", "oscR_x_im", "oscR_y_re", "oscR_y_im", "Z19", "Z20", "oscL_x_re",
+                            "oscL_x_im", "oscL_y_re", "oscL_y_im", "Z25", "Z26", "yellow_re", "yellow_im", "green_re",
+                            "green_im", "s_re", "s_im", "p_re", "p_im", "d_re", "d_im", "f_re", "f_im", "g_re", "g_im",
+                            "h_re", "h_im", "i_re", "i_im", "j_re", "j_im", "k_re", "k_im", "l_re", "l_im", "phi"])
 
     f = clump(np.array(df.f))
     gamma = clump(np.array(df.gamma))
@@ -139,22 +170,131 @@ def load_dat_file(filename: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     ev_re = clump(np.array(df.ev_re))
     ev_im = clump(np.array(df.ev_im))
     ev = ev_re + ev_im * 1j
+    oscR_x_re = clump(np.array(df.oscR_x_re))
+    oscR_x_im = clump(np.array(df.oscR_x_im))
+    oscR_y_re = clump(np.array(df.oscR_y_re))
+    oscR_y_im = clump(np.array(df.oscR_y_im))
+    oscL_x_re = clump(np.array(df.oscL_x_re))
+    oscL_x_im = clump(np.array(df.oscL_x_im))
+    oscL_y_re = clump(np.array(df.oscL_y_re))
+    oscL_y_im = clump(np.array(df.oscL_y_im))
+    yellow_re = clump(np.array(df.yellow_re))
+    yellow_im = clump(np.array(df.yellow_im))
+    green_re = clump(np.array(df.green_re))
+    green_im = clump(np.array(df.green_im))
+    s_re = clump(np.array(df.s_re))
+    s_im = clump(np.array(df.s_im))
+    p_re = clump(np.array(df.p_re))
+    p_im = clump(np.array(df.p_im))
+    d_re = clump(np.array(df.d_re))
+    d_im = clump(np.array(df.d_im))
+    f_re = clump(np.array(df.f_re))
+    f_im = clump(np.array(df.f_im))
+    g_re = clump(np.array(df.g_re))
+    g_im = clump(np.array(df.g_im))
+    h_re = clump(np.array(df.h_re))
+    h_im = clump(np.array(df.h_im))
+    i_re = clump(np.array(df.i_re))
+    i_im = clump(np.array(df.i_im))
+    j_re = clump(np.array(df.j_re))
+    j_im = clump(np.array(df.j_im))
+    k_re = clump(np.array(df.k_re))
+    k_im = clump(np.array(df.k_im))
+    l_re = clump(np.array(df.l_re))
+    l_im = clump(np.array(df.l_im))
     phi = clump(np.array(df.phi))
-    return kappa[:, 0], ev, phi[:, 0]
+    oscR_x = oscR_x_re + oscR_x_im * 1j
+    oscL_x = oscL_x_re + oscL_x_im * 1j
+    osc_x = oscR_x * oscL_x
+    oscR_y = oscR_y_re + oscR_y_im * 1j
+    oscL_y = oscL_y_re + oscL_y_im * 1j
+    osc_y = oscR_y * oscL_y
+    s = s_re + s_im * 1j
+    p = p_re + p_im * 1j
+    d = d_re + d_im * 1j
+    f = f_re + f_im * 1j
+    g = g_re + g_im * 1j
+    h = h_re + h_im * 1j
+    i = i_re + i_im * 1j
+    j = j_re + j_im * 1j
+    k = k_re + k_im * 1j
+    l = l_re + l_im * 1j
+    fig = px.scatter(x=s.real.ravel(), y=s.imag.ravel(), color=phi.ravel(),
+                     labels=dict(x="Re(s)", y="Im(s)", color="phi"))
+    # fig.show()
+    fig = px.scatter(x=p.real.ravel(), y=p.imag.ravel(), color=phi.ravel(),
+                     labels=dict(x="Re(p)", y="Im(p)", color="phi"))
+    # fig.show()
+    names = [("oscR_x_re", "oscR_x_im"), ("oscR_y_re", "oscR_y_im"), ("oscL_x_re", "oscL_x_im"), ("oscL_y_re",
+                    "oscL_y_im"), ("yellow_re", "yellow_im"), ("green_re", "green_im")]
+    for index, i in enumerate([(oscR_x_re, oscR_x_im), (oscR_y_re, oscR_y_im), (oscL_x_re, oscL_x_im), (oscL_y_re, oscL_y_im),
+              (yellow_re, yellow_im), (green_re, green_im)]):
+        # phi_all = np.sort(np.array([phi.copy() for _ in range(np.shape(i[0])[1])]).ravel())
+        fig_all = px.scatter(x=i[0][:, 40], y=i[1][:, 40], color=np.sort(phi[:, 40]),
+                             labels=dict(x="%s" % str(names[index][0]), y="%s" % str(names[index][1])))
+        # fig_all.show()
+    vec = np.stack((ev_re, ev_im, #osc_x.real, osc_x.imag, osc_y.real, osc_y.imag,
+                    #oscR_x_re, oscR_x_im, oscR_y_re, oscR_y_im, oscL_x_re, oscL_x_im, oscL_y_re, oscL_y_im,
+                    #yellow_re, yellow_im, green_re, green_im,
+                    s_re, s_im, p_re, p_im, d_re, d_im, f_re, f_im, g_re, g_im,
+                    h_re, h_im, i_re, i_im, j_re, j_im, k_re, k_im, l_re, l_im
+                    ), axis=2)
+    vec_normalized = np.stack(((ev_re - np.min(ev_re)) / (np.max(ev_re) - np.min(ev_re)),
+                               (ev_im - np.min(ev_im)) / (np.max(ev_im) - np.min(ev_im)),
+                               #(oscR_x_re - np.min(oscR_x_re)) / (np.max(oscR_x_re) - np.min(oscR_x_re)),
+                               #(oscR_x_im - np.min(oscR_x_im)) / (np.max(oscR_x_im) - np.min(oscR_x_im)),
+                               #(oscR_y_re - np.min(oscR_y_re)) / (np.max(oscR_y_re) - np.min(oscR_y_re)),
+                               #(oscR_y_im - np.min(oscR_y_im)) / (np.max(oscR_y_im) - np.min(oscR_y_im)),
+                               #(oscL_x_re - np.min(oscL_x_re)) / (np.max(oscL_x_re) - np.min(oscL_x_re)),
+                               #(oscL_x_im - np.min(oscL_x_im)) / (np.max(oscL_x_im) - np.min(oscL_x_im)),
+                               #(oscL_y_re - np.min(oscL_y_re)) / (np.max(oscL_y_re) - np.min(oscL_y_re)),
+                               #(oscL_y_im - np.min(oscL_y_im)) / (np.max(oscL_y_im) - np.min(oscL_y_im)),
+                               #(osc_x.real - np.min(osc_x.real)) / (np.max(osc_x.real) - np.min(osc_x.real)),
+                               #(osc_x.imag - np.min(osc_x.imag)) / (np.max(osc_x.imag) - np.min(osc_x.imag)),
+                               #(osc_y.real - np.min(osc_y.real)) / (np.max(osc_y.real) - np.min(osc_y.real)),
+                               #(osc_y.imag - np.min(osc_y.imag)) / (np.max(osc_y.imag) - np.min(osc_y.imag)),
+                               #(yellow_re - np.min(yellow_re)) / (np.max(yellow_re) - np.min(yellow_re)),
+                               #(yellow_im - np.min(yellow_im)) / (np.max(yellow_im) - np.min(yellow_im)),
+                               #(green_re - np.min(green_re)) / (np.max(green_re) - np.min(green_re)),
+                               #(green_im - np.min(green_im)) / (np.max(green_im) - np.min(green_im)),
+                               #(s_re - np.min(s_re)) / (np.max(s_re) - np.min(s_re)),
+                               #(s_im - np.min(s_im)) / (np.max(s_im) - np.min(s_im)),
+                               #(p_re - np.min(p_re)) / (np.max(p_re) - np.min(p_re)),
+                               #(p_im - np.min(p_im)) / (np.max(p_im) - np.min(p_im)),
+                               #(d_re - np.min(d_re)) / (np.max(d_re) - np.min(d_re)),
+                               #(d_im - np.min(d_im)) / (np.max(d_im) - np.min(d_im)),
+                               #(f_re - np.min(f_re)) / (np.max(f_re) - np.min(f_re)),
+                               #(f_im - np.min(f_im)) / (np.max(f_im) - np.min(f_im)),
+                               #(g_re - np.min(g_re)) / (np.max(g_re) - np.min(g_re)),
+                               #(g_im - np.min(g_im)) / (np.max(g_im) - np.min(g_im)),
+                               #(h_re - np.min(h_re)) / (np.max(h_re) - np.min(h_re)),
+                               #(h_im - np.min(h_im)) / (np.max(h_im) - np.min(h_im)),
+                               #(i_re - np.min(i_re)) / (np.max(i_re) - np.min(i_re)),
+                               #(i_im - np.min(i_im)) / (np.max(i_im) - np.min(i_im)),
+                               #(j_re - np.min(j_re)) / (np.max(j_re) - np.min(j_re)),
+                               #(j_im - np.min(j_im)) / (np.max(j_im) - np.min(j_im)),
+                               #(k_re - np.min(k_re)) / (np.max(k_re) - np.min(k_re)),
+                               #(k_im - np.min(k_im)) / (np.max(k_im) - np.min(k_im)),
+                               #(l_re - np.min(l_re)) / (np.max(l_re) - np.min(l_re)),
+                               #(l_im - np.min(l_im)) / (np.max(l_im) - np.min(l_im)),
+                               ), axis=2)
+    return kappa[:, 0], ev, phi[:, 0], vec, vec_normalized
 
 
 def clump(a):
     return np.array([a[s] for s in np.ma.clump_unmasked(np.ma.masked_invalid(a))])
 
 
-def initial_dataset(ev: np.ndarray, distance: float = 3.e-6) -> np.ndarray:
+def step_wise_ordering(vec: np.ndarray, vec_normalized: np.ndarray = None, distance: float = 3.e-6) -> np.ndarray:
     """Get initial dataset
 
     Selecting the eigenvalues belonging to the EP by ordering all eigenvalues and comparing the first end last point.
-    If it is greater than 0 the eigenvalues exchange their positions and belong to the EP.        
+    If it is greater than 0 the eigenvalues exchange their positions and belong to the EP.
 
     Parameters
     ----------
+    vec
+    vec_normalized
     ev : np.ndarray
         All exact complex eigenvalues
     distance : float, optional
@@ -165,6 +305,76 @@ def initial_dataset(ev: np.ndarray, distance: float = 3.e-6) -> np.ndarray:
     np.ndarray
         Usually 2D array containing the two eigenvalues belonging to the EP
     """
+    vec_normalized = vec_normalized if vec_normalized else vec
+    vec_sorted = [vec[0]]
+    vec_sorted_normalized = [vec_normalized[0]]
+    for angle in range(vec.shape[0]-1):
+        current_angle = vec_sorted_normalized[angle]
+        next_angle = vec_normalized[angle+1]
+        nn_distance = pairwise_distances(next_angle, current_angle, metric='cosine')  # , metric='cosine'
+        nn_index = np.argsort(nn_distance, axis=0)
+        while len(nn_index[0]) > len(set(nn_index[0])):
+            u, inverse, counts = np.unique(nn_index[0], return_inverse=True, return_counts=True)
+            index_multi_min = u[np.argmax(counts)]
+            unique_min = current_angle[np.where(inverse == np.argmax(counts))] - next_angle[index_multi_min]
+            index_current_angle = np.where(inverse == np.argmax(counts))[0][
+                np.argmin(np.linalg.norm(unique_min, axis=1))]
+            nn_index = np.column_stack(
+                [np.append(nn_index[:, i][(nn_index[:, i] != index_multi_min)], [index_multi_min])
+                 if i != index_current_angle else nn_index[:, index_current_angle] for i in range(nn_index.shape[1])])
+        vec_sorted.append(vec[angle+1][nn_index[0]])
+        vec_sorted_normalized.append(vec_normalized[angle+1][nn_index[0]])
+    vec_sorted = np.array(vec_sorted)
+    ev_all_sorted = np.column_stack([vec_sorted[:, k, 0] + vec_sorted[:, k, 1] * 1j for k in
+                                     range(np.shape(vec_sorted)[1])])
+    ep_ev_index = np.argwhere(abs(ev_all_sorted[0, :] - ev_all_sorted[-1, :]) > distance)
+    return np.column_stack([ev_all_sorted[:, n] for n in ep_ev_index])
+
+
+def initial_dataset_old(vec: np.ndarray, vec_normalized: np.ndarray, distance: float = 3.e-6) -> np.ndarray:
+    """Get initial dataset
+
+    Selecting the eigenvalues belonging to the EP by ordering all eigenvalues and comparing the first end last point.
+    If it is greater than 0 the eigenvalues exchange their positions and belong to the EP.        
+
+    Parameters
+    ----------
+    vec
+    vec_normalized
+    ev : np.ndarray
+        All exact complex eigenvalues
+    distance : float, optional
+        Distance between start and end of a loop, by default 3.e-6
+
+    Returns
+    -------
+    np.ndarray
+        Usually 2D array containing the two eigenvalues belonging to the EP
+    """
+    nearest_neighbour = np.array(
+        [vmap(lambda x, y: (x - y), in_axes=(0, 0), out_axes=0)(vec,
+                                                                jnp.roll(np.roll(vec, -1, axis=0),
+                                                                         -i, axis=1))
+         for i in range(np.shape(vec_normalized)[1])])
+    norm = 1 / np.linalg.norm(nearest_neighbour, axis=3)
+    print("norm dim: ", norm.shape)
+    vec_all = []
+    for i in range(np.shape(norm)[2]):
+        ev_sorted = [vec[0, i]]
+        l = i
+        for j in range(np.shape(norm)[1]):
+            l = (np.argmax(norm[:, j, l]) + l) % np.shape(vec_normalized)[1]
+            if j + 1 != np.shape(vec_normalized)[0]:
+                ev_sorted.append(vec[(j + 1), l])
+        vec_all.append(ev_sorted)
+    vec_all = np.array(vec_all)
+    ev_all_sorted = np.column_stack([vec_all[k, :, 0] + vec_all[k, :, 1] * 1j for k in range(np.shape(vec_all)[0])])
+    # print(ev_all_sorted)
+    ep_ev_index = np.argwhere(abs(ev_all_sorted[0, :] - ev_all_sorted[-1, :]) > distance)
+    return np.column_stack([ev_all_sorted[:, n] for n in ep_ev_index])  # ev_all_sorted[:, ep_ev_index])
+
+
+def initial_dataset_older(ev, distance: float = 3.e-6):
     nearest_neighbour = np.array(
         [vmap(lambda x, y: abs(x - y), in_axes=(0, 0), out_axes=0)(ev, jnp.roll(np.roll(ev, -1, axis=0), -i, axis=1))
          for i in range(np.shape(ev)[1])])
@@ -184,7 +394,7 @@ def initial_dataset(ev: np.ndarray, distance: float = 3.e-6) -> np.ndarray:
 
 
 def getting_new_ev_of_ep(data: Data, gpflow_model: GPFmc.GPFlowModel, new_calculations: bool = True,
-                         eval_plots: bool = True, plotname: str = "") -> np.ndarray:
+                         eval_plots: bool = True, plot_name: str = "") -> np.ndarray:
     """Getting new eigenvalues belonging to the EP
 
     Selecting the two eigenvalues of a new point belonging to the EP by comparing it to a GPR model prediction and
@@ -192,7 +402,7 @@ def getting_new_ev_of_ep(data: Data, gpflow_model: GPFmc.GPFlowModel, new_calcul
 
     Parameters
     ----------
-    data : data_preprocessing.Data
+    data : data.Data
         Class which contains all scale-, kappa- and eigenvalues
     gpflow_model : GPFlow_model_class.GPFlowModel
         Class which contains both 2D GPR models
@@ -201,7 +411,7 @@ def getting_new_ev_of_ep(data: Data, gpflow_model: GPFmc.GPFlowModel, new_calcul
         no extra calculation of the eigenvalues has to be started, by default True
     eval_plots : bool, optional
         Controls if compatibility and selected eigenvalues should be plotted or not, by default True
-    plotname : str, optional
+    plot_name : str, optional
         Specifies special name for plot files, by default ""
 
     Returns
@@ -244,7 +454,7 @@ def getting_new_ev_of_ep(data: Data, gpflow_model: GPFmc.GPFlowModel, new_calcul
         c = np.array([0 for _ in compatibility])
         fig1 = px.scatter(x=c, y=abs(compatibility), log_y=True)
         fig1.write_html(
-            os.path.join(data.working_directory, "compatibility_%s%1d.html" % (plotname, np.shape(data.ev)[0])))
+            os.path.join(data.working_directory, "compatibility_%s%1d.html" % (plot_name, np.shape(data.ev)[0])))
         # fig1.show()
         # a = np.argsort(compatibility)
         # unique_filename = str(uuid.uuid4())
@@ -266,7 +476,7 @@ def getting_new_ev_of_ep(data: Data, gpflow_model: GPFmc.GPFlowModel, new_calcul
         # fig.add_trace(go.Scatter(x=new3.ravel().real, y=new3.ravel().imag, mode='markers', name="Eigenvalues of EP3",
         #                         marker=dict(color='red')))
         fig.write_html(
-            os.path.join(data.working_directory, "selected_eigenvalues_%s%1d.html" % (plotname, np.shape(data.ev)[0])))
+            os.path.join(data.working_directory, "selected_eigenvalues_%s%1d.html" % (plot_name, np.shape(data.ev)[0])))
         # fig.show()
         # fig_diff = go.Figure()
         # fig_diff.add_trace(go.Scatter(x=ev_new.ravel().real, y=ev_new.ravel().imag,
@@ -274,7 +484,7 @@ def getting_new_ev_of_ep(data: Data, gpflow_model: GPFmc.GPFlowModel, new_calcul
         # fig_diff.add_trace(go.Scatter(x=new_diff.ravel().real, y=new_diff.ravel().imag, mode='markers',
         #                              name="Eigenvalues of EP", marker=dict(color='red')))
         # fig_diff.write_html(os.path.join(data.working_directory,
-        #                                 "selected_eigenvalue_diff_%1d.html" % (plotname, np.shape(data.ev)[0])))
+        #                                 "selected_eigenvalue_diff_%1d.html" % (plot_name, np.shape(data.ev)[0])))
         # fig_diff.show()
     return np.concatenate((data.ev, np.array([[ev_1[np.argmax(compatibility)], ev_2[np.argmax(compatibility)]]])))
 
@@ -322,8 +532,7 @@ def start_exact_calculation(data: Data):
                 % data.input_parameters.get("nev", "70") +
                 "%s                 ! statenr number for file containing additional states for delta diagonalization\n"
                 % data.input_parameters.get("statenr", "200") +
-                "%s                 ! ofnr  Punkt 35\n" % str(
-                    (3 - len(str(data.output_name))) * "0" + str(data.output_name)))
+                "%s                 ! ofnr\n" % str((3 - len(str(data.output_name))) * "0" + str(data.output_name)))
     subprocess.run('cd {0} && ./main < {1} > {2}'.format(data.working_directory, inp, out), shell=True)
 
 
