@@ -1,4 +1,4 @@
-data.py
+searchep.data
 ---------------------
 
 .. automodule:: searchep.data
