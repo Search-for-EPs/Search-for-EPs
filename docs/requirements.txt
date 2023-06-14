@@ -2,3 +2,11 @@ furo==2021.11.16
 myst-parser
 myst_parser
 pydata_sphinx_theme
+numpy>=1.22.4
+gpflow>=2.6.3
+jax>=0.3.13
+pandas>=1.5.1
+plotly>=5.11.0
+matplotlib>=3.5.2
+scipy>=1.8.1
+setuptools>=59.6.0
