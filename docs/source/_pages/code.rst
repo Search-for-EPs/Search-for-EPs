@@ -7,9 +7,10 @@ functions and classes are suited to the problem in this master thesis and to the
 Nevertheless some of the functions can be used for other problems as well.
 
 .. toctree::
+   :titlesonly:
 
-    eval
-    data
-    gpr
-    GPFlow_model_class
-    zero_search
+   eval
+   data
+   gpr
+   GPFlow_model_class
+   zero_search
