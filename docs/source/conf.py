@@ -58,12 +58,12 @@ exclude_patterns = []
 # a list of builtin themes.
 # https://pydata-sphinx-theme.readthedocs.io/en/stable/user_guide/index.html
 
-html_theme = "pydata_sphinx_theme"
-html_theme_options = {
-    "secondary_sidebar_items": ["page-toc"],
-    "show_prev_next": True,
-    "footer_items": ["copyright", "sphinx-version", "theme-version"],
-}
+html_theme = "furo"
+#html_theme_options = {
+#    "secondary_sidebar_items": ["page-toc"],
+#    "show_prev_next": True,
+#    "footer_items": ["copyright", "sphinx-version", "theme-version"],
+#}
 
 numfig = True
 
