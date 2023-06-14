@@ -4,7 +4,7 @@ myst_parser
 pydata_sphinx_theme
 numpy>=1.22.4
 gpflow>=2.6.3
-"jax[cpu]"
+jax[cpu]
 pandas>=1.5.1
 plotly>=5.11.0
 matplotlib>=3.5.2
