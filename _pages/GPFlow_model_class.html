@@ -329,8 +329,41 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <div class="section" id="gpflow-model-class-py">
-<h1>GPFlow_model_class.py<a class="headerlink" href="#gpflow-model-class-py" title="Permalink to this headline">#</a></h1>
+  <div class="section" id="module-searchep.GPFlow_model_class">
+<span id="gpflow-model-class-py"></span><h1>GPFlow_model_class.py<a class="headerlink" href="#module-searchep.GPFlow_model_class" title="Permalink to this headline">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="searchep.GPFlow_model_class.GPFlowModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">searchep.GPFlow_model_class.</span></span><span class="sig-name descname"><span class="pre">GPFlowModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_diff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">gpflow.models.model.GPModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_sum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">gpflow.models.model.GPModel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.GPFlow_model_class.GPFlowModel" title="Permalink to this definition">#</a></dt>
+<dd><p>Class for the deployment of a GPFlow
+model.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="searchep.GPFlow_model_class.GPFlowModel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_diff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">gpflow.models.model.GPModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_sum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">gpflow.models.model.GPModel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.GPFlow_model_class.GPFlowModel.__init__" title="Permalink to this definition">#</a></dt>
+<dd><p>Constructor for the model class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_diff</strong> (<em>gpflow.models.GPFlow</em>) – Optimized model from GPFlow for eigenvalue difference squared</p></li>
+<li><p><strong>model_sum</strong> (<em>gpflow.models.GPFlow</em>) – Optimized model from GPFlow for eigenvalue sum</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="searchep.GPFlow_model_class.GPFlowModel.get_ep_evs">
+<span class="sig-name descname"><span class="pre">get_ep_evs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#searchep.GPFlow_model_class.GPFlowModel.get_ep_evs" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the eigenvalues belonging to the EP.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="searchep.GPFlow_model_class.GPFlowModel.get_model_generator">
+<span class="sig-name descname"><span class="pre">get_model_generator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#searchep.GPFlow_model_class.GPFlowModel.get_model_generator" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the model generator for a specific model.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 

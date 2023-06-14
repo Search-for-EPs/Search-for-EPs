@@ -329,8 +329,70 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <div class="section" id="eval-py">
-<h1>eval.py<a class="headerlink" href="#eval-py" title="Permalink to this headline">#</a></h1>
+  <div class="section" id="module-searchep.eval">
+<span id="eval-py"></span><h1>eval.py<a class="headerlink" href="#module-searchep.eval" title="Permalink to this headline">#</a></h1>
+<p>Quick evaluation of trained models and new calculations</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="searchep.eval.data_kappa_ev_ts_file">
+<span class="sig-prename descclassname"><span class="pre">searchep.eval.</span></span><span class="sig-name descname"><span class="pre">data_kappa_ev_ts_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="data.html#searchep.data.Data" title="searchep.data.Data"><span class="pre">searchep.data.Data</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.eval.data_kappa_ev_ts_file" title="Permalink to this definition">#</a></dt>
+<dd><p>Kappa-, eigenvalues and training steps are written to a csv file</p>
+<p>Only the eigenvalues belonging to the EP are written to the csv. Usually used at the end of training to facilitate
+access to data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – Name of the crated csv file</p></li>
+<li><p><strong>training_data</strong> (<a class="reference internal" href="data.html#searchep.data.Data" title="searchep.data.Data"><em>data.Data</em></a>) – Data class which contains all relevant values</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="searchep.eval.eigenvalue_space_plotly">
+<span class="sig-prename descclassname"><span class="pre">searchep.eval.</span></span><span class="sig-name descname"><span class="pre">eigenvalue_space_plotly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.eval.eigenvalue_space_plotly" title="Permalink to this definition">#</a></dt>
+<dd><p>Plotly plot of the energy / eigenvalue space</p>
+<p>Reads an output file to get the kappa-, eigen-, and phi-values. Plot is used to identify exchange behavior of the
+eigenvalues which belong to an EP.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Name of the output file to be read</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="searchep.eval.kappa_space_training_plotly">
+<span class="sig-prename descclassname"><span class="pre">searchep.eval.</span></span><span class="sig-name descname"><span class="pre">kappa_space_training_plotly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="data.html#searchep.data.Data" title="searchep.data.Data"><span class="pre">searchep.data.Data</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.eval.kappa_space_training_plotly" title="Permalink to this definition">#</a></dt>
+<dd><p>Plotly plot of trained kappa space</p>
+<p>Creates a html file in which the plot is saved. Usually used at the end of the training to instantly evaluate the
+results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – Name of the created html file</p></li>
+<li><p><strong>training_data</strong> (<a class="reference internal" href="data.html#searchep.data.Data" title="searchep.data.Data"><em>data.Data</em></a>) – Data class which contains all relevant values</p></li>
+<li><p><strong>show</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, the plot is displayed</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="searchep.eval.write_new_dataset">
+<span class="sig-prename descclassname"><span class="pre">searchep.eval.</span></span><span class="sig-name descname"><span class="pre">write_new_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="data.html#searchep.data.Data" title="searchep.data.Data"><span class="pre">searchep.data.Data</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.eval.write_new_dataset" title="Permalink to this definition">#</a></dt>
+<dd><p>Writes kappa-, eigen- and phi-values to a new csv file</p>
+<p>Usually used after the initial_dataset function to save the obtained eigenvalues belonging to the EP.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – Name of the created csv file</p></li>
+<li><p><strong>init_data</strong> (<a class="reference internal" href="data.html#searchep.data.Data" title="searchep.data.Data"><em>data.Data</em></a>) – Data class which contains all relevant values</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 

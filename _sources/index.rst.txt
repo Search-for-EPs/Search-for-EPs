@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Welcome to Search-for-EPs' documentation!
-======================================
+=========================================
 
 .. toctree::
    :maxdepth: 2
