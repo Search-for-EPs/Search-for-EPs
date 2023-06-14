@@ -242,3 +242,7 @@ fabric.properties
 .idea
 .vscode
 .~lock*
+
+# Unpublished docu
+docs/source/_pages/progress.rst
+docs/source/_pages/theory.rst
