@@ -1,9 +1,6 @@
 furo
 myst-parser
 myst_parser
-sphinx.ext.autodoc
-sphinx.ext.coverage
-sphinx.ext.napoleon
 numpy
 gpflow
 jax[cpu]
