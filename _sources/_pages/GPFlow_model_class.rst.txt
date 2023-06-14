@@ -1,4 +1,4 @@
-GPFlow_model_class.py
+searchep.GPFlow_model_class
 ---------------------
 
 .. automodule:: searchep.GPFlow_model_class

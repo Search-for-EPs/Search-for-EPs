@@ -1,4 +1,4 @@
-eval.py
+searchep.eval
 ---------------------
 
 .. automodule:: searchep.eval

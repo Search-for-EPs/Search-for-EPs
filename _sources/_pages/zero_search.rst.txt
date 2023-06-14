@@ -1,4 +1,4 @@
-zero_search.py
+searchep.zero_search
 --------------
 
 .. automodule:: searchep.zero_search

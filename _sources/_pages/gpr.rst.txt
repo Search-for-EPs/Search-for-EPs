@@ -1,4 +1,4 @@
-gpr.py
+searchep.gpr
 ------------------------------
 
 .. automodule:: searchep.gpr
