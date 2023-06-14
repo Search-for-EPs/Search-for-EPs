@@ -1,4 +1,4 @@
 Installation
 ============
 
-In this section we will discuss how to install the EPs project.
+More information about how to install the package will be added as soon as the package is published.

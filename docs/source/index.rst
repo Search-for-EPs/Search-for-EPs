@@ -11,8 +11,7 @@ Welcome to EPs-Search's documentation!
    :caption: Contents:
 
    _pages/installation
-   _pages/theory
-   _pages/progress
+   _pages/userguide
    _pages/code
 
 
