@@ -18,11 +18,11 @@ sys.path.insert(0, os.path.abspath('../..'))
 # -- Project information -----------------------------------------------------
 
 project = 'EPs-Search'
-copyright = '2022, Patrick Egenlauf'
+copyright = '2023, Patrick Egenlauf'
 author = 'Patrick Egenlauf'
 
 # The full version, including alpha/beta/rc tags
-release = '2022'
+release = '2023'
 
 
 # -- General configuration ---------------------------------------------------
