@@ -25,8 +25,11 @@ def initial_dataset(ev):
     return numpy.column_stack([ev_all_sorted[:, n] for n in ep_ev_index])  # ev_all_sorted[:, ep_ev_index])
 
 
-def getting_new_ev_of_ep(kappa, ev, model_diff, model_sum):
-    symmatrix = matrix.matrix_one_close_re(kappa)
+def getting_new_ev_of_ep(kappa, ev, model_diff, model_sum, m=0):
+    if m == 0:
+        symmatrix = matrix.matrix_one_close_re(kappa)
+    if m == 1:
+        symmatrix = matrix.matrix_two_close_im(kappa)
     ev_new = matrix.eigenvalues(symmatrix)
     xx, yy = numpy.meshgrid(kappa.real, kappa.imag)
     grid = numpy.array((xx.ravel(), yy.ravel())).T
@@ -41,7 +44,7 @@ def getting_new_ev_of_ep(kappa, ev, model_diff, model_sum):
         pairs_sum = vmap(lambda a, b: 0.5 * np.add(a, b), in_axes=(None, 0), out_axes=0)(val, ev_new[0, (i + 1):])
         ev_1 = np.concatenate((ev_1, np.array([val for _ in range(len(ev_new[0, (i + 1):]))])))
         ev_2 = np.concatenate((ev_2, ev_new[0, (i + 1):]))
-        pairs_diff_all = np.concatenate((pairs_sum_all, np.array(pairs_diff)))
+        pairs_diff_all = np.concatenate((pairs_diff_all, np.array(pairs_diff)))
         pairs_sum_all = np.concatenate((pairs_sum_all, np.array(pairs_sum)))
     compatibility = - np.power(pairs_diff_all.real - mean_diff.numpy()[0, 0], 2) / (2 * var_diff.numpy()[0, 0]) \
                     - np.power(pairs_diff_all.imag - mean_diff.numpy()[0, 1], 2) / (2 * var_diff.numpy()[0, 1]) \
@@ -55,4 +58,4 @@ def getting_new_ev_of_ep(kappa, ev, model_diff, model_sum):
     # fig.add_trace(go.Scatter(x=x, y=mean_re.numpy().ravel(), mode='makers', name="Eigenvalues of EP",
     #                         marker=dict(color='red')))
     # fig.show()
-    return numpy.concatenate((ev, np.array([[ev_1[np.argmax(compatibility)], ev_2[np.argmax(compatibility)]]])))
+    return numpy.concatenate((ev, np.array([[ev_1[np.argmax(compatibility)], ev_2[np.argmax(compatibility)]]]))), compatibility
