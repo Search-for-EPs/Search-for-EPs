@@ -232,6 +232,31 @@ the default ones</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="searchep.data.get_permutations">
+<span class="sig-prename descclassname"><span class="pre">searchep.data.</span></span><span class="sig-name descname"><span class="pre">get_permutations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vec_normalized</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3e-06</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.data.get_permutations" title="Permalink to this definition">#</a></dt>
+<dd><p>Get permutations</p>
+<p>Returns all eigenvalues which perform a permutation by calculating the difference between the first and last entry.
+Utilizes the stepwise sorting algorithm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec</strong> (<em>np.ndarray</em>) – Array, which should be sorted. Two- or three-dimensional array, depending on the number of variables for which
+the pairwise distance is calculated.</p></li>
+<li><p><strong>vec_normalized</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Array with normalized entries or even more variable than vec, which is used to sort vec. If not specified, vec
+is used for sorting.</p></li>
+<li><p><strong>distance</strong> (<em>float</em><em>, </em><em>optional</em>) – Distance between start and end of a loop, by default 3.e-6.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Usually 2D array containing the all eigenvalues performing a permutation</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="searchep.data.getting_new_ev_of_ep">
 <span class="sig-prename descclassname"><span class="pre">searchep.data.</span></span><span class="sig-name descname"><span class="pre">getting_new_ev_of_ep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#searchep.data.Data" title="searchep.data.Data"><span class="pre">Data</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpflow_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="GPFlow_model_class.html#searchep.GPFlow_model_class.GPFlowModel" title="searchep.GPFlow_model_class.GPFlowModel"><span class="pre">GPFlowModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_calculations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_plots</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#searchep.data.getting_new_ev_of_ep" title="Permalink to this definition">#</a></dt>
 <dd><p>Getting new eigenvalues belonging to the EP</p>
@@ -333,22 +358,22 @@ similar to the kappa array.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="searchep.data.step_wise_ordering">
-<span class="sig-prename descclassname"><span class="pre">searchep.data.</span></span><span class="sig-name descname"><span class="pre">step_wise_ordering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vec_normalized</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3e-06</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#searchep.data.step_wise_ordering" title="Permalink to this definition">#</a></dt>
-<dd><p>Get initial dataset</p>
-<p>Selecting the eigenvalues belonging to the EP by ordering all eigenvalues and comparing the first end last point.
-If it is greater than 0 the eigenvalues exchange their positions and belong to the EP.</p>
+<dt class="sig sig-object py" id="searchep.data.stepwise_sorting">
+<span class="sig-prename descclassname"><span class="pre">searchep.data.</span></span><span class="sig-name descname"><span class="pre">stepwise_sorting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vec_normalized</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#searchep.data.stepwise_sorting" title="Permalink to this definition">#</a></dt>
+<dd><p>Stepwise sorting algorithm</p>
+<p>Stepwise sorting of array with respect to the shortest distance between each step and avoiding multiple selection.
+For more details see master thesis of Patrick Egenlauf, 2023.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> – </p></li>
-<li><p><strong>vec_normalized</strong> – </p></li>
-<li><p><strong>ev</strong> (<em>np.ndarray</em>) – All exact complex eigenvalues</p></li>
-<li><p><strong>distance</strong> (<em>float</em><em>, </em><em>optional</em>) – Distance between start and end of a loop, by default 3.e-6</p></li>
+<li><p><strong>vec</strong> (<em>np.ndarray</em>) – Array, which should be sorted. Two- or three-dimensional array, depending on the number of variables for which
+the pairwise distance is calculated.</p></li>
+<li><p><strong>vec_normalized</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Array with normalized entries or even more variable than vec, which is used to sort vec. If not specified, vec
+is used for sorting.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Usually 2D array containing the two eigenvalues belonging to the EP</p>
+<dd class="field-even"><p>Sorted array vec</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>np.ndarray</p>
@@ -418,12 +443,13 @@ If it is greater than 0 the eigenvalues exchange their positions and belong to t
 <li><a class="reference internal" href="#searchep.data.Data.__init__"><code class="docutils literal notranslate"><span class="pre">Data.__init__()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#searchep.data.get_permutations"><code class="docutils literal notranslate"><span class="pre">get_permutations()</span></code></a></li>
 <li><a class="reference internal" href="#searchep.data.getting_new_ev_of_ep"><code class="docutils literal notranslate"><span class="pre">getting_new_ev_of_ep()</span></code></a></li>
 <li><a class="reference internal" href="#searchep.data.initial_dataset_old"><code class="docutils literal notranslate"><span class="pre">initial_dataset_old()</span></code></a></li>
 <li><a class="reference internal" href="#searchep.data.load_dat_file"><code class="docutils literal notranslate"><span class="pre">load_dat_file()</span></code></a></li>
 <li><a class="reference internal" href="#searchep.data.read_new_ev"><code class="docutils literal notranslate"><span class="pre">read_new_ev()</span></code></a></li>
 <li><a class="reference internal" href="#searchep.data.start_exact_calculation"><code class="docutils literal notranslate"><span class="pre">start_exact_calculation()</span></code></a></li>
-<li><a class="reference internal" href="#searchep.data.step_wise_ordering"><code class="docutils literal notranslate"><span class="pre">step_wise_ordering()</span></code></a></li>
+<li><a class="reference internal" href="#searchep.data.stepwise_sorting"><code class="docutils literal notranslate"><span class="pre">stepwise_sorting()</span></code></a></li>
 </ul>
 </li>
 </ul>
