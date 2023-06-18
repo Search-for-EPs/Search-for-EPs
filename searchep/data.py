@@ -285,25 +285,24 @@ def clump(a):
     return np.array([a[s] for s in np.ma.clump_unmasked(np.ma.masked_invalid(a))])
 
 
-def step_wise_ordering(vec: np.ndarray, vec_normalized: np.ndarray = None, distance: float = 3.e-6) -> np.ndarray:
-    """Get initial dataset
+def stepwise_sorting(vec: np.ndarray, vec_normalized: np.ndarray = None) -> np.ndarray:
+    """Stepwise sorting algorithm
 
-    Selecting the eigenvalues belonging to the EP by ordering all eigenvalues and comparing the first end last point.
-    If it is greater than 0 the eigenvalues exchange their positions and belong to the EP.
+    Stepwise sorting of array with respect to the shortest distance between each step and avoiding multiple selection.
+    For more details see master thesis of Patrick Egenlauf, 2023.
 
     Parameters
     ----------
-    vec
-    vec_normalized
-    ev : np.ndarray
-        All exact complex eigenvalues
-    distance : float, optional
-        Distance between start and end of a loop, by default 3.e-6
-
+    vec : np.ndarray
+        Array, which should be sorted. Two- or three-dimensional array, depending on the number of variables for which
+        the pairwise distance is calculated.
+    vec_normalized : np.ndarray, optional
+        Array with normalized entries or even more variable than vec, which is used to sort vec. If not specified, vec
+        is used for sorting.
     Returns
     -------
     np.ndarray
-        Usually 2D array containing the two eigenvalues belonging to the EP
+        Sorted array vec
     """
     vec_normalized = vec_normalized if vec_normalized else vec
     vec_sorted = [vec[0]]
@@ -325,10 +324,37 @@ def step_wise_ordering(vec: np.ndarray, vec_normalized: np.ndarray = None, dista
         vec_sorted.append(vec[angle+1][nn_index[0]])
         vec_sorted_normalized.append(vec_normalized[angle+1][nn_index[0]])
     vec_sorted = np.array(vec_sorted)
+    return vec_sorted
+
+
+def get_permutations(vec: np.ndarray, vec_normalized: np.ndarray = None, distance: float = 3.e-6):
+    """Get permutations
+
+    Returns all eigenvalues which perform a permutation by calculating the difference between the first and last entry.
+    Utilizes the stepwise sorting algorithm.
+
+    Parameters
+    ----------
+    vec : np.ndarray
+        Array, which should be sorted. Two- or three-dimensional array, depending on the number of variables for which
+        the pairwise distance is calculated.
+    vec_normalized : np.ndarray, optional
+        Array with normalized entries or even more variable than vec, which is used to sort vec. If not specified, vec
+        is used for sorting.
+    distance : float, optional
+        Distance between start and end of a loop, by default 3.e-6.
+
+    Returns
+    -------
+    np.ndarray
+        Usually 2D array containing the all eigenvalues performing a permutation
+    """
+    stepwise_sorting(vec, vec_normalized=vec_normalized)
     ev_all_sorted = np.column_stack([vec_sorted[:, k, 0] + vec_sorted[:, k, 1] * 1j for k in
                                      range(np.shape(vec_sorted)[1])])
     ep_ev_index = np.argwhere(abs(ev_all_sorted[0, :] - ev_all_sorted[-1, :]) > distance)
     return np.column_stack([ev_all_sorted[:, n] for n in ep_ev_index])
+
 
 
 def initial_dataset_old(vec: np.ndarray, vec_normalized: np.ndarray, distance: float = 3.e-6) -> np.ndarray:
