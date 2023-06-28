@@ -174,8 +174,8 @@ def energy_plane_both_models():
     subax1 = fig.add_axes([x1, y1, width1, height1])
     subax1.scatter(kappa.real, kappa.imag, marker='o', s=2, c=phi, cmap='plasma')
     subax1.scatter(ep.real, ep.imag, marker='x', s=6, lw=1, c='tab:green', label="EP")
-    subax1.set_ylabel("Im($\kappa$)", labelpad=1.5, size=(34.8 / 3) * rect1[3] ** 0.5)
-    subax1.set_xlabel("Re($\kappa$)", labelpad=1.5, size=(34.8 / 3) * rect1[2] ** 0.5)
+    subax1.set_ylabel("Im($\kappa$)", labelpad=1.5, size=12 * rect1[3] ** 0.5)
+    subax1.set_xlabel("Re($\kappa$)", labelpad=1.5, size=12 * rect1[2] ** 0.5)
     x_ticklabelsize1 = subax1.get_xticklabels()[0].get_size()
     y_ticklabelsize1 = subax1.get_yticklabels()[0].get_size()
     x_ticklabelsize1 *= rect1[2] ** 0.5
@@ -801,16 +801,16 @@ def gpr_both_models_output_diff_colormap():
 if __name__ == '__main__':
     # plots.init_matplotlib()
     # energy_plane_5d_model2()
-    # energy_plane_both_models()
+    energy_plane_both_models()
     # gpr_plane_trained_only_p_with_kappa_space()
     # energy_plane_trained()
     # compatibility_and_energy_plane_trained()
     # compatibility_datasets()
     # model1_datasets()
     # model2_datasets()
-    gpr_model1_output_diff_colormap()
-    gpr_model2_output_diff_colormap()
-    gpr_both_models_output_diff_colormap()
+    # gpr_model1_output_diff_colormap()
+    # gpr_model2_output_diff_colormap()
+    # gpr_both_models_output_diff_colormap()
 
 
     #kappa_0 = 0.5 + 0.5j  # 1.1847 + 1.0097j
