@@ -354,12 +354,12 @@ if __name__ == '__main__':
     ax_convergence[0].semilogy([1 for _ in kernel_ev0], abs(kernel_ev0), "_", ms=20, c=cmap(1))
     ax_convergence[0].semilogy([2 for _ in kernel_ev1], abs(kernel_ev1), "_", ms=20, c=cmap(2))
     ax_convergence[0].semilogy([3 for _ in kernel_ev2], abs(kernel_ev2), "_", ms=20, c=cmap(3))
-    ax_convergence[1].set_ylabel("$\\Delta\\lambda = \\lambda_1 - \\lambda_2$")
+    ax_convergence[1].set_ylabel("$\\Delta\\lambda = \\abs{\\lambda_1 - \\lambda_2}$")
     ax_convergence[1].set_xlabel("\\# of training steps")
     ax_convergence[1].semilogy([0,1,2,3], distance_ev_all)
     for i in range(len(ax_convergence)):
         confmp.subfig_label(ax_convergence[i], i, 'left', x=0, dx=-53, va='top', y=1, dy=0)
-    #fig_convergence.savefig("../../mastersthesis/plots/plots/2dConvergenceKernelEvDiffVersion2.pdf")
+    fig_convergence.savefig("../../mastersthesis/plots/plots/2dConvergenceKernelEvDiffVersion2.pdf")
 
 
     # plots.three_d_eigenvalue_kappa_plotly(kappa_0, r, m_re, m_im)
