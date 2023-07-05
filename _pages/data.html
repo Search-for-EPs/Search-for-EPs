@@ -236,14 +236,14 @@ the default ones</p></li>
 <span class="sig-prename descclassname"><span class="pre">searchep.data.</span></span><span class="sig-name descname"><span class="pre">get_permutations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vec_normalized</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3e-06</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.data.get_permutations" title="Permalink to this definition">#</a></dt>
 <dd><p>Get permutations</p>
 <p>Returns all eigenvalues which perform a permutation by calculating the difference between the first and last entry.
-Utilizes the stepwise sorting algorithm.</p>
+Utilizes the stepwise grouping algorithm.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<em>np.ndarray</em>) – Array, which should be sorted. Two- or three-dimensional array, depending on the number of variables for which
+<li><p><strong>vec</strong> (<em>np.ndarray</em>) – Array, which should be grouped. Two- or three-dimensional array, depending on the number of variables for which
 the pairwise distance is calculated.</p></li>
-<li><p><strong>vec_normalized</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Array with normalized entries or even more variable than vec, which is used to sort vec. If not specified, vec
-is used for sorting.</p></li>
+<li><p><strong>vec_normalized</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Array with normalized entries or even more variable than vec, which is used to group vec. If not specified, vec
+is used for grouping.</p></li>
 <li><p><strong>distance</strong> (<em>float</em><em>, </em><em>optional</em>) – Distance between start and end of a loop, by default 3.e-6.</p></li>
 </ul>
 </dd>
@@ -358,22 +358,22 @@ similar to the kappa array.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="searchep.data.stepwise_sorting">
-<span class="sig-prename descclassname"><span class="pre">searchep.data.</span></span><span class="sig-name descname"><span class="pre">stepwise_sorting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vec_normalized</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#searchep.data.stepwise_sorting" title="Permalink to this definition">#</a></dt>
-<dd><p>Stepwise sorting algorithm</p>
-<p>Stepwise sorting of array with respect to the shortest distance between each step and avoiding multiple selection.
+<dt class="sig sig-object py" id="searchep.data.stepwise_grouping">
+<span class="sig-prename descclassname"><span class="pre">searchep.data.</span></span><span class="sig-name descname"><span class="pre">stepwise_grouping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vec_normalized</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#searchep.data.stepwise_grouping" title="Permalink to this definition">#</a></dt>
+<dd><p>Stepwise grouping algorithm</p>
+<p>Stepwise grouping of array with respect to the shortest distance between each step and avoiding multiple selection.
 For more details see master thesis of Patrick Egenlauf, 2023.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<em>np.ndarray</em>) – Array, which should be sorted. Two- or three-dimensional array, depending on the number of variables for which
+<li><p><strong>vec</strong> (<em>np.ndarray</em>) – Array, which should be grouped. Two- or three-dimensional array, depending on the number of variables for which
 the pairwise distance is calculated.</p></li>
-<li><p><strong>vec_normalized</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Array with normalized entries or even more variable than vec, which is used to sort vec. If not specified, vec
-is used for sorting.</p></li>
+<li><p><strong>vec_normalized</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Array with normalized entries or even more variable than vec, which is used to group vec. If not specified, vec
+is used for grouping.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Sorted array vec</p>
+<dd class="field-even"><p>Grouped array vec</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>np.ndarray</p>
@@ -449,7 +449,7 @@ is used for sorting.</p></li>
 <li><a class="reference internal" href="#searchep.data.load_dat_file"><code class="docutils literal notranslate"><span class="pre">load_dat_file()</span></code></a></li>
 <li><a class="reference internal" href="#searchep.data.read_new_ev"><code class="docutils literal notranslate"><span class="pre">read_new_ev()</span></code></a></li>
 <li><a class="reference internal" href="#searchep.data.start_exact_calculation"><code class="docutils literal notranslate"><span class="pre">start_exact_calculation()</span></code></a></li>
-<li><a class="reference internal" href="#searchep.data.stepwise_sorting"><code class="docutils literal notranslate"><span class="pre">stepwise_sorting()</span></code></a></li>
+<li><a class="reference internal" href="#searchep.data.stepwise_grouping"><code class="docutils literal notranslate"><span class="pre">stepwise_grouping()</span></code></a></li>
 </ul>
 </li>
 </ul>
