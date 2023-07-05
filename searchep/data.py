@@ -112,6 +112,7 @@ class Data:
         df = pd.concat([df, pd.DataFrame(self.ev)], axis=1)
         df['phi'] = self.phi.tolist()
         df.columns = ['kappa', 'ev1', 'ev2', 'phi']"""
+        self.all_kernel_ev = dict()
         self.training_steps_color = [0 for _ in self.kappa]
 
         self.diff_scale, self.sum_mean_complex, self.sum_scale = self.update_scaling()
@@ -135,8 +136,6 @@ class Data:
                                         np.float64(np.mean(ev_sum_complex.imag)))
         self.sum_scale = np.max(abs(np.column_stack([ev_sum_complex.real - self.sum_mean_complex.real,
                                                      ev_sum_complex.imag - self.sum_mean_complex.imag])))
-        self.kappa_center = complex(0.5 * (np.max(self.kappa.real) + np.min(self.kappa.real)),
-                                    0.5 * (np.max(self.kappa.imag) + np.min(self.kappa.imag)))
         return self.diff_scale, self.sum_mean_complex, self.sum_scale
 
 
@@ -285,30 +284,30 @@ def clump(a):
     return np.array([a[s] for s in np.ma.clump_unmasked(np.ma.masked_invalid(a))])
 
 
-def stepwise_sorting(vec: np.ndarray, vec_normalized: np.ndarray = None) -> np.ndarray:
-    """Stepwise sorting algorithm
+def stepwise_grouping(vec: np.ndarray, vec_normalized: np.ndarray = None) -> np.ndarray:
+    """Stepwise grouping algorithm
 
-    Stepwise sorting of array with respect to the shortest distance between each step and avoiding multiple selection.
+    Stepwise grouping of array with respect to the shortest distance between each step and avoiding multiple selection.
     For more details see master thesis of Patrick Egenlauf, 2023.
 
     Parameters
     ----------
     vec : np.ndarray
-        Array, which should be sorted. Two- or three-dimensional array, depending on the number of variables for which
+        Array, which should be grouped. Two- or three-dimensional array, depending on the number of variables for which
         the pairwise distance is calculated.
     vec_normalized : np.ndarray, optional
-        Array with normalized entries or even more variable than vec, which is used to sort vec. If not specified, vec
-        is used for sorting.
+        Array with normalized entries or even more variable than vec, which is used to group vec. If not specified, vec
+        is used for grouping.
     Returns
     -------
     np.ndarray
-        Sorted array vec
+        Grouped array vec
     """
     vec_normalized = vec_normalized if vec_normalized else vec
-    vec_sorted = [vec[0]]
-    vec_sorted_normalized = [vec_normalized[0]]
+    vec_grouped = [vec[0]]
+    vec_grouped_normalized = [vec_normalized[0]]
     for angle in range(vec.shape[0]-1):
-        current_angle = vec_sorted_normalized[angle]
+        current_angle = vec_grouped_normalized[angle]
         next_angle = vec_normalized[angle+1]
         nn_distance = pairwise_distances(next_angle, current_angle, metric='cosine')  # , metric='cosine'
         nn_index = np.argsort(nn_distance, axis=0)
@@ -321,26 +320,26 @@ def stepwise_sorting(vec: np.ndarray, vec_normalized: np.ndarray = None) -> np.n
             nn_index = np.column_stack(
                 [np.append(nn_index[:, i][(nn_index[:, i] != index_multi_min)], [index_multi_min])
                  if i != index_current_angle else nn_index[:, index_current_angle] for i in range(nn_index.shape[1])])
-        vec_sorted.append(vec[angle+1][nn_index[0]])
-        vec_sorted_normalized.append(vec_normalized[angle+1][nn_index[0]])
-    vec_sorted = np.array(vec_sorted)
-    return vec_sorted
+        vec_grouped.append(vec[angle+1][nn_index[0]])
+        vec_grouped_normalized.append(vec_normalized[angle+1][nn_index[0]])
+    vec_grouped = np.array(vec_grouped)
+    return vec_grouped
 
 
 def get_permutations(vec: np.ndarray, vec_normalized: np.ndarray = None, distance: float = 3.e-6):
     """Get permutations
 
     Returns all eigenvalues which perform a permutation by calculating the difference between the first and last entry.
-    Utilizes the stepwise sorting algorithm.
+    Utilizes the stepwise grouping algorithm.
 
     Parameters
     ----------
     vec : np.ndarray
-        Array, which should be sorted. Two- or three-dimensional array, depending on the number of variables for which
+        Array, which should be grouped. Two- or three-dimensional array, depending on the number of variables for which
         the pairwise distance is calculated.
     vec_normalized : np.ndarray, optional
-        Array with normalized entries or even more variable than vec, which is used to sort vec. If not specified, vec
-        is used for sorting.
+        Array with normalized entries or even more variable than vec, which is used to group vec. If not specified, vec
+        is used for grouping.
     distance : float, optional
         Distance between start and end of a loop, by default 3.e-6.
 
@@ -349,11 +348,11 @@ def get_permutations(vec: np.ndarray, vec_normalized: np.ndarray = None, distanc
     np.ndarray
         Usually 2D array containing the all eigenvalues performing a permutation
     """
-    stepwise_sorting(vec, vec_normalized=vec_normalized)
-    ev_all_sorted = np.column_stack([vec_sorted[:, k, 0] + vec_sorted[:, k, 1] * 1j for k in
-                                     range(np.shape(vec_sorted)[1])])
-    ep_ev_index = np.argwhere(abs(ev_all_sorted[0, :] - ev_all_sorted[-1, :]) > distance)
-    return np.column_stack([ev_all_sorted[:, n] for n in ep_ev_index])
+    vec_grouped = stepwise_sorting(vec, vec_normalized=vec_normalized)
+    ev_all_grouped = np.column_stack([vec_grouped[:, k, 0] + vec_grouped[:, k, 1] * 1j for k in
+                                     range(np.shape(vec_grouped)[1])])
+    ep_ev_index = np.argwhere(abs(ev_all_grouped[0, :] - ev_all_grouped[-1, :]) > distance)
+    return np.column_stack([ev_all_grouped[:, n] for n in ep_ev_index])
 
 
 
@@ -386,18 +385,18 @@ def initial_dataset_old(vec: np.ndarray, vec_normalized: np.ndarray, distance: f
     print("norm dim: ", norm.shape)
     vec_all = []
     for i in range(np.shape(norm)[2]):
-        ev_sorted = [vec[0, i]]
+        ev_grouped = [vec[0, i]]
         l = i
         for j in range(np.shape(norm)[1]):
             l = (np.argmax(norm[:, j, l]) + l) % np.shape(vec_normalized)[1]
             if j + 1 != np.shape(vec_normalized)[0]:
-                ev_sorted.append(vec[(j + 1), l])
-        vec_all.append(ev_sorted)
+                ev_grouped.append(vec[(j + 1), l])
+        vec_all.append(ev_grouped)
     vec_all = np.array(vec_all)
-    ev_all_sorted = np.column_stack([vec_all[k, :, 0] + vec_all[k, :, 1] * 1j for k in range(np.shape(vec_all)[0])])
-    # print(ev_all_sorted)
-    ep_ev_index = np.argwhere(abs(ev_all_sorted[0, :] - ev_all_sorted[-1, :]) > distance)
-    return np.column_stack([ev_all_sorted[:, n] for n in ep_ev_index])  # ev_all_sorted[:, ep_ev_index])
+    ev_all_grouped = np.column_stack([vec_all[k, :, 0] + vec_all[k, :, 1] * 1j for k in range(np.shape(vec_all)[0])])
+    # print(ev_all_grouped)
+    ep_ev_index = np.argwhere(abs(ev_all_grouped[0, :] - ev_all_grouped[-1, :]) > distance)
+    return np.column_stack([ev_all_grouped[:, n] for n in ep_ev_index])  # ev_all_grouped[:, ep_ev_index])
 
 
 def initial_dataset_older(ev, distance: float = 3.e-6):
@@ -406,17 +405,17 @@ def initial_dataset_older(ev, distance: float = 3.e-6):
          for i in range(np.shape(ev)[1])])
     ev_all = []
     for i in range(np.shape(nearest_neighbour)[2]):
-        ev_sorted = [ev[0, i]]
+        ev_grouped = [ev[0, i]]
         l = i
         for j in range(np.shape(nearest_neighbour)[1]):
             l = (np.argmin(nearest_neighbour[:, j, l]) + l) % np.shape(ev)[1]
             if j + 1 != np.shape(ev)[0]:
-                ev_sorted.append(ev[(j + 1), l])
-        ev_all.append(ev_sorted)
-    ev_all_sorted = np.column_stack([ev_all[k] for k in range(np.shape(ev_all)[0])])
-    ep_ev_index = np.argwhere(abs(ev_all_sorted[0, :] - ev_all_sorted[-1, :]) > distance)
-    # print(type(np.array(ev_all_sorted[:, ep_ev_index])))
-    return np.column_stack([ev_all_sorted[:, n] for n in ep_ev_index])  # ev_all_sorted[:, ep_ev_index])
+                ev_grouped.append(ev[(j + 1), l])
+        ev_all.append(ev_grouped)
+    ev_all_grouped = np.column_stack([ev_all[k] for k in range(np.shape(ev_all)[0])])
+    ep_ev_index = np.argwhere(abs(ev_all_grouped[0, :] - ev_all_grouped[-1, :]) > distance)
+    # print(type(np.array(ev_all_grouped[:, ep_ev_index])))
+    return np.column_stack([ev_all_grouped[:, n] for n in ep_ev_index])  # ev_all_grouped[:, ep_ev_index])
 
 
 def getting_new_ev_of_ep(data: Data, gpflow_model: GPFmc.GPFlowModel, new_calculations: bool = True,
@@ -579,7 +578,7 @@ def read_new_ev(data: Data, new_calculations=True) -> np.ndarray:
     """
     out = "output_%s_1.dat" % str((3 - len(str(data.output_name))) * "0" + str(data.output_name))
     output_file = os.path.join(data.working_directory, out)
-    kappa, ev, phi = load_dat_file(output_file)
+    kappa, ev, phi, vec, vec_normalized = load_dat_file(output_file)
     if not new_calculations:
         data.kappa_new = kappa
         data.kappa_new_scaled = np.array((data.kappa_new.real - data.kappa_center.real) / data.kappa_scaling.real +

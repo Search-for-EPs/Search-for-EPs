@@ -14,6 +14,7 @@ def train(training_data: data.Data, new_calculations: bool = True, extra_trainin
     while not n:
         model_diff, kernel_ev_diff = gpr.gp_2d_diff_kappa(training_data)
         model_sum, _ = gpr.gp_2d_sum_kappa(training_data)
+        training_data.all_kernel_ev[current_training_step] = kernel_ev_diff
         if info:
             print_summary(model_diff)
             print_summary(model_sum)

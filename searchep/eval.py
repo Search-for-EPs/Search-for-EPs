@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas as pd
+import pickle
 import plotly.express as px
 from plotly.subplots import make_subplots
 import os
@@ -92,3 +93,8 @@ def write_new_dataset(filename: str, init_data: data.Data):
     df['phi'] = init_data.phi.tolist()
     df.columns = ['kappa', 'ev1', 'ev2', 'phi']
     df.to_csv(os.path.join(init_data.working_directory, filename))
+
+
+def save_kernel_evs(filename: str, training_data: data.Data):
+    with open(os.path.join(training_data.working_directory, filename), 'wb') as f:
+        pickle.dump(training_data.all_kernel_ev, f)
