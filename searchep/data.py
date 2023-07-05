@@ -348,7 +348,7 @@ def get_permutations(vec: np.ndarray, vec_normalized: np.ndarray = None, distanc
     np.ndarray
         Usually 2D array containing the all eigenvalues performing a permutation
     """
-    vec_grouped = stepwise_sorting(vec, vec_normalized=vec_normalized)
+    vec_grouped = stepwise_grouping(vec, vec_normalized=vec_normalized)
     ev_all_grouped = np.column_stack([vec_grouped[:, k, 0] + vec_grouped[:, k, 1] * 1j for k in
                                      range(np.shape(vec_grouped)[1])])
     ep_ev_index = np.argwhere(abs(ev_all_grouped[0, :] - ev_all_grouped[-1, :]) > distance)
