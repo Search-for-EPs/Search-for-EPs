@@ -798,10 +798,44 @@ def gpr_both_models_output_diff_colormap():
     plt.savefig("../../mastersthesis/plots/plots/5DGPRPlaneDiffBothModels.pdf")
 
 
+def gpr_model2_output_diff_im_colormap_presentation():
+    ep = np.array([0.88278093 + 1.09360073j])
+    kappa_0 = 0.5 + 0.5j  # 1.1847 + 1.0097j
+    r = 1
+    steps = 200
+    kappa, phi = matrix.parametrization(kappa_0, r, steps)
+    symmatrix = matrix.matrix_two_close_im(kappa)
+    ev_new = matrix.eigenvalues(symmatrix)
+    ev = dpp.initial_dataset(ev_new)
+    ev = ev[::11]
+    kappa = kappa[::11]
+    m_diff, kernel_ev = gpr.gp_2d_diff_kappa(ev, kappa)
+    m_sum, kernel_ev_sum = gpr.gp_2d_sum_kappa(ev, kappa)
+    x = np.linspace(-0.5, 1.5, 100)
+    y = np.linspace(-0.5, 1.5, 100)
+    extent = np.min(x), np.max(x), np.min(y), np.max(y)
+    xx, yy = np.meshgrid(x, y)
+    grid = np.array((xx.ravel(), yy.ravel())).T
+    mean_diff, _ = m_diff.predict_f(grid)
+    mean_sum, _ = m_sum.predict_f(grid)
+    fig, axes = confmp.newfig(width=1.1615, aspect=1., nrows=1, ncols=1, left=30, right=290, top=88.4, bottom=30) #, #left=39, top=16, bottom=34, right=43,
+                              #wspace=5, sharey=True)  # left=46, bottom=34, wspace=54, right=51
+    max_diff = np.max(abs(mean_diff.numpy()))
+    vmin_diff = -max_diff
+    vmax_diff = max_diff
+    confmp.imshow(axes, mean_diff[:, 1].numpy().reshape(-100, 100), extent,
+                       cmap='seismic', vmin=vmin_diff, vmax=vmax_diff)
+    axes.scatter(x=ep.real, y=ep.imag, marker='x', s=8, c="tab:green", label="EP")
+    axes.tick_params(axis='both', which='both', bottom=False, top=False,
+                     left=False, right=False, labelbottom=False, labelleft=False)
+    fig.savefig("../../talk/config/titlefig.jpg")
+    plt.close(fig)
+
+
 if __name__ == '__main__':
     # plots.init_matplotlib()
     # energy_plane_5d_model2()
-    energy_plane_both_models()
+    # energy_plane_both_models()
     # gpr_plane_trained_only_p_with_kappa_space()
     # energy_plane_trained()
     # compatibility_and_energy_plane_trained()
@@ -811,6 +845,7 @@ if __name__ == '__main__':
     # gpr_model1_output_diff_colormap()
     # gpr_model2_output_diff_colormap()
     # gpr_both_models_output_diff_colormap()
+    gpr_model2_output_diff_im_colormap_presentation()
 
 
     #kappa_0 = 0.5 + 0.5j  # 1.1847 + 1.0097j
