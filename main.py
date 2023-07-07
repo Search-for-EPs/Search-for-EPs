@@ -52,6 +52,43 @@ def ep_2d_exchange():
     plt.savefig("../../mastersthesis/plots/plots/EPexample2d_parameter_energyTEST6.pdf")
 
 
+def ep_2d_exchange_presentation():
+    kappa_0 = 0. + 1.j
+    r = 0.1
+    steps = 50
+    kappa, phi = matrix.parametrization(kappa_0, r, steps)
+    kappa_new = kappa
+    ev = np.empty((0, 2))
+    symmatrix = matrix.matrix_random(2, kappa_new)
+    ev_new = matrix.eigenvalues(symmatrix)
+    ev = np.concatenate((ev, ev_new))
+    phi_all = np.sort(np.array([phi.copy() for _ in range(np.shape(ev)[1])]).ravel())
+    ep = 0. + 1.j
+    #fig, axes = confmp.newfig(nrows=1, aspect=1., ncols=2, left=38, bottom=28, wspace=45, right=45)
+    fig, axes = confmp.newfig(width=.8, nrows=1, aspect=1., ncols=2, left=38, bottom=28, wspace=48, top=46)
+    axes[0].set_xlabel("Re($\\kappa$)")
+    axes[0].set_ylabel("Im($\\kappa$)")
+    cax1 = axes[0].scatter(x=kappa[:].real, y=kappa[:].imag, marker='o', s=8, c=phi, cmap="plasma")
+    axes[0].scatter(x=ep.real, y=ep.imag, marker='x', s=8, c="tab:green", label="EP")
+    axes[0].set_yticks([0.9, 0.95, 1., 1.05, 1.1])
+    # confmp.legend(axes[0], loc=1)
+    axes[0].legend(loc=1)
+    # axes[0].colorbar("Angle / \\si{\\radian}")
+    axes[1].set_xlabel("Re($\\lambda$)")
+    axes[1].set_ylabel("Im($\\lambda$)")
+    axes[1].set_xticks([-0.4, -0.2, 0, 0.2, 0.4])
+    cax2 = axes[1].scatter(x=ev.ravel().real, y=ev.ravel().imag, marker='o', s=8, c=phi_all, cmap="plasma")
+    # axes[1].colorbar(label="Angle / \\si{\\radian}")
+    # cb = fig.colorbar(cax, ax=axes[1], label="Angle / \\si{\\radian}", ticks=[0, np.pi/2, np.pi, 3*np.pi/2])
+    cbar, cax = confmp.cbar_above(fig, axes, cax2, dy=0.03)
+    cbar.set_label("$\\phi$")
+    cbar.ax.set_xticks([0, np.pi / 2, np.pi, 3 * np.pi / 2])
+    cbar.ax.set_xticklabels(["$0$", "$\\frac{\\pi}{2}$", "$\\pi$", "$\\frac{3\\pi}{2}$"])
+    #confmp.subfig_label(axes[0], 0, 'left', 0, dx=-47, va='top', y=1, dy=0)
+    #confmp.subfig_label(axes[1], 1, 'right', 0, dx=-32, va='top', y=1, dy=0)
+    fig.savefig("../../talk/fig/EPexample2d_parameter_energyVersion2.pdf")
+
+
 def gpr_model_output_colormap():
     kappa_0 = 0. + 1.j
     r = 0.1
@@ -170,8 +207,9 @@ if __name__ == '__main__':
     # ep_2d_exchange()
     # gpr_model_output_p_presentation()
     #gpr_model_output_diff_colormap()
+    ep_2d_exchange_presentation()
 
-    kappa_0 = 0. + 1.j
+    """kappa_0 = 0. + 1.j
     ep = 0. + 1.j
     r = 0.1
     steps = 12
@@ -331,7 +369,7 @@ if __name__ == '__main__':
     kernel_ev2 = all_kernel_ev[2]
     plot_x2 = np.array(list(range(len(kernel_ev2)))) + 1
     kernel_ev_all = [kernel_ev0, kernel_ev1, kernel_ev2]
-    plot_x_all = [plot_x0, plot_x1, plot_x2]
+    plot_x_all = [plot_x0, plot_x1, plot_x2]"""
     """fig_kernel_ev, ax_kernel_ev = confmp.newfig(aspect=1., nrows=2, ncols=2, left=52, bottom=33, wspace=55, hspace=37) # right=35,
     ax_kernel_ev = ax_kernel_ev.ravel()
     for i in range(len(kernel_ev_all)):
@@ -347,7 +385,7 @@ if __name__ == '__main__':
         confmp.subfig_label(ax_kernel_ev[i], i, 'left', x=0, dx=-53, va='top', y=1, dy=0)"""
     # fig_kernel_ev.savefig("../../mastersthesis/plots/plots/2dConvergenceKernelEvDiff.pdf")
 
-    fig_convergence, ax_convergence = confmp.newfig(aspect=1.3, nrows=1, ncols=2, left=52, bottom=33, wspace=55)
+    """fig_convergence, ax_convergence = confmp.newfig(aspect=1.3, nrows=1, ncols=2, left=52, bottom=33, wspace=55)
     ax_convergence[0].set_xlabel("\\# of training steps")
     ax_convergence[0].set_ylabel("$\\lambda_{\\vb{K}}")
     ax_convergence[0].set_xlim([0.2, 3.8])
@@ -359,7 +397,7 @@ if __name__ == '__main__':
     ax_convergence[1].semilogy([0,1,2,3], distance_ev_all)
     for i in range(len(ax_convergence)):
         confmp.subfig_label(ax_convergence[i], i, 'left', x=0, dx=-53, va='top', y=1, dy=0)
-    fig_convergence.savefig("../../mastersthesis/plots/plots/2dConvergenceKernelEvDiffVersion2.pdf")
+    fig_convergence.savefig("../../mastersthesis/plots/plots/2dConvergenceKernelEvDiffVersion2.pdf")"""
 
 
     # plots.three_d_eigenvalue_kappa_plotly(kappa_0, r, m_re, m_im)
