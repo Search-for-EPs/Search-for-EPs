@@ -4,7 +4,8 @@
 ### Installation
 
 You can install this package via `pip`.   
-```pip install searchep```
+
+    pip install searchep    
 
 
 ### Documentation
