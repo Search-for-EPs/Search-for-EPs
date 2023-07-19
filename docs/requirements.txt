@@ -4,6 +4,7 @@ myst-parser
 myst_parser
 nbsphinx
 numpy
+tensorflow>=2.11.1
 gpflow
 jax[cpu]
 pandas
