@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "searchep"
-version = "0.1.0"
+version = "0.1.1"
 description = "A module to search for exceptional points"
 authors = ["Patrick Egenlauf <patrick.egenlauf+searchep@gmail.com>"]
 license = "MIT"
@@ -12,8 +12,8 @@ keywords = ["searchep", "EP", "search for EPs", "exceptional points", "stepwise 
 
 [tool.poetry.dependencies]
 python = ">= 3.9.2, < 3.11"
-jax = {extras = ["cpu"], version = "^0.3.13"}
-jaxlib = "^0.3.10"
+jax = {extras = ["cpu"], version = ">= 0.3.13, < 1.0.0"}
+jaxlib = ">= 0.3.10, < 1.0.0"
 numpy = "^1.21.6"
 gpflow = "^2.5.2"
 pandas = "^1.3.5"

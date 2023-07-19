@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'EPs-Search'
+project = 'Search-for-EPs'
 copyright = '2023, Patrick Egenlauf'
 author = 'Patrick Egenlauf'
 
@@ -35,6 +35,7 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.napoleon',
     'myst_parser',
+    'nbsphinx',
 ]
 
 source_suffix = {
