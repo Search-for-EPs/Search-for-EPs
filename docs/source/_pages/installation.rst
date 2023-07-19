@@ -1,4 +1,8 @@
 Installation
 ============
 
-More information about how to install the package will be added as soon as the package is published.
+The package can be installed via::
+
+    pip install searchep
+    
+Another option is to clone the `GitHub repository <https://github.com/Search-for-EPs/Search-for-EPs>`_ and use it locally.
