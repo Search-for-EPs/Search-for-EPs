@@ -2,6 +2,7 @@ sphinx
 furo
 myst-parser
 myst_parser
+nbsphinx
 numpy
 gpflow
 jax[cpu]
