@@ -3,8 +3,8 @@
 
 ### Installation
 
-You can install this package via `pip`.
-    pip install searchep    
+You can install this package via `pip`.   
+```pip install searchep```
 
 
 ### Documentation
