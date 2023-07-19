@@ -246,3 +246,6 @@ fabric.properties
 # Unpublished docu
 docs/source/_pages/progress.rst
 docs/source/_pages/theory.rst
+
+# Old package artifacts
+setup.py
