@@ -15,7 +15,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install -r requirements.txt
+        pip install -r docs/requirements.txt
         pip install --upgrade sphinx
 
     - name: Install pandoc
