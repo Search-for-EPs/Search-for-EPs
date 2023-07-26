@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: nikeee/setup-pandoc@v1
+    - uses: docker://pandoc/core:2.9
     - name: Build HTML
       uses: ammaraskar/sphinx-action@master
       with:
