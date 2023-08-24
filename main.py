@@ -77,12 +77,12 @@ def energy_plane_5d_model2():
     ev_new = matrix.eigenvalues(symmatrix)
     phi_all = np.sort(np.array([phi.copy() for _ in range(np.shape(ev_new)[1])]).ravel())
     ep = ep_two_close
-    fig, axes = confmp.newfig(nrows=1, ncols=1, left=35, right=48, bottom=33)
+    fig, axes = confmp.newfig(nrows=1, ncols=1, left=32, right=44, bottom=31)
     im = axes.scatter(ev_new.real, ev_new.imag, c=phi_all, cmap='plasma', marker='o', s=2)
     axes.set_xlabel("Re($\lambda$)")
     axes.set_ylabel("Im($\lambda$)")
     # axes.set_yticks([-1, -0.5, 0, 0.5])
-    rect = [0.12, 0.48, 0.55, 0.5]
+    rect = [0.13, 0.53, 0.55, 0.45]
     pos = axes.get_position()
     width = pos.width
     height = pos.height
@@ -96,8 +96,8 @@ def energy_plane_5d_model2():
     subax = fig.add_axes([x, y, width, height])
     subax.scatter(kappa.real, kappa.imag, marker='o', s=2, c=phi, cmap='plasma')
     subax.scatter(ep.real, ep.imag, marker='x', s=6, lw=0.5, c='tab:green', label="EP")
-    subax.set_ylabel("Im($\kappa$)", labelpad=1.5, size=(34.8/3) * rect[3] ** 0.5)
-    subax.set_xlabel("Re($\kappa$)", labelpad=1.5, size=(34.8/3) * rect[2] ** 0.5)
+    subax.set_ylabel("Im($\kappa$)", labelpad=1.5, size=(10) * rect[3] ** 0.5)
+    subax.set_xlabel("Re($\kappa$)", labelpad=1.5, size=(10) * rect[2] ** 0.5)
     x_ticklabelsize = subax.get_xticklabels()[0].get_size()
     y_ticklabelsize = subax.get_yticklabels()[0].get_size()
     x_ticklabelsize *= rect[2] ** 0.5
@@ -108,10 +108,10 @@ def energy_plane_5d_model2():
     cbar_width = 10 / 72
     cax = fig.add_axes((pos.xmax + 0.01, pos.ymin, cbar_width / fig.get_figwidth(), pos.ymax - pos.ymin))
     cbar = fig.colorbar(im, cax=cax, orientation='vertical')
-    cbar.set_label("Angle / rad")
+    cbar.set_label("$\\phi$")
     cbar.ax.set_yticks([0, np.pi / 2, np.pi, 3 * np.pi / 2])
     cbar.ax.set_yticklabels(["$0$", "$\\frac{\\pi}{2}$", "$\\pi$", "$\\frac{3\\pi}{2}$"])
-    fig.savefig("../../mastersthesis/plots/plots/EPexample5d_energy_model2Poster.pdf")
+    fig.savefig("../../../ITP1/paper/ep_paper/plots/plots/EPexample5d_energy_model2.pdf")
 
 
 def energy_plane_5d_model2_presentation():
@@ -924,8 +924,8 @@ def gpr_model2_output_diff_im_colormap_presentation():
 
 if __name__ == '__main__':
     # plots.init_matplotlib()
-    # energy_plane_5d_model2()
-    energy_plane_5d_model2_presentation()
+    energy_plane_5d_model2()
+    # energy_plane_5d_model2_presentation()
     # energy_plane_both_models()
     # gpr_plane_trained_only_p_with_kappa_space()
     # energy_plane_trained()
@@ -935,7 +935,7 @@ if __name__ == '__main__':
     # model2_datasets()
     # gpr_model1_output_diff_colormap()
     # gpr_model2_output_diff_colormap()
-    gpr_model2_output_diff_colormap_presentation()
+    # gpr_model2_output_diff_colormap_presentation()
     # gpr_both_models_output_diff_colormap()
     #gpr_model2_output_diff_im_colormap_presentation()
 
