@@ -135,7 +135,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -195,14 +195,192 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
-          <section id="searchep-data">
-<h1>searchep.data<a class="headerlink" href="#searchep-data" title="Link to this heading">#</a></h1>
+          <section id="module-searchep.data">
+<span id="searchep-data"></span><h1>searchep.data<a class="headerlink" href="#module-searchep.data" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="searchep.data.Data">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">searchep.data.</span></span><span class="sig-name descname"><span class="pre">Data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evs_ep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3e-06</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.data.Data" title="Link to this definition">#</a></dt>
+<dd><p>Data class containing all relevant Data</p>
+<p>Save and update all relevant values during the training process.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="searchep.data.Data.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evs_ep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3e-06</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.data.Data.__init__" title="Link to this definition">#</a></dt>
+<dd><p>Constructor of the Data class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – Name of file  which contains the relevant data</p></li>
+<li><p><strong>directory</strong> (<em>str</em>) – Absolute path to working directory</p></li>
+<li><p><strong>output_name</strong> (<em>int</em><em>, </em><em>optional</em>) – For new calculations a new file is created and this parameter controls the number of this new input file</p></li>
+<li><p><strong>evs_ep</strong> (<em>bool</em><em>, </em><em>optional</em>) – If the given file contains only the eigenvalues of the EP and the corresponding kappa and phi values this
+parameter should be True and if not it should be False</p></li>
+<li><p><strong>input_parameters</strong> (<em>Union</em><em>[</em><em>dict</em><em>, </em><em>str</em><em>]</em><em>, </em><em>optional</em>) – The parameters of the input file. Default are listed in User Guide. A filename of the input file which
+contains the parameters or a dictionary which contains the relevant parameters which are different from
+the default ones</p></li>
+<li><p><strong>distance</strong> (<em>float</em><em>, </em><em>optional</em>) – Distance between first and last eigenvalue after one circulation. Needed for function initial_dataset</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="searchep.data.get_permutations">
+<span class="sig-prename descclassname"><span class="pre">searchep.data.</span></span><span class="sig-name descname"><span class="pre">get_permutations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vec_normalized</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3e-06</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.data.get_permutations" title="Link to this definition">#</a></dt>
+<dd><p>Get permutations</p>
+<p>Returns all eigenvalues which perform a permutation by calculating the difference between the first and last entry.
+Utilizes the stepwise grouping algorithm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec</strong> (<em>np.ndarray</em>) – Array, which should be grouped. Two- or three-dimensional array, depending on the number of variables for which
+the pairwise distance is calculated.</p></li>
+<li><p><strong>vec_normalized</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Array with normalized entries or even more variable than vec, which is used to group vec. If not specified, vec
+is used for grouping.</p></li>
+<li><p><strong>distance</strong> (<em>float</em><em>, </em><em>optional</em>) – Distance between start and end of a loop, by default 3.e-6.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Usually 2D array containing the all eigenvalues performing a permutation</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="searchep.data.getting_new_ev_of_ep">
+<span class="sig-prename descclassname"><span class="pre">searchep.data.</span></span><span class="sig-name descname"><span class="pre">getting_new_ev_of_ep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#searchep.data.Data" title="searchep.data.Data"><span class="pre">Data</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpflow_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="GPFlow_model_class.html#searchep.GPFlow_model_class.GPFlowModel" title="searchep.GPFlow_model_class.GPFlowModel"><span class="pre">GPFlowModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_calculations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_plots</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#searchep.data.getting_new_ev_of_ep" title="Link to this definition">#</a></dt>
+<dd><p>Getting new eigenvalues belonging to the EP</p>
+<p>Selecting the two eigenvalues of a new point belonging to the EP by comparing it to a GPR model prediction and
+its variance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<a class="reference internal" href="#searchep.data.Data" title="searchep.data.Data"><em>data.Data</em></a>) – Class which contains all scale-, kappa- and eigenvalues</p></li>
+<li><p><strong>gpflow_model</strong> (<a class="reference internal" href="GPFlow_model_class.html#searchep.GPFlow_model_class.GPFlowModel" title="searchep.GPFlow_model_class.GPFlowModel"><em>GPFlow_model_class.GPFlowModel</em></a>) – Class which contains both 2D GPR models</p></li>
+<li><p><strong>new_calculations</strong> (<em>bool</em><em>, </em><em>optional</em>) – Controls if it is a new calculation and if not the kappa value needs to be read as well and
+no extra calculation of the eigenvalues has to be started, by default True</p></li>
+<li><p><strong>eval_plots</strong> (<em>bool</em><em>, </em><em>optional</em>) – Controls if compatibility and selected eigenvalues should be plotted or not, by default True</p></li>
+<li><p><strong>plot_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Specifies special name for plot files, by default “”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>2D array containing all old and the new eigenvalues belonging to the EP</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="searchep.data.initial_dataset_old">
+<span class="sig-prename descclassname"><span class="pre">searchep.data.</span></span><span class="sig-name descname"><span class="pre">initial_dataset_old</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vec_normalized</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3e-06</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#searchep.data.initial_dataset_old" title="Link to this definition">#</a></dt>
+<dd><p>Get initial dataset</p>
+<p>Selecting the eigenvalues belonging to the EP by ordering all eigenvalues and comparing the first end last point.
+If it is greater than 0 the eigenvalues exchange their positions and belong to the EP.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec</strong> – </p></li>
+<li><p><strong>vec_normalized</strong> – </p></li>
+<li><p><strong>ev</strong> (<em>np.ndarray</em>) – All exact complex eigenvalues</p></li>
+<li><p><strong>distance</strong> (<em>float</em><em>, </em><em>optional</em>) – Distance between start and end of a loop, by default 3.e-6</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Usually 2D array containing the two eigenvalues belonging to the EP</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="searchep.data.load_dat_file">
+<span class="sig-prename descclassname"><span class="pre">searchep.data.</span></span><span class="sig-name descname"><span class="pre">load_dat_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#searchep.data.load_dat_file" title="Link to this definition">#</a></dt>
+<dd><p>Load dat file (output of external program)</p>
+<p>Data file containing all kappa values, angles and respective eigenvalues.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Absolute path to dat file</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>First return is the kappa array which contains every kappa value only once. Second return is an array
+containing all eigenvalues where each row belongs to one kappa value. Third return is the phi array
+similar to the kappa array.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(np.ndarray, np.ndarray, np.ndarray)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="searchep.data.read_new_ev">
+<span class="sig-prename descclassname"><span class="pre">searchep.data.</span></span><span class="sig-name descname"><span class="pre">read_new_ev</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#searchep.data.Data" title="searchep.data.Data"><span class="pre">Data</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_calculations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#searchep.data.read_new_ev" title="Link to this definition">#</a></dt>
+<dd><p>Reads the eigenvalues of a new diagonalization</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<a class="reference internal" href="#searchep.data.Data" title="searchep.data.Data"><em>Data</em></a>) – Class which contains all scale-, kappa- and eigenvalues</p></li>
+<li><p><strong>new_calculations</strong> (<em>bool</em><em>, </em><em>optional</em>) – Controls if it is a new calculation and if not the kappa value needs to be read as well, by default True</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>All eigenvalues of the new diagonalization</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="searchep.data.start_exact_calculation">
+<span class="sig-prename descclassname"><span class="pre">searchep.data.</span></span><span class="sig-name descname"><span class="pre">start_exact_calculation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#searchep.data.Data" title="searchep.data.Data"><span class="pre">Data</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.data.start_exact_calculation" title="Link to this definition">#</a></dt>
+<dd><p>Star new exact calculation of the eigenvalues</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<a class="reference internal" href="#searchep.data.Data" title="searchep.data.Data"><em>Data</em></a>) – Class which contains all scale-, kappa- and eigenvalues</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="searchep.data.stepwise_grouping">
+<span class="sig-prename descclassname"><span class="pre">searchep.data.</span></span><span class="sig-name descname"><span class="pre">stepwise_grouping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vec_normalized</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#searchep.data.stepwise_grouping" title="Link to this definition">#</a></dt>
+<dd><p>Stepwise grouping algorithm</p>
+<p>Stepwise grouping of array with respect to the shortest distance between each step and avoiding multiple selection.
+For more details see master thesis of Patrick Egenlauf, 2023.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec</strong> (<em>np.ndarray</em>) – Array, which should be grouped. Two- or three-dimensional array, depending on the number of variables for which
+the pairwise distance is calculated.</p></li>
+<li><p><strong>vec_normalized</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Array with normalized entries or even more variable than vec, which is used to group vec. If not specified, vec
+is used for grouping.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Grouped array vec</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
         </article>
@@ -248,8 +426,37 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">searchep.data</a><ul>
+<li><a class="reference internal" href="#searchep.data.Data"><code class="docutils literal notranslate"><span class="pre">Data</span></code></a><ul>
+<li><a class="reference internal" href="#searchep.data.Data.__init__"><code class="docutils literal notranslate"><span class="pre">Data.__init__()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#searchep.data.get_permutations"><code class="docutils literal notranslate"><span class="pre">get_permutations()</span></code></a></li>
+<li><a class="reference internal" href="#searchep.data.getting_new_ev_of_ep"><code class="docutils literal notranslate"><span class="pre">getting_new_ev_of_ep()</span></code></a></li>
+<li><a class="reference internal" href="#searchep.data.initial_dataset_old"><code class="docutils literal notranslate"><span class="pre">initial_dataset_old()</span></code></a></li>
+<li><a class="reference internal" href="#searchep.data.load_dat_file"><code class="docutils literal notranslate"><span class="pre">load_dat_file()</span></code></a></li>
+<li><a class="reference internal" href="#searchep.data.read_new_ev"><code class="docutils literal notranslate"><span class="pre">read_new_ev()</span></code></a></li>
+<li><a class="reference internal" href="#searchep.data.start_exact_calculation"><code class="docutils literal notranslate"><span class="pre">start_exact_calculation()</span></code></a></li>
+<li><a class="reference internal" href="#searchep.data.stepwise_grouping"><code class="docutils literal notranslate"><span class="pre">stepwise_grouping()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
