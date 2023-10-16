@@ -96,5 +96,16 @@ def write_new_dataset(filename: str, init_data: data.Data):
 
 
 def save_kernel_evs(filename: str, training_data: data.Data):
+    """Writes all kernel eigenvalues in every training step to a new pickle file
+
+    Usually used after a training loop for further evaluation of the training process.
+
+    Parameters
+    ----------
+    filename : str
+        Name of the created pickle file
+    training_data : data.Data
+        Data class which contains all relevant values
+    """
     with open(os.path.join(training_data.working_directory, filename), 'wb') as f:
         pickle.dump(training_data.all_kernel_ev, f)
