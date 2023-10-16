@@ -1,15 +1,15 @@
 <!doctype html>
-<html class="no-js" lang="en">
+<html class="no-js" lang="en" data-content_root="../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="searchep.zero_search" href="zero_search.html" /><link rel="prev" title="searchep.gpr" href="gpr.html" />
 
-    <!-- Generated with Sphinx 7.1.0 and Furo 2023.05.20 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
         <title>searchep.GPFlow_model_class - Search-for-EPs 2023 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=362ab14a" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=e3ce10f9" />
     
     
@@ -135,7 +135,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -195,47 +195,14 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
-          <section id="module-searchep.GPFlow_model_class">
-<span id="searchep-gpflow-model-class"></span><h1>searchep.GPFlow_model_class<a class="headerlink" href="#module-searchep.GPFlow_model_class" title="Permalink to this heading">#</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="searchep.GPFlow_model_class.GPFlowModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">searchep.GPFlow_model_class.</span></span><span class="sig-name descname"><span class="pre">GPFlowModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_diff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GPModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_sum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GPModel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.GPFlow_model_class.GPFlowModel" title="Permalink to this definition">#</a></dt>
-<dd><p>Class for the deployment of a GPFlow
-model.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="searchep.GPFlow_model_class.GPFlowModel.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_diff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GPModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_sum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GPModel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.GPFlow_model_class.GPFlowModel.__init__" title="Permalink to this definition">#</a></dt>
-<dd><p>Constructor for the model class.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model_diff</strong> (<em>gpflow.models.GPFlow</em>) – Optimized model from GPFlow for eigenvalue difference squared</p></li>
-<li><p><strong>model_sum</strong> (<em>gpflow.models.GPFlow</em>) – Optimized model from GPFlow for eigenvalue sum</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="searchep.GPFlow_model_class.GPFlowModel.get_ep_evs">
-<span class="sig-name descname"><span class="pre">get_ep_evs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#searchep.GPFlow_model_class.GPFlowModel.get_ep_evs" title="Permalink to this definition">#</a></dt>
-<dd><p>Get the eigenvalues belonging to the EP.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="searchep.GPFlow_model_class.GPFlowModel.get_model_generator">
-<span class="sig-name descname"><span class="pre">get_model_generator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#searchep.GPFlow_model_class.GPFlowModel.get_model_generator" title="Permalink to this definition">#</a></dt>
-<dd><p>Get the model generator for a specific model.</p>
-</dd></dl>
-
-</dd></dl>
-
+          <section id="searchep-gpflow-model-class">
+<h1>searchep.GPFlow_model_class<a class="headerlink" href="#searchep-gpflow-model-class" title="Link to this heading">#</a></h1>
 </section>
 
         </article>
@@ -281,39 +248,15 @@ model.</p>
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">searchep.GPFlow_model_class</a><ul>
-<li><a class="reference internal" href="#searchep.GPFlow_model_class.GPFlowModel"><code class="docutils literal notranslate"><span class="pre">GPFlowModel</span></code></a><ul>
-<li><a class="reference internal" href="#searchep.GPFlow_model_class.GPFlowModel.__init__"><code class="docutils literal notranslate"><span class="pre">GPFlowModel.__init__()</span></code></a></li>
-<li><a class="reference internal" href="#searchep.GPFlow_model_class.GPFlowModel.get_ep_evs"><code class="docutils literal notranslate"><span class="pre">GPFlowModel.get_ep_evs()</span></code></a></li>
-<li><a class="reference internal" href="#searchep.GPFlow_model_class.GPFlowModel.get_model_generator"><code class="docutils literal notranslate"><span class="pre">GPFlowModel.get_model_generator()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>
   </div>
-</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=dca6b923"></script>
+</div><script src="../_static/documentation_options.js?v=a4664895"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     </body>

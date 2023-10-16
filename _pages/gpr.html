@@ -1,15 +1,15 @@
 <!doctype html>
-<html class="no-js" lang="en">
+<html class="no-js" lang="en" data-content_root="../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="searchep.GPFlow_model_class" href="GPFlow_model_class.html" /><link rel="prev" title="searchep.data" href="data.html" />
 
-    <!-- Generated with Sphinx 7.1.0 and Furo 2023.05.20 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
         <title>searchep.gpr - Search-for-EPs 2023 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=362ab14a" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=e3ce10f9" />
     
     
@@ -135,7 +135,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -195,137 +195,14 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
-          <section id="module-searchep.gpr">
-<span id="searchep-gpr"></span><h1>searchep.gpr<a class="headerlink" href="#module-searchep.gpr" title="Permalink to this heading">#</a></h1>
-<p>Perform gaussian processes with GPflow</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="searchep.gpr.gp_2d_diff_kappa">
-<span class="sig-prename descclassname"><span class="pre">searchep.gpr.</span></span><span class="sig-name descname"><span class="pre">gp_2d_diff_kappa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">training_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="data.html#searchep.data.Data" title="searchep.data.Data"><span class="pre">Data</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.gpr.gp_2d_diff_kappa" title="Permalink to this definition">#</a></dt>
-<dd><p>2D gaussian process model for eigenvalue difference with respect to kappa</p>
-<p>GPflow is used to make a prediction model for the eigenvalue (ev) difference with respect to kappa.
-Due to complex kappa- and eigenvalues it is a 2D on 2D model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>training_data</strong> (<a class="reference internal" href="data.html#searchep.data.Data" title="searchep.data.Data"><em>data.Data</em></a>) – Class which contains all scale-, kappa- and eigenvalues</p></li>
-<li><p><strong>ev</strong> (<em>#</em>) – </p></li>
-<li><p><strong>EP</strong> (<em>#     2D complex array which contains the two eigenvalues belonging to the</em>) – </p></li>
-<li><p><strong>kappa</strong> (<em>#</em>) – </p></li>
-<li><p><strong>values</strong> (<em>#     1D array which contains the complex kappa</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Returns a 2D GPR model for the complex eigenvalue difference squared with respect to kappa and a 1D array which
-contains the kernel eigenvalues of the input space.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>(gpflow.models.GPR, np.ndarray)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="searchep.gpr.gp_2d_sum_kappa">
-<span class="sig-prename descclassname"><span class="pre">searchep.gpr.</span></span><span class="sig-name descname"><span class="pre">gp_2d_sum_kappa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">training_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="data.html#searchep.data.Data" title="searchep.data.Data"><span class="pre">Data</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.gpr.gp_2d_sum_kappa" title="Permalink to this definition">#</a></dt>
-<dd><p>2D gaussian process model for eigenvalue sum with respect to kappa</p>
-<p>GPflow is used to make a prediction model for the eigenvalue (ev) sum with respect to kappa.
-Due to complex kappa- and eigenvalues it is a 2D on 2D model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>training_data</strong> (<a class="reference internal" href="data.html#searchep.data.Data" title="searchep.data.Data"><em>data.Data</em></a>) – Class which contains all scale-, kappa- and eigenvalues</p></li>
-<li><p><strong>ev</strong> (<em>#</em>) – </p></li>
-<li><p><strong>EP</strong> (<em>#     2D complex array which contains the two eigenvalues belonging to the</em>) – </p></li>
-<li><p><strong>kappa</strong> (<em>#</em>) – </p></li>
-<li><p><strong>values</strong> (<em>#     1D array which contains the complex kappa</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Returns a 2D GPR model for the complex eigenvalue sum with respect to kappa and a 1D array which
-contains the kernel eigenvalues of the input space.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>(gpflow.models.GPR, np.ndarray)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="searchep.gpr.gp_create_matern52_model">
-<span class="sig-prename descclassname"><span class="pre">searchep.gpr.</span></span><span class="sig-name descname"><span class="pre">gp_create_matern52_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kappa</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="data.html#searchep.data.Data" title="searchep.data.Data"><span class="pre">Data</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.gpr.gp_create_matern52_model" title="Permalink to this definition">#</a></dt>
-<dd><p>2D gaussian process model with matern52 kernel</p>
-<p>GPflow is used to make a 2D prediction model with the matern52 kernel.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>kappa</strong> (<em>np.ndarray</em>) – 2D array which contains the real and the imaginary part of all kappa values</p></li>
-<li><p><strong>validation_data</strong> (<em>np.ndarray</em>) – 2D array which contains usually the real and imaginary part of the validation data</p></li>
-<li><p><strong>training_data</strong> (<a class="reference internal" href="data.html#searchep.data.Data" title="searchep.data.Data"><em>data.Data</em></a>) – Class which contains all scale-, kappa- and eigenvalues</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Returns a 2D GPR model created with the matern52 kernel and a 1D array which
-contains the kernel eigenvalues of the input space.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>(gpflow.models.GPR, np.ndarray)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="searchep.gpr.gp_create_rbf_model">
-<span class="sig-prename descclassname"><span class="pre">searchep.gpr.</span></span><span class="sig-name descname"><span class="pre">gp_create_rbf_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kappa</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="data.html#searchep.data.Data" title="searchep.data.Data"><span class="pre">Data</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.gpr.gp_create_rbf_model" title="Permalink to this definition">#</a></dt>
-<dd><p>2D gaussian process model with rbf kernel</p>
-<p>GPflow is used to make a 2D prediction model with the rbf kernel.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>kappa</strong> (<em>np.ndarray</em>) – 2D array which contains the real and the imaginary part of all kappa values</p></li>
-<li><p><strong>validation_data</strong> (<em>np.ndarray</em>) – 2D array which contains usually the real and imaginary part of the validation data</p></li>
-<li><p><strong>training_data</strong> (<a class="reference internal" href="data.html#searchep.data.Data" title="searchep.data.Data"><em>data.Data</em></a>) – Class which contains all scale-, kappa- and eigenvalues</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Returns a 2D GPR model created with the rbf kernel and a 1D array which
-contains the kernel eigenvalues of the input space.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>(gpflow.models.GPR, np.ndarray)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="searchep.gpr.gp_diff_angle">
-<span class="sig-prename descclassname"><span class="pre">searchep.gpr.</span></span><span class="sig-name descname"><span class="pre">gp_diff_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.gpr.gp_diff_angle" title="Permalink to this definition">#</a></dt>
-<dd><p>Gaussian process model for eigenvalue difference with respect to the angle</p>
-<p>GPflow is used to make a prediction model for the eigenvalue (ev) difference with respect to the angle (phi).
-Due to complex eigenvalues there are two models. One for the real and one for the imaginary part.
-Only works for 2D matrix.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ev</strong> (<em>np.ndarray</em>) – 2D complex array which contains the eigenvalues of the 2D matrix</p></li>
-<li><p><strong>phi</strong> (<em>np.ndarray</em>) – 1D array which contains the related angles</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Returns two GPR models. One GPR model for the real part of the eigenvalue difference and one GPR model for the
-imaginary part of the eigenvalue difference</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>(gpflow.models.GPR, gpflow.models.GPR)</p>
-</dd>
-</dl>
-</dd></dl>
-
+          <section id="searchep-gpr">
+<h1>searchep.gpr<a class="headerlink" href="#searchep-gpr" title="Link to this heading">#</a></h1>
 </section>
 
         </article>
@@ -371,38 +248,15 @@ imaginary part of the eigenvalue difference</p>
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">searchep.gpr</a><ul>
-<li><a class="reference internal" href="#searchep.gpr.gp_2d_diff_kappa"><code class="docutils literal notranslate"><span class="pre">gp_2d_diff_kappa()</span></code></a></li>
-<li><a class="reference internal" href="#searchep.gpr.gp_2d_sum_kappa"><code class="docutils literal notranslate"><span class="pre">gp_2d_sum_kappa()</span></code></a></li>
-<li><a class="reference internal" href="#searchep.gpr.gp_create_matern52_model"><code class="docutils literal notranslate"><span class="pre">gp_create_matern52_model()</span></code></a></li>
-<li><a class="reference internal" href="#searchep.gpr.gp_create_rbf_model"><code class="docutils literal notranslate"><span class="pre">gp_create_rbf_model()</span></code></a></li>
-<li><a class="reference internal" href="#searchep.gpr.gp_diff_angle"><code class="docutils literal notranslate"><span class="pre">gp_diff_angle()</span></code></a></li>
-</ul>
-</li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>
   </div>
-</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=dca6b923"></script>
+</div><script src="../_static/documentation_options.js?v=a4664895"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     </body>

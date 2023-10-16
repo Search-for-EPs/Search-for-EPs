@@ -1,16 +1,16 @@
 <!doctype html>
-<html class="no-js" lang="en">
+<html class="no-js" lang="en" data-content_root="../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Code" href="code.html" /><link rel="prev" title="Installation" href="installation.html" />
 
-    <!-- Generated with Sphinx 7.1.0 and Furo 2023.05.20 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
         <title>User Guide - Search-for-EPs 2023 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=362ab14a" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=e3ce10f9" />
     
     
@@ -203,11 +203,11 @@
         </div>
         <article role="main">
           <section id="User-Guide">
-<h1>User Guide<a class="headerlink" href="#User-Guide" title="Permalink to this heading">#</a></h1>
+<h1>User Guide<a class="headerlink" href="#User-Guide" title="Link to this heading">#</a></h1>
 <p>This section will give a short overview of the package.</p>
 <p>This package was developed during a master thesis. It is primarily tailored to address the specific challenges and requirements encountered in this study, as well as being compatible with other software utilized in this thesis. Nonetheless, certain functions within the package can be applied to other problem domains as well, e.g. the stepwise grouping algorithm.</p>
 <section id="Importing-the-Package">
-<h2>Importing the Package<a class="headerlink" href="#Importing-the-Package" title="Permalink to this heading">#</a></h2>
+<h2>Importing the Package<a class="headerlink" href="#Importing-the-Package" title="Link to this heading">#</a></h2>
 <p>The package can be imported as shown below. To try some functionalities <code class="docutils literal notranslate"><span class="pre">numpy</span></code> is loaded as well as <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> for visualization. The occuring warning depends on your computer and whether you want to use and have access to a GPU. However, in most cases it can be ignored.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -229,7 +229,7 @@ import matplotlib.pyplot as plt
 </div>
 </section>
 <section id="Using-the-Stepwise-Grouping-Algorithm">
-<h2>Using the Stepwise Grouping Algorithm<a class="headerlink" href="#Using-the-Stepwise-Grouping-Algorithm" title="Permalink to this heading">#</a></h2>
+<h2>Using the Stepwise Grouping Algorithm<a class="headerlink" href="#Using-the-Stepwise-Grouping-Algorithm" title="Link to this heading">#</a></h2>
 <p>Imagine a Hamiltonian with several eigenvalues and eigenvectors for a diagonalization. If this Hamiltonian depends on an angle, for example, it might be useful to group the eigenvalues and eigenvectors for each angle to trace their progression as a function of the angle. The stepwise grouping algorithm provides a straightforward way to do this. It can be used for every dataset which is obtained step by step.</p>
 <p>To visualize its behavior, two examples are constructed. The first one consists of four straight lines and the second one of 4 ellipses.</p>
 <div class="nbinput docutils container">
@@ -469,9 +469,9 @@ print(vec1)
       
     </aside>
   </div>
-</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=dca6b923"></script>
+</div><script src="../_static/documentation_options.js?v=a4664895"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>

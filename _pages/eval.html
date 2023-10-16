@@ -1,15 +1,15 @@
 <!doctype html>
-<html class="no-js" lang="en">
+<html class="no-js" lang="en" data-content_root="../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="searchep.data" href="data.html" /><link rel="prev" title="Code" href="code.html" />
 
-    <!-- Generated with Sphinx 7.1.0 and Furo 2023.05.20 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
         <title>searchep.eval - Search-for-EPs 2023 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=362ab14a" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=e3ce10f9" />
     
     
@@ -135,7 +135,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -195,76 +195,14 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
-          <section id="module-searchep.eval">
-<span id="searchep-eval"></span><h1>searchep.eval<a class="headerlink" href="#module-searchep.eval" title="Permalink to this heading">#</a></h1>
-<p>Quick evaluation of trained models and new calculations</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="searchep.eval.data_kappa_ev_ts_file">
-<span class="sig-prename descclassname"><span class="pre">searchep.eval.</span></span><span class="sig-name descname"><span class="pre">data_kappa_ev_ts_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="data.html#searchep.data.Data" title="searchep.data.Data"><span class="pre">Data</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.eval.data_kappa_ev_ts_file" title="Permalink to this definition">#</a></dt>
-<dd><p>Kappa-, eigenvalues and training steps are written to a csv file</p>
-<p>Only the eigenvalues belonging to the EP are written to the csv. Usually used at the end of training to facilitate
-access to data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> (<em>str</em>) – Name of the crated csv file</p></li>
-<li><p><strong>training_data</strong> (<a class="reference internal" href="data.html#searchep.data.Data" title="searchep.data.Data"><em>data.Data</em></a>) – Data class which contains all relevant values</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="searchep.eval.eigenvalue_space_plotly">
-<span class="sig-prename descclassname"><span class="pre">searchep.eval.</span></span><span class="sig-name descname"><span class="pre">eigenvalue_space_plotly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.eval.eigenvalue_space_plotly" title="Permalink to this definition">#</a></dt>
-<dd><p>Plotly plot of the energy / eigenvalue space</p>
-<p>Reads an output file to get the kappa-, eigen-, and phi-values. Plot is used to identify exchange behavior of the
-eigenvalues which belong to an EP.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Name of the output file to be read</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="searchep.eval.kappa_space_training_plotly">
-<span class="sig-prename descclassname"><span class="pre">searchep.eval.</span></span><span class="sig-name descname"><span class="pre">kappa_space_training_plotly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="data.html#searchep.data.Data" title="searchep.data.Data"><span class="pre">Data</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.eval.kappa_space_training_plotly" title="Permalink to this definition">#</a></dt>
-<dd><p>Plotly plot of trained kappa space</p>
-<p>Creates a html file in which the plot is saved. Usually used at the end of the training to instantly evaluate the
-results.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> (<em>str</em>) – Name of the created html file</p></li>
-<li><p><strong>training_data</strong> (<a class="reference internal" href="data.html#searchep.data.Data" title="searchep.data.Data"><em>data.Data</em></a>) – Data class which contains all relevant values</p></li>
-<li><p><strong>show</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, the plot is displayed</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="searchep.eval.write_new_dataset">
-<span class="sig-prename descclassname"><span class="pre">searchep.eval.</span></span><span class="sig-name descname"><span class="pre">write_new_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="data.html#searchep.data.Data" title="searchep.data.Data"><span class="pre">Data</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#searchep.eval.write_new_dataset" title="Permalink to this definition">#</a></dt>
-<dd><p>Writes kappa-, eigen- and phi-values to a new csv file</p>
-<p>Usually used after the initial_dataset function to save the obtained eigenvalues belonging to the EP.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> (<em>str</em>) – Name of the created csv file</p></li>
-<li><p><strong>init_data</strong> (<a class="reference internal" href="data.html#searchep.data.Data" title="searchep.data.Data"><em>data.Data</em></a>) – Data class which contains all relevant values</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
+          <section id="searchep-eval">
+<h1>searchep.eval<a class="headerlink" href="#searchep-eval" title="Link to this heading">#</a></h1>
 </section>
 
         </article>
@@ -310,37 +248,15 @@ results.</p>
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">searchep.eval</a><ul>
-<li><a class="reference internal" href="#searchep.eval.data_kappa_ev_ts_file"><code class="docutils literal notranslate"><span class="pre">data_kappa_ev_ts_file()</span></code></a></li>
-<li><a class="reference internal" href="#searchep.eval.eigenvalue_space_plotly"><code class="docutils literal notranslate"><span class="pre">eigenvalue_space_plotly()</span></code></a></li>
-<li><a class="reference internal" href="#searchep.eval.kappa_space_training_plotly"><code class="docutils literal notranslate"><span class="pre">kappa_space_training_plotly()</span></code></a></li>
-<li><a class="reference internal" href="#searchep.eval.write_new_dataset"><code class="docutils literal notranslate"><span class="pre">write_new_dataset()</span></code></a></li>
-</ul>
-</li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>
   </div>
-</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=dca6b923"></script>
+</div><script src="../_static/documentation_options.js?v=a4664895"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     </body>
