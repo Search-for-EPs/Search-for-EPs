@@ -78,7 +78,7 @@ def energy_plane_5d_model2():
     phi_all = np.sort(np.array([phi.copy() for _ in range(np.shape(ev_new)[1])]).ravel())
     ep = ep_two_close
     fig, axes = confmp.newfig(nrows=1, ncols=1, left=32, right=44, bottom=31)
-    im = axes.scatter(ev_new.real, ev_new.imag, c=phi_all, cmap='plasma', marker='o', s=2)
+    im = axes.scatter(ev_new.real, ev_new.imag, c=phi_all, cmap='plasma', marker='o', s=8)
     axes.set_xlabel("Re($\lambda$)")
     axes.set_ylabel("Im($\lambda$)")
     # axes.set_yticks([-1, -0.5, 0, 0.5])
@@ -94,7 +94,7 @@ def energy_plane_5d_model2():
     width *= rect[2]
     height *= rect[3]
     subax = fig.add_axes([x, y, width, height])
-    subax.scatter(kappa.real, kappa.imag, marker='o', s=2, c=phi, cmap='plasma')
+    subax.scatter(kappa.real, kappa.imag, marker='o', s=8, c=phi, cmap='plasma')
     subax.scatter(ep.real, ep.imag, marker='x', s=6, lw=0.5, c='tab:green', label="EP")
     subax.set_ylabel("Im($\kappa$)", labelpad=1.5, size=(10) * rect[3] ** 0.5)
     subax.set_xlabel("Re($\kappa$)", labelpad=1.5, size=(10) * rect[2] ** 0.5)
@@ -111,7 +111,7 @@ def energy_plane_5d_model2():
     cbar.set_label("$\\phi$")
     cbar.ax.set_yticks([0, np.pi / 2, np.pi, 3 * np.pi / 2])
     cbar.ax.set_yticklabels(["$0$", "$\\frac{\\pi}{2}$", "$\\pi$", "$\\frac{3\\pi}{2}$"])
-    fig.savefig("../../../ITP1/paper/ep_paper/plots/plots/EPexample5d_energy_model2.pdf")
+    fig.savefig("../../../ITP1/paper/ep_paper/iop_style/plots/plots/EPexample5d_energy_model2_1.pdf")
 
 
 def energy_plane_5d_model2_presentation():
